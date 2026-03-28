@@ -17,8 +17,7 @@
 #   BANKNOTE_MAX_DIST_MM = 500mm
 #   Requires BANKNOTE_STABILITY_FRAMES consecutive detections
 # =============================================================================
-
-
+from fontTools.varLib.mutator import half
 # =============================================================================
 # IMPORTS
 # =============================================================================
@@ -296,6 +295,7 @@ class BanknoteDetector:
                 conf    = BANKNOTE_CONFIDENCE_THRESHOLD,
                 imgsz   = 320,
                 device  = self._device,
+                half = True
             )
 
             result = results[0]
