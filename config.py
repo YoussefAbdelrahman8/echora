@@ -28,7 +28,25 @@ from pathlib import Path
 # Every other path in the project is built on top of this.
 BASE_DIR = Path(__file__).parent
 
+# =============================================================================
+# FACE RECOGNITION SETTINGS
+# =============================================================================
 
+# Path to the face embeddings database folder.
+FACE_DB_PATH = BASE_DIR / "database" / "faces"
+
+# Minimum face detection confidence to trigger FACE_ID mode.
+# 0.3 = a reasonably visible face.
+FACE_CONFIDENCE_THRESHOLD = 0.3
+
+# How many consecutive frames the same name must appear before announcing.
+FACE_STABILITY_FRAMES = 3
+
+# Maximum distance between embeddings to count as a match.
+# 0.5 is the recommended default from the face_recognition library.
+# Lower = stricter (fewer false positives).
+# Higher = looser (better for glasses, hats, different lighting).
+FACE_RECOGNITION_TOLERANCE = 0.5
 # =============================================================================
 # 3. CAMERA SETTINGS
 # =============================================================================
@@ -316,16 +334,6 @@ OCR_TRIGGER_DIST_MM = 2000
 # =============================================================================
 # 12. FACE RECOGNITION SETTINGS
 # =============================================================================
-
-# Path to the face database file (will be created automatically if missing).
-FACE_DB_PATH = BASE_DIR / "database" / "faces.db"
-
-# Minimum face detection confidence to attempt recognition.
-FACE_CONFIDENCE_THRESHOLD = 0.75
-
-# How similar two face embeddings must be to count as the same person.
-# Lower = stricter matching. 0.6 is a commonly used threshold.
-FACE_MATCH_THRESHOLD = 0.6
 
 
 # =============================================================================

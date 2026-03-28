@@ -2841,3 +2841,17 @@ Invoked with: <depthai.node.Sync object at 0x000002580319EB30>, 200
 2026-03-28 14:30:14 � INFO � InteractionDetector released.
 2026-03-28 14:30:14 � INFO � Releasing camera resources...
 2026-03-28 14:30:14 � INFO � IMU reader thread stopped.
+2026-03-28 14:38:29 — INFO — Database created. Call init_db() to open.
+2026-03-28 14:38:29 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces.db/echora.db
+2026-03-28 14:38:29 — INFO — Database opened successfully.
+2026-03-28 14:38:29 — INFO —   Registered persons: 0
+2026-03-28 14:38:30 — INFO — Person saved: Ahmed
+2026-03-28 14:38:30 — INFO — Person saved: Sara
+2026-03-28 14:38:30 — INFO — Person deleted: Sara
+2026-03-28 14:38:30 — INFO — Person deleted: Ahmed
+2026-03-28 14:38:30 — INFO — Database closed.
+2026-03-28 14:46:15 — INFO — Database created. Call init_db() to open.
+2026-03-28 14:46:15 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-28 14:46:15 — INFO — Database opened successfully.
+2026-03-28 14:46:15 — INFO —   Registered persons: 0
+2026-03-28 14:46:15 — INFO — Module-level database ready.
