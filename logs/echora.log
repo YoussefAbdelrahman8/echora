@@ -1,0 +1,1012 @@
+2026-03-28 05:59:30 — INFO — EchoraCamera object created. Call init_pipeline() to start.
+2026-03-28 05:59:30 — INFO — Initialising camera pipeline...
+2026-03-28 06:05:02 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 06:05:02 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 06:05:04 — INFO — Starting OAK-D Lite device...
+2026-03-28 06:05:04 — INFO — Device started successfully.
+2026-03-28 06:05:04 — INFO — Kalman filter initialised.
+2026-03-28 06:05:04 — INFO — IMU reader thread started.
+2026-03-28 06:05:04 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 06:05:26 — INFO — Releasing camera resources...
+2026-03-28 06:05:26 — INFO — IMU reader thread stopped.
+2026-03-28 06:05:27 — INFO — Camera released cleanly.
+2026-03-28 06:11:25 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 06:11:25 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 06:11:27 — INFO — Starting OAK-D Lite device...
+2026-03-28 06:11:27 — INFO — Device started successfully.
+2026-03-28 06:11:27 — INFO — Kalman filter initialised.
+2026-03-28 06:11:27 — INFO — IMU reader thread started.
+2026-03-28 06:11:27 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 06:11:56 — INFO — Releasing camera resources...
+2026-03-28 06:11:56 — INFO — IMU reader thread stopped.
+2026-03-28 06:11:57 — INFO — Camera released cleanly.
+2026-03-28 06:17:49 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 06:17:49 — DEBUG — Track created: person_001 (person) at bbox=(100, 100, 200, 300)
+2026-03-28 06:17:49 — DEBUG — Track created: chair_002 (chair) at bbox=(500, 200, 650, 400)
+2026-03-28 06:17:49 — DEBUG — Track confirmed: chair_002 (chair)
+2026-03-28 06:17:49 — DEBUG — Track confirmed: person_001 (person)
+2026-03-28 06:17:49 — DEBUG — Track lost: person_001 (person), missed=1
+2026-03-28 06:17:49 — DEBUG — Track recovered: person_001 (person)
+2026-03-28 06:17:49 — INFO — KalmanTracker reset. Cleared 2 tracks.
+2026-03-28 06:28:28 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 06:28:28 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 06:28:30 — INFO — Starting OAK-D Lite device...
+2026-03-28 06:28:30 — INFO — Device started successfully.
+2026-03-28 06:28:30 — INFO — Kalman filter initialised.
+2026-03-28 06:28:30 — INFO — IMU reader thread started.
+2026-03-28 06:28:30 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 06:28:30 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 06:28:30 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 06:28:30 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 06:28:30 — INFO — YOLO model loaded successfully.
+2026-03-28 06:28:30 — INFO — Model classes: 80 total
+2026-03-28 06:28:30 — WARNING — ollama not installed. VLM scene understanding disabled.
+Install with: pip install ollama
+Then pull the model: ollama pull llava
+Core obstacle detection will still work normally.
+2026-03-28 06:28:30 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:30 — DEBUG — Track created: person_001 (person) at bbox=(279, 212, 1260, 794)
+2026-03-28 06:28:30 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:30 — DEBUG — Track confirmed: person_001 (person)
+2026-03-28 06:28:31 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:31 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:31 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:31 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:32 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:32 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:32 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:32 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:33 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:34 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:35 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:35 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:35 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:36 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:37 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:38 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:40 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:40 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:41 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:42 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:42 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:42 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:43 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:44 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:46 — DEBUG — Filtered out irrelevant class: refrigerator
+2026-03-28 06:28:46 — DEBUG — Filtering: 1 raw → 0 kept
+2026-03-28 06:28:46 — DEBUG — Track lost: person_001 (person), missed=1
+2026-03-28 06:28:46 — DEBUG — Filtered out irrelevant class: refrigerator
+2026-03-28 06:28:46 — DEBUG — Filtering: 1 raw → 0 kept
+2026-03-28 06:28:50 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:50 — DEBUG — Track created: book_002 (book) at bbox=(828, 650, 1000, 756)
+2026-03-28 06:28:52 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:52 — DEBUG — Track created: bed_003 (bed) at bbox=(17, 416, 1012, 790)
+2026-03-28 06:28:53 — DEBUG — Track deleted: person_001 (person)
+2026-03-28 06:28:53 — DEBUG — Removed 1 deleted tracks. Active tracks: 2
+2026-03-28 06:28:55 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:55 — DEBUG — Track confirmed: bed_003 (bed)
+2026-03-28 06:28:55 — DEBUG — Filtering: 2 raw → 2 kept
+2026-03-28 06:28:55 — DEBUG — Track created: bed_004 (bed) at bbox=(0, 199, 480, 792)
+2026-03-28 06:28:56 — DEBUG — Filtering: 2 raw → 2 kept
+2026-03-28 06:28:56 — DEBUG — Track confirmed: bed_004 (bed)
+2026-03-28 06:28:57 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:57 — DEBUG — Track lost: bed_004 (bed), missed=1
+2026-03-28 06:28:58 — DEBUG — Filtering: 2 raw → 2 kept
+2026-03-28 06:28:58 — DEBUG — Track recovered: bed_004 (bed)
+2026-03-28 06:28:58 — DEBUG — Track deleted: book_002 (book)
+2026-03-28 06:28:58 — DEBUG — Removed 1 deleted tracks. Active tracks: 2
+2026-03-28 06:28:59 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:28:59 — DEBUG — Track lost: bed_004 (bed), missed=1
+2026-03-28 06:28:59 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:29:00 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:29:01 — DEBUG — Track lost: bed_003 (bed), missed=1
+2026-03-28 06:29:02 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:29:02 — DEBUG — Track created: person_005 (person) at bbox=(550, 342, 1227, 800)
+2026-03-28 06:29:04 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:29:04 — DEBUG — Track confirmed: person_005 (person)
+2026-03-28 06:29:04 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:29:06 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:29:06 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:29:06 — DEBUG — Track deleted: bed_004 (bed)
+2026-03-28 06:29:06 — DEBUG — Removed 1 deleted tracks. Active tracks: 2
+2026-03-28 06:29:08 — DEBUG — Filtering: 1 raw → 1 kept
+2026-03-28 06:29:08 — INFO — Releasing camera resources...
+2026-03-28 06:29:08 — INFO — IMU reader thread stopped.
+2026-03-28 06:29:09 — INFO — Camera released cleanly.
+2026-03-28 06:38:18 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 06:38:18 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 06:38:18 — WARNING — Emergency override: chair at 500mm is in DANGER zone.
+2026-03-28 06:38:18 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 06:38:18 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 06:38:18 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 06:43:28 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 06:43:28 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 06:43:28 — WARNING — Emergency override: chair at 500mm is in DANGER zone.
+2026-03-28 06:43:28 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 06:43:28 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 06:43:28 — INFO — Mode switch: NAVIGATION → FACE_ID (transition from NAVIGATION)
+2026-03-28 06:53:03 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 06:53:03 — INFO — Initialising audio system...
+2026-03-28 06:53:03 — INFO — pygame mixer initialised.
+2026-03-28 06:53:03 — INFO — Generated danger tone (880Hz).
+2026-03-28 06:53:03 — INFO — Generated warning tone (440Hz).
+2026-03-28 06:53:03 — INFO — Generated chime tone (523Hz).
+2026-03-28 06:53:04 — INFO — TTS engine initialised.
+2026-03-28 06:53:04 — INFO — Selected TTS voice: Karen
+2026-03-28 06:53:04 — INFO — Speech worker thread running.
+2026-03-28 06:53:04 — INFO — Speech worker thread started.
+2026-03-28 06:53:04 — INFO — Audio system ready.
+2026-03-28 06:53:29 — INFO — Releasing audio resources...
+2026-03-28 06:53:29 — INFO — Speech worker thread stopped.
+2026-03-28 06:53:29 — INFO — Audio released cleanly.
+2026-03-28 07:01:33 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 07:01:33 — INFO — ============================================================
+2026-03-28 07:01:33 — INFO — ECHORA Control Unit starting up...
+2026-03-28 07:01:33 — INFO — ============================================================
+2026-03-28 07:01:33 — INFO — Step 1/5: Starting camera...
+2026-03-28 07:01:33 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 07:01:33 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 07:01:35 — INFO — Starting OAK-D Lite device...
+2026-03-28 07:01:35 — INFO — Device started successfully.
+2026-03-28 07:01:35 — INFO — Kalman filter initialised.
+2026-03-28 07:01:35 — INFO — IMU reader thread started.
+2026-03-28 07:01:35 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 07:01:35 — INFO — Camera ready.
+2026-03-28 07:01:35 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 07:01:35 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 07:01:35 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 07:01:35 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 07:01:36 — INFO — YOLO model loaded successfully.
+2026-03-28 07:01:36 — INFO — Model classes: 80 total
+2026-03-28 07:01:36 — WARNING — ollama not installed. VLM scene understanding disabled.
+Install with: pip install ollama
+Then pull the model: ollama pull llava
+Core obstacle detection will still work normally.
+2026-03-28 07:01:36 — INFO — Obstacle detector ready.
+2026-03-28 07:01:36 — INFO — Step 3/5: Starting audio system...
+2026-03-28 07:01:36 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 07:01:36 — INFO — Initialising audio system...
+2026-03-28 07:01:36 — INFO — pygame mixer initialised.
+2026-03-28 07:01:36 — INFO — Generated danger tone (880Hz).
+2026-03-28 07:01:36 — INFO — Generated warning tone (440Hz).
+2026-03-28 07:01:36 — INFO — Generated chime tone (523Hz).
+2026-03-28 07:01:36 — INFO — TTS engine initialised.
+2026-03-28 07:01:36 — INFO — Selected TTS voice: Karen
+2026-03-28 07:01:36 — INFO — Speech worker thread running.
+2026-03-28 07:01:36 — INFO — Speech worker thread started.
+2026-03-28 07:01:36 — INFO — Audio system ready.
+2026-03-28 07:01:36 — INFO — Audio ready.
+2026-03-28 07:01:36 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 07:01:36 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 07:01:36 — INFO — State machine ready.
+2026-03-28 07:01:36 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 07:01:36 — INFO — Callbacks registered.
+2026-03-28 07:01:37 — INFO — ============================================================
+2026-03-28 07:01:37 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 07:01:37 — INFO — ============================================================
+2026-03-28 07:01:37 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 07:01:56 — INFO — Performance | Frame 30 | FPS: 34.5 | Avg: 29.0ms | Slow frames: 1 | Uptime: 23s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 07:02:17 — INFO — Performance | Frame 60 | FPS: 37.4 | Avg: 26.8ms | Slow frames: 1 | Uptime: 44s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 07:02:37 — INFO — Performance | Frame 90 | FPS: 37.5 | Avg: 26.7ms | Slow frames: 1 | Uptime: 63s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 07:02:56 — INFO — Q key pressed — exiting main loop.
+2026-03-28 07:02:56 — INFO — Shutting down ECHORA...
+2026-03-28 07:02:58 — INFO — Releasing audio resources...
+2026-03-28 07:02:58 — INFO — Speech worker thread stopped.
+2026-03-28 07:02:58 — INFO — Audio released cleanly.
+2026-03-28 07:02:58 — INFO — Releasing camera resources...
+2026-03-28 07:02:58 — INFO — IMU reader thread stopped.
+2026-03-28 07:02:59 — INFO — Camera released cleanly.
+2026-03-28 07:02:59 — INFO — ECHORA stopped. Frames: 112 | Uptime: 85.8s | Slow frames: 1
+2026-03-28 07:02:59 — INFO — Shutdown complete.
+2026-03-28 07:03:36 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 07:03:36 — INFO — ============================================================
+2026-03-28 07:03:36 — INFO — ECHORA Control Unit starting up...
+2026-03-28 07:03:36 — INFO — ============================================================
+2026-03-28 07:03:36 — INFO — Step 1/5: Starting camera...
+2026-03-28 07:03:36 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 07:03:36 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 07:03:38 — INFO — Starting OAK-D Lite device...
+2026-03-28 07:03:38 — INFO — Device started successfully.
+2026-03-28 07:03:38 — INFO — Kalman filter initialised.
+2026-03-28 07:03:38 — INFO — IMU reader thread started.
+2026-03-28 07:03:38 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 07:03:38 — INFO — Camera ready.
+2026-03-28 07:03:38 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 07:03:38 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 07:03:38 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 07:03:38 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 07:03:38 — INFO — YOLO model loaded successfully.
+2026-03-28 07:03:38 — INFO — Model classes: 80 total
+2026-03-28 07:03:38 — WARNING — ollama not installed. VLM scene understanding disabled.
+Install with: pip install ollama
+Then pull the model: ollama pull llava
+Core obstacle detection will still work normally.
+2026-03-28 07:03:38 — INFO — Obstacle detector ready.
+2026-03-28 07:03:38 — INFO — Step 3/5: Starting audio system...
+2026-03-28 07:03:38 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 07:03:38 — INFO — Initialising audio system...
+2026-03-28 07:03:38 — INFO — pygame mixer initialised.
+2026-03-28 07:03:38 — INFO — Generated danger tone (880Hz).
+2026-03-28 07:03:38 — INFO — Generated warning tone (440Hz).
+2026-03-28 07:03:38 — INFO — Generated chime tone (523Hz).
+2026-03-28 07:03:39 — INFO — TTS engine initialised.
+2026-03-28 07:03:39 — INFO — Selected TTS voice: Karen
+2026-03-28 07:03:39 — INFO — Speech worker thread running.
+2026-03-28 07:03:39 — INFO — Speech worker thread started.
+2026-03-28 07:03:39 — INFO — Audio system ready.
+2026-03-28 07:03:39 — INFO — Audio ready.
+2026-03-28 07:03:39 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 07:03:39 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 07:03:39 — INFO — State machine ready.
+2026-03-28 07:03:39 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 07:03:39 — INFO — Callbacks registered.
+2026-03-28 07:03:39 — INFO — ============================================================
+2026-03-28 07:03:39 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 07:03:39 — INFO — ============================================================
+2026-03-28 07:03:39 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 07:04:00 — INFO — Performance | Frame 30 | FPS: 36.2 | Avg: 27.6ms | Slow frames: 1 | Uptime: 24s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 07:04:04 — INFO — Q key pressed — exiting main loop.
+2026-03-28 07:04:04 — INFO — Shutting down ECHORA...
+2026-03-28 07:04:06 — INFO — Releasing audio resources...
+2026-03-28 07:04:06 — INFO — Speech worker thread stopped.
+2026-03-28 07:04:06 — INFO — Audio released cleanly.
+2026-03-28 07:04:06 — INFO — Releasing camera resources...
+2026-03-28 07:04:06 — INFO — IMU reader thread stopped.
+2026-03-28 07:04:07 — INFO — Camera released cleanly.
+2026-03-28 07:04:07 — INFO — ECHORA stopped. Frames: 38 | Uptime: 30.8s | Slow frames: 1
+2026-03-28 07:04:07 — INFO — Shutdown complete.
+2026-03-28 07:14:23 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 07:14:23 — INFO — ============================================================
+2026-03-28 07:14:23 — INFO — ECHORA Control Unit starting up...
+2026-03-28 07:14:23 — INFO — ============================================================
+2026-03-28 07:14:23 — INFO — Step 1/5: Starting camera...
+2026-03-28 07:14:23 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 07:14:23 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 07:14:25 — INFO — Starting OAK-D Lite device...
+2026-03-28 07:14:25 — INFO — Device started successfully.
+2026-03-28 07:14:25 — INFO — Kalman filter initialised.
+2026-03-28 07:14:25 — INFO — IMU reader thread started.
+2026-03-28 07:14:25 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 07:14:25 — INFO — Camera ready.
+2026-03-28 07:14:25 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 07:14:25 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 07:14:25 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 07:14:25 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 07:14:25 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 07:14:25 — INFO — YOLO model loaded successfully.
+2026-03-28 07:14:25 — INFO — Model classes: 80 total
+2026-03-28 07:14:25 — INFO — Obstacle detector ready.
+2026-03-28 07:14:25 — INFO — Step 3/5: Starting audio system...
+2026-03-28 07:14:25 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 07:14:25 — INFO — Initialising audio system...
+2026-03-28 07:14:25 — INFO — pygame mixer initialised.
+2026-03-28 07:14:25 — INFO — Generated danger tone (880Hz).
+2026-03-28 07:14:25 — INFO — Generated warning tone (440Hz).
+2026-03-28 07:14:25 — INFO — Generated chime tone (523Hz).
+2026-03-28 07:14:25 — INFO — TTS engine initialised.
+2026-03-28 07:14:26 — INFO — Selected TTS voice: Karen
+2026-03-28 07:14:26 — INFO — Speech worker thread running.
+2026-03-28 07:14:26 — INFO — Speech worker thread started.
+2026-03-28 07:14:26 — INFO — Audio system ready.
+2026-03-28 07:14:26 — INFO — Audio ready.
+2026-03-28 07:14:26 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 07:14:26 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 07:14:26 — INFO — State machine ready.
+2026-03-28 07:14:26 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 07:14:26 — INFO — Callbacks registered.
+2026-03-28 07:14:26 — INFO — ============================================================
+2026-03-28 07:14:26 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 07:14:26 — INFO — ============================================================
+2026-03-28 07:14:26 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 07:14:48 — INFO — Performance | Frame 30 | FPS: 5.9 | Avg: 169.3ms | Slow frames: 3 | Uptime: 25s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 07:14:56 — INFO — Q key pressed — exiting main loop.
+2026-03-28 07:14:56 — INFO — Shutting down ECHORA...
+2026-03-28 07:14:58 — INFO — Releasing audio resources...
+2026-03-28 07:14:58 — INFO — Speech worker thread stopped.
+2026-03-28 07:14:58 — INFO — Audio released cleanly.
+2026-03-28 07:14:58 — INFO — Releasing camera resources...
+2026-03-28 07:14:58 — INFO — IMU reader thread stopped.
+2026-03-28 07:14:59 — INFO — Camera released cleanly.
+2026-03-28 07:14:59 — INFO — ECHORA stopped. Frames: 41 | Uptime: 36.6s | Slow frames: 4
+2026-03-28 07:14:59 — INFO — Shutdown complete.
+2026-03-28 07:35:39 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 07:35:39 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 07:35:39 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 07:35:39 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 07:35:39 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 07:35:39 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 07:35:41 — INFO — Starting OAK-D Lite device...
+2026-03-28 07:35:42 — INFO — Device started successfully.
+2026-03-28 07:35:42 — INFO — Kalman filter initialised.
+2026-03-28 07:35:42 — INFO — IMU reader thread started.
+2026-03-28 07:35:42 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 07:35:42 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 07:35:42 — ERROR — Failed to load MediaPipe: module 'mediapipe' has no attribute 'solutions'
+2026-03-28 07:35:42 — INFO — HapticBridge disconnected.
+2026-03-28 07:35:42 — INFO — InteractionDetector released.
+2026-03-28 07:35:42 — INFO — Releasing camera resources...
+2026-03-28 07:35:42 — INFO — IMU reader thread stopped.
+2026-03-28 07:35:42 — INFO — Camera released cleanly.
+2026-03-28 07:41:52 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 07:41:52 — INFO — ============================================================
+2026-03-28 07:41:52 — INFO — ECHORA Control Unit starting up...
+2026-03-28 07:41:52 — INFO — ============================================================
+2026-03-28 07:41:52 — INFO — Step 1/5: Starting camera...
+2026-03-28 07:41:52 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 07:41:52 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 07:41:54 — INFO — Starting OAK-D Lite device...
+2026-03-28 07:41:54 — INFO — Device started successfully.
+2026-03-28 07:41:54 — INFO — Kalman filter initialised.
+2026-03-28 07:41:54 — INFO — IMU reader thread started.
+2026-03-28 07:41:54 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 07:41:54 — INFO — Camera ready.
+2026-03-28 07:41:54 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 07:41:54 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 07:41:54 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 07:41:54 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 07:41:54 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 07:41:54 — INFO — YOLO model loaded successfully.
+2026-03-28 07:41:54 — INFO — Model classes: 80 total
+2026-03-28 07:41:54 — INFO — Obstacle detector ready.
+2026-03-28 07:41:54 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 07:41:54 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 07:41:54 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 07:41:54 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 07:41:54 — ERROR — Failed to load MediaPipe: module 'mediapipe' has no attribute 'solutions'
+2026-03-28 07:41:54 — ERROR — Fatal error: module 'mediapipe' has no attribute 'solutions'
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 1036, in <module>
+    cu.startup()
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 191, in startup
+    self._interaction_detector.load_model()
+  File "/Users/youssefabdelrahman/Coding/python/echora/interaction_detection.py", line 478, in load_model
+    self._mp_hands   = mp.solutions.hands
+AttributeError: module 'mediapipe' has no attribute 'solutions'
+2026-03-28 07:43:10 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 07:43:10 — INFO — ============================================================
+2026-03-28 07:43:10 — INFO — ECHORA Control Unit starting up...
+2026-03-28 07:43:10 — INFO — ============================================================
+2026-03-28 07:43:10 — INFO — Step 1/5: Starting camera...
+2026-03-28 07:43:10 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 07:43:10 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 07:43:11 — INFO — Starting OAK-D Lite device...
+2026-03-28 07:43:12 — INFO — Device started successfully.
+2026-03-28 07:43:12 — INFO — Kalman filter initialised.
+2026-03-28 07:43:12 — INFO — IMU reader thread started.
+2026-03-28 07:43:12 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 07:43:12 — INFO — Camera ready.
+2026-03-28 07:43:12 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 07:43:12 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 07:43:12 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 07:43:12 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 07:43:12 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 07:43:12 — INFO — YOLO model loaded successfully.
+2026-03-28 07:43:12 — INFO — Model classes: 80 total
+2026-03-28 07:43:12 — INFO — Obstacle detector ready.
+2026-03-28 07:43:12 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 07:43:12 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 07:43:12 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 07:43:12 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 07:43:12 — ERROR — Failed to load MediaPipe: module 'mediapipe' has no attribute 'solutions'
+2026-03-28 07:43:12 — ERROR — Fatal error: module 'mediapipe' has no attribute 'solutions'
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 1036, in <module>
+    cu.startup()
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 191, in startup
+    self._interaction_detector.load_model()
+  File "/Users/youssefabdelrahman/Coding/python/echora/interaction_detection.py", line 478, in load_model
+    self._mp_hands   = mp.solutions.hands
+AttributeError: module 'mediapipe' has no attribute 'solutions'
+2026-03-28 07:44:49 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 07:44:49 — INFO — ============================================================
+2026-03-28 07:44:49 — INFO — ECHORA Control Unit starting up...
+2026-03-28 07:44:49 — INFO — ============================================================
+2026-03-28 07:44:49 — INFO — Step 1/5: Starting camera...
+2026-03-28 07:44:49 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 07:44:49 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 07:44:51 — INFO — Starting OAK-D Lite device...
+2026-03-28 07:44:51 — INFO — Device started successfully.
+2026-03-28 07:44:51 — INFO — Kalman filter initialised.
+2026-03-28 07:44:51 — INFO — IMU reader thread started.
+2026-03-28 07:44:51 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 07:44:51 — INFO — Camera ready.
+2026-03-28 07:44:51 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 07:44:51 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 07:44:51 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 07:44:51 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 07:44:51 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 07:44:51 — INFO — YOLO model loaded successfully.
+2026-03-28 07:44:51 — INFO — Model classes: 80 total
+2026-03-28 07:44:51 — INFO — Obstacle detector ready.
+2026-03-28 07:44:51 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 07:44:51 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 07:44:51 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 07:44:51 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 07:44:51 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 07:44:51 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 07:44:51 — INFO — InteractionDetector ready.
+2026-03-28 07:44:51 — INFO — Step 3/5: Starting audio system...
+2026-03-28 07:44:51 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 07:44:51 — INFO — Initialising audio system...
+2026-03-28 07:44:51 — INFO — pygame mixer initialised.
+2026-03-28 07:44:51 — INFO — Generated danger tone (880Hz).
+2026-03-28 07:44:51 — INFO — Generated warning tone (440Hz).
+2026-03-28 07:44:51 — INFO — Generated chime tone (523Hz).
+2026-03-28 07:44:52 — INFO — TTS engine initialised.
+2026-03-28 07:44:52 — INFO — Selected TTS voice: Karen
+2026-03-28 07:44:52 — INFO — Speech worker thread running.
+2026-03-28 07:44:52 — INFO — Speech worker thread started.
+2026-03-28 07:44:52 — INFO — Audio system ready.
+2026-03-28 07:44:52 — INFO — Audio ready.
+2026-03-28 07:44:52 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 07:44:52 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 07:44:52 — INFO — State machine ready.
+2026-03-28 07:44:52 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 07:44:52 — INFO — Callbacks registered.
+2026-03-28 07:44:52 — INFO — ============================================================
+2026-03-28 07:44:52 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 07:44:52 — INFO — ============================================================
+2026-03-28 07:44:52 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 07:45:11 — INFO — Performance | Frame 30 | FPS: 25.9 | Avg: 38.6ms | Slow frames: 1 | Uptime: 22s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 07:45:38 — INFO — Performance | Frame 60 | FPS: 22.7 | Avg: 44.1ms | Slow frames: 3 | Uptime: 49s | Mode: NAVIGATION | Tracks: 2
+2026-03-28 07:47:59 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 07:47:59 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 07:47:59 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 07:47:59 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 07:47:59 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 07:47:59 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 07:48:01 — INFO — Starting OAK-D Lite device...
+2026-03-28 07:48:01 — INFO — Device started successfully.
+2026-03-28 07:48:01 — INFO — Kalman filter initialised.
+2026-03-28 07:48:01 — INFO — IMU reader thread started.
+2026-03-28 07:48:01 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 07:48:01 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 07:48:01 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 07:48:01 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 07:48:01 — INFO — InteractionDetector ready.
+2026-03-28 07:48:39 — INFO — HapticBridge disconnected.
+2026-03-28 07:48:39 — INFO — InteractionDetector released.
+2026-03-28 07:48:39 — INFO — Releasing camera resources...
+2026-03-28 07:48:39 — INFO — IMU reader thread stopped.
+2026-03-28 07:48:42 — INFO — Camera released cleanly.
+2026-03-28 07:57:57 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 07:57:57 — INFO — ============================================================
+2026-03-28 07:57:57 — INFO — ECHORA Control Unit starting up...
+2026-03-28 07:57:57 — INFO — ============================================================
+2026-03-28 07:57:57 — INFO — Step 1/5: Starting camera...
+2026-03-28 07:57:57 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 07:57:57 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 07:57:58 — INFO — Starting OAK-D Lite device...
+2026-03-28 07:57:59 — INFO — Device started successfully.
+2026-03-28 07:57:59 — INFO — Kalman filter initialised.
+2026-03-28 07:57:59 — INFO — IMU reader thread started.
+2026-03-28 07:57:59 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 07:57:59 — INFO — Camera ready.
+2026-03-28 07:57:59 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 07:57:59 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 07:57:59 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 07:57:59 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 07:57:59 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 07:57:59 — INFO — YOLO model loaded successfully.
+2026-03-28 07:57:59 — INFO — Model classes: 80 total
+2026-03-28 07:57:59 — INFO — Obstacle detector ready.
+2026-03-28 07:57:59 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 07:57:59 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 07:57:59 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 07:57:59 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 07:57:59 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 07:57:59 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 07:57:59 — INFO — InteractionDetector ready.
+2026-03-28 07:57:59 — INFO — Step 3/5: Starting audio system...
+2026-03-28 07:57:59 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 07:57:59 — INFO — Initialising audio system...
+2026-03-28 07:57:59 — INFO — pygame mixer initialised.
+2026-03-28 07:57:59 — INFO — Generated danger tone (880Hz).
+2026-03-28 07:57:59 — INFO — Generated warning tone (440Hz).
+2026-03-28 07:57:59 — INFO — Generated chime tone (523Hz).
+2026-03-28 07:57:59 — INFO — TTS engine initialised.
+2026-03-28 07:57:59 — INFO — Selected TTS voice: Karen
+2026-03-28 07:58:00 — INFO — Speech worker thread running.
+2026-03-28 07:58:00 — INFO — Speech worker thread started.
+2026-03-28 07:58:00 — INFO — Audio system ready.
+2026-03-28 07:58:00 — INFO — Audio ready.
+2026-03-28 07:58:00 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 07:58:00 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 07:58:00 — INFO — State machine ready.
+2026-03-28 07:58:00 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 07:58:00 — INFO — Callbacks registered.
+2026-03-28 07:58:00 — INFO — ============================================================
+2026-03-28 07:58:00 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 07:58:00 — INFO — ============================================================
+2026-03-28 07:58:00 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 07:58:22 — INFO — Performance | Frame 30 | FPS: 26.8 | Avg: 37.3ms | Slow frames: 1 | Uptime: 25s | Mode: NAVIGATION | Tracks: 3
+2026-03-28 07:58:25 — INFO — KalmanTracker reset. Cleared 3 tracks.
+2026-03-28 07:58:25 — INFO — Obstacle tracker reset.
+2026-03-28 07:58:25 — INFO — Mode switch: NAVIGATION → INTERACTION (transition from NAVIGATION)
+2026-03-28 07:58:25 — INFO — INTERACTION mode entered. Target: cup at 1076mm
+2026-03-28 07:58:25 — INFO — Active mode: NAVIGATION → INTERACTION
+2026-03-28 07:58:25 — ERROR — Frame processing error: 'ControlUnit' object has no attribute '_handle_interaction'
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 522, in _process_frame
+    self._handle_interaction(bundle, obstacle_result)
+AttributeError: 'ControlUnit' object has no attribute '_handle_interaction'
+2026-03-28 07:58:25 — ERROR — Frame processing error: 'ControlUnit' object has no attribute '_handle_interaction'
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 522, in _process_frame
+    self._handle_interaction(bundle, obstacle_result)
+AttributeError: 'ControlUnit' object has no attribute '_handle_interaction'
+2026-03-28 07:58:26 — WARNING — Emergency override: person at 705mm is in DANGER zone.
+2026-03-28 07:58:26 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from INTERACTION.
+2026-03-28 07:58:26 — INFO — Mode switch: INTERACTION → NAVIGATION (transition from INTERACTION)
+2026-03-28 07:58:26 — INFO — Active mode: INTERACTION → NAVIGATION
+2026-03-28 07:58:32 — INFO — KalmanTracker reset. Cleared 5 tracks.
+2026-03-28 07:58:32 — INFO — Obstacle tracker reset.
+2026-03-28 07:58:32 — INFO — Mode switch: NAVIGATION → INTERACTION (transition from NAVIGATION)
+2026-03-28 07:58:32 — INFO — INTERACTION mode entered. Target: cup at 1010mm
+2026-03-28 07:58:32 — INFO — Active mode: NAVIGATION → INTERACTION
+2026-03-28 07:58:32 — ERROR — Frame processing error: 'ControlUnit' object has no attribute '_handle_interaction'
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 522, in _process_frame
+    self._handle_interaction(bundle, obstacle_result)
+AttributeError: 'ControlUnit' object has no attribute '_handle_interaction'
+2026-03-28 07:58:34 — ERROR — Frame processing error: 'ControlUnit' object has no attribute '_handle_interaction'
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 522, in _process_frame
+    self._handle_interaction(bundle, obstacle_result)
+AttributeError: 'ControlUnit' object has no attribute '_handle_interaction'
+2026-03-28 07:58:34 — WARNING — Emergency override: cup at 721mm is in DANGER zone.
+2026-03-28 07:58:34 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from INTERACTION.
+2026-03-28 07:58:34 — INFO — Mode switch: INTERACTION → NAVIGATION (transition from INTERACTION)
+2026-03-28 07:58:34 — INFO — Active mode: INTERACTION → NAVIGATION
+2026-03-28 07:58:35 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-28 07:58:35 — INFO — Obstacle tracker reset.
+2026-03-28 07:58:35 — INFO — Mode switch: NAVIGATION → INTERACTION (transition from NAVIGATION)
+2026-03-28 07:58:35 — INFO — INTERACTION mode entered. Target: cup at 1206mm
+2026-03-28 07:58:35 — INFO — Active mode: NAVIGATION → INTERACTION
+2026-03-28 07:58:35 — ERROR — Frame processing error: 'ControlUnit' object has no attribute '_handle_interaction'
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 522, in _process_frame
+    self._handle_interaction(bundle, obstacle_result)
+AttributeError: 'ControlUnit' object has no attribute '_handle_interaction'
+2026-03-28 08:07:43 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 08:07:43 — INFO — ============================================================
+2026-03-28 08:07:43 — INFO — ECHORA Control Unit starting up...
+2026-03-28 08:07:43 — INFO — ============================================================
+2026-03-28 08:07:43 — INFO — Step 1/5: Starting camera...
+2026-03-28 08:07:43 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 08:07:43 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 08:07:44 — INFO — Starting OAK-D Lite device...
+2026-03-28 08:07:45 — INFO — Device started successfully.
+2026-03-28 08:07:45 — INFO — Kalman filter initialised.
+2026-03-28 08:07:45 — INFO — IMU reader thread started.
+2026-03-28 08:07:45 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 08:07:45 — INFO — Camera ready.
+2026-03-28 08:07:45 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 08:07:45 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 08:07:45 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 08:07:45 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 08:07:45 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 08:07:45 — INFO — YOLO model loaded successfully.
+2026-03-28 08:07:45 — INFO — Model classes: 80 total
+2026-03-28 08:07:45 — INFO — Obstacle detector ready.
+2026-03-28 08:07:45 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 08:07:45 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 08:07:45 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 08:07:45 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 08:07:45 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 08:07:45 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 08:07:45 — INFO — InteractionDetector ready.
+2026-03-28 08:07:45 — INFO — Step 3/5: Starting audio system...
+2026-03-28 08:07:45 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 08:07:45 — INFO — Initialising audio system...
+2026-03-28 08:07:45 — INFO — pygame mixer initialised.
+2026-03-28 08:07:45 — INFO — Generated danger tone (880Hz).
+2026-03-28 08:07:45 — INFO — Generated warning tone (440Hz).
+2026-03-28 08:07:45 — INFO — Generated chime tone (523Hz).
+2026-03-28 08:07:45 — INFO — TTS engine initialised.
+2026-03-28 08:07:45 — INFO — Selected TTS voice: Karen
+2026-03-28 08:07:45 — INFO — Speech worker thread running.
+2026-03-28 08:07:45 — INFO — Speech worker thread started.
+2026-03-28 08:07:45 — INFO — Audio system ready.
+2026-03-28 08:07:45 — INFO — Audio ready.
+2026-03-28 08:07:45 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 08:07:45 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 08:07:45 — INFO — State machine ready.
+2026-03-28 08:07:45 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 08:07:45 — INFO — Callbacks registered.
+2026-03-28 08:07:46 — INFO — ============================================================
+2026-03-28 08:07:46 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 08:07:46 — INFO — ============================================================
+2026-03-28 08:07:46 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 08:08:07 — INFO — Performance | Frame 30 | FPS: 24.9 | Avg: 40.1ms | Slow frames: 1 | Uptime: 24s | Mode: NAVIGATION | Tracks: 3
+2026-03-28 08:08:30 — INFO — Performance | Frame 60 | FPS: 33.1 | Avg: 30.2ms | Slow frames: 1 | Uptime: 47s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 08:08:45 — INFO — Q key pressed — exiting main loop.
+2026-03-28 08:08:45 — INFO — Shutting down ECHORA...
+2026-03-28 08:08:47 — INFO — Releasing audio resources...
+2026-03-28 08:08:47 — INFO — Speech worker thread stopped.
+2026-03-28 08:08:47 — INFO — Audio released cleanly.
+2026-03-28 08:08:47 — INFO — HapticBridge disconnected.
+2026-03-28 08:08:47 — INFO — InteractionDetector released.
+2026-03-28 08:08:47 — INFO — Releasing camera resources...
+2026-03-28 08:08:47 — INFO — IMU reader thread stopped.
+2026-03-28 08:08:51 — INFO — Camera released cleanly.
+2026-03-28 08:08:51 — INFO — ECHORA stopped. Frames: 80 | Uptime: 68.8s | Slow frames: 1
+2026-03-28 08:08:51 — INFO — Shutdown complete.
+2026-03-28 08:14:49 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 08:14:49 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 08:14:49 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 08:14:51 — INFO — Starting OAK-D Lite device...
+2026-03-28 08:14:51 — INFO — Device started successfully.
+2026-03-28 08:14:51 — INFO — Kalman filter initialised.
+2026-03-28 08:14:51 — INFO — IMU reader thread started.
+2026-03-28 08:14:51 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 08:14:51 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 08:14:51 — INFO — First run will download model files (~100MB)...
+2026-03-28 08:15:27 — INFO — EasyOCR loaded in 35723ms.
+2026-03-28 08:15:27 — INFO — OCRReader ready.
+2026-03-28 08:15:27 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:27 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:27 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:27 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:28 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:29 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:29 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:29 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:30 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:30 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:31 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:31 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:31 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:32 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:32 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:33 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:34 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:34 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:34 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:36 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:36 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:37 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:38 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:38 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:38 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:40 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:41 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:42 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:43 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:43 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:45 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:45 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:46 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:47 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:47 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:49 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:49 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:50 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:51 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:52 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:53 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:54 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:56 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:56 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:57 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:58 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:58 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:58 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:15:59 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:00 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:00 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:01 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:02 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:02 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:05 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:05 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:06 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:06 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:08 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:09 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:10 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:10 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:11 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:12 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:12 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:13 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:14 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:15 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:15 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:15 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:16 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:17 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:18 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:19 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:21 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:21 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:23 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:23 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:23 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:24 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:25 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:25 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:26 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:26 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:27 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:27 — ERROR — Text detection error: Reader.detect() got an unexpected keyword argument 'paragraph'
+2026-03-28 08:16:27 — INFO — Releasing camera resources...
+2026-03-28 08:16:27 — INFO — IMU reader thread stopped.
+2026-03-28 08:16:29 — INFO — Camera released cleanly.
+2026-03-28 08:18:41 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 08:18:41 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 08:18:41 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 08:18:43 — INFO — Starting OAK-D Lite device...
+2026-03-28 08:18:43 — INFO — Device started successfully.
+2026-03-28 08:18:43 — INFO — Kalman filter initialised.
+2026-03-28 08:18:43 — INFO — IMU reader thread started.
+2026-03-28 08:18:43 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 08:18:43 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 08:18:43 — INFO — First run will download model files (~100MB)...
+2026-03-28 08:18:45 — INFO — EasyOCR loaded in 1366ms.
+2026-03-28 08:18:45 — INFO — OCRReader ready.
+2026-03-28 08:19:00 — INFO — OCR result: 'Arab'
+2026-03-28 08:19:05 — INFO — OCR result: 'Arab Academy'
+2026-03-28 08:20:05 — INFO — Releasing camera resources...
+2026-03-28 08:20:05 — INFO — IMU reader thread stopped.
+2026-03-28 08:20:06 — INFO — Camera released cleanly.
+2026-03-28 08:22:20 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 08:22:20 — INFO — ============================================================
+2026-03-28 08:22:20 — INFO — ECHORA Control Unit starting up...
+2026-03-28 08:22:20 — INFO — ============================================================
+2026-03-28 08:22:20 — INFO — Step 1/5: Starting camera...
+2026-03-28 08:22:20 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 08:22:20 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 08:22:22 — INFO — Starting OAK-D Lite device...
+2026-03-28 08:22:22 — INFO — Device started successfully.
+2026-03-28 08:22:22 — INFO — Kalman filter initialised.
+2026-03-28 08:22:22 — INFO — IMU reader thread started.
+2026-03-28 08:22:22 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 08:22:22 — INFO — Camera ready.
+2026-03-28 08:22:22 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 08:22:22 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 08:22:22 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 08:22:22 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 08:22:22 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 08:22:22 — INFO — YOLO model loaded successfully.
+2026-03-28 08:22:22 — INFO — Model classes: 80 total
+2026-03-28 08:22:22 — INFO — Obstacle detector ready.
+2026-03-28 08:22:22 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 08:22:22 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 08:22:22 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 08:22:22 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 08:22:22 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 08:22:22 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 08:22:22 — INFO — InteractionDetector ready.
+2026-03-28 08:22:22 — INFO — Step 2c: Initialising OCR...
+2026-03-28 08:22:22 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 08:22:22 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 08:22:22 — INFO — First run will download model files (~100MB)...
+2026-03-28 08:22:23 — INFO — EasyOCR loaded in 1338ms.
+2026-03-28 08:22:23 — INFO — OCRReader ready.
+2026-03-28 08:22:23 — INFO — Module-level OCR reader ready.
+2026-03-28 08:22:23 — INFO — OCR ready.
+2026-03-28 08:22:23 — INFO — Step 3/5: Starting audio system...
+2026-03-28 08:22:23 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 08:22:23 — INFO — Initialising audio system...
+2026-03-28 08:22:23 — INFO — pygame mixer initialised.
+2026-03-28 08:22:23 — INFO — Generated danger tone (880Hz).
+2026-03-28 08:22:23 — INFO — Generated warning tone (440Hz).
+2026-03-28 08:22:23 — INFO — Generated chime tone (523Hz).
+2026-03-28 08:22:24 — INFO — TTS engine initialised.
+2026-03-28 08:22:24 — INFO — Selected TTS voice: Karen
+2026-03-28 08:22:24 — INFO — Speech worker thread running.
+2026-03-28 08:22:24 — INFO — Speech worker thread started.
+2026-03-28 08:22:24 — INFO — Audio system ready.
+2026-03-28 08:22:24 — INFO — Audio ready.
+2026-03-28 08:22:24 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 08:22:24 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 08:22:24 — INFO — State machine ready.
+2026-03-28 08:22:24 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 08:22:24 — INFO — Callbacks registered.
+2026-03-28 08:22:25 — INFO — ============================================================
+2026-03-28 08:22:25 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 08:22:25 — INFO — ============================================================
+2026-03-28 08:22:25 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 08:22:32 — INFO — KalmanTracker reset. Cleared 2 tracks.
+2026-03-28 08:22:32 — INFO — Obstacle tracker reset.
+2026-03-28 08:22:32 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 08:22:32 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 08:22:34 — WARNING — Emergency override: person at 545mm is in DANGER zone.
+2026-03-28 08:22:34 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 08:22:34 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 08:22:34 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 08:22:35 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-28 08:22:35 — INFO — Obstacle tracker reset.
+2026-03-28 08:22:35 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 08:22:35 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 08:22:37 — WARNING — Emergency override: person at 502mm is in DANGER zone.
+2026-03-28 08:22:37 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 08:22:37 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 08:22:37 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 08:22:37 — INFO — KalmanTracker reset. Cleared 3 tracks.
+2026-03-28 08:22:37 — INFO — Obstacle tracker reset.
+2026-03-28 08:22:37 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 08:22:37 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 08:22:42 — WARNING — Emergency override: person at 519mm is in DANGER zone.
+2026-03-28 08:22:42 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 08:22:42 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 08:22:42 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 08:22:44 — INFO — KalmanTracker reset. Cleared 2 tracks.
+2026-03-28 08:22:44 — INFO — Obstacle tracker reset.
+2026-03-28 08:22:44 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 08:22:44 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 08:22:46 — WARNING — Emergency override: person at 481mm is in DANGER zone.
+2026-03-28 08:22:46 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 08:22:46 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 08:22:46 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 08:22:47 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-28 08:22:47 — INFO — Obstacle tracker reset.
+2026-03-28 08:22:47 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 08:22:47 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 08:22:49 — WARNING — Emergency override: person at 491mm is in DANGER zone.
+2026-03-28 08:22:49 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 08:22:49 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 08:22:49 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 08:22:50 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-28 08:22:50 — INFO — Obstacle tracker reset.
+2026-03-28 08:22:50 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 08:22:50 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 08:22:52 — WARNING — Emergency override: person at 547mm is in DANGER zone.
+2026-03-28 08:22:52 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 08:22:52 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 08:22:52 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 08:22:52 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-28 08:22:52 — INFO — Obstacle tracker reset.
+2026-03-28 08:22:52 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 08:22:52 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 08:22:53 — INFO — Performance | Frame 30 | FPS: 1.1 | Avg: 908.8ms | Slow frames: 30 | Uptime: 33s | Mode: OCR | Tracks: 0
+2026-03-28 08:23:27 — INFO — Q key pressed — exiting main loop.
+2026-03-28 08:23:27 — INFO — Shutting down ECHORA...
+2026-03-28 08:23:29 — INFO — Releasing audio resources...
+2026-03-28 08:23:29 — INFO — Speech worker thread stopped.
+2026-03-28 08:23:29 — INFO — Audio released cleanly.
+2026-03-28 08:23:29 — INFO — HapticBridge disconnected.
+2026-03-28 08:23:29 — INFO — InteractionDetector released.
+2026-03-28 08:23:29 — INFO — Releasing camera resources...
+2026-03-28 08:23:29 — INFO — IMU reader thread stopped.
+2026-03-28 08:23:30 — INFO — Camera released cleanly.
+2026-03-28 08:23:30 — INFO — ECHORA stopped. Frames: 55 | Uptime: 69.8s | Slow frames: 55
+2026-03-28 08:23:30 — INFO — Shutdown complete.
+2026-03-28 08:50:04 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 08:50:04 — INFO — ============================================================
+2026-03-28 08:50:04 — INFO — ECHORA Control Unit starting up...
+2026-03-28 08:50:04 — INFO — ============================================================
+2026-03-28 08:50:04 — INFO — Step 1/5: Starting camera...
+2026-03-28 08:50:04 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 08:50:04 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 08:50:05 — INFO — Starting OAK-D Lite device...
+2026-03-28 08:50:05 — INFO — Device started successfully.
+2026-03-28 08:50:05 — INFO — Kalman filter initialised.
+2026-03-28 08:50:05 — INFO — IMU reader thread started.
+2026-03-28 08:50:05 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 08:50:05 — INFO — Camera ready.
+2026-03-28 08:50:05 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 08:50:05 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 08:50:05 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 08:50:05 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 08:50:06 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 08:50:06 — INFO — YOLO model loaded successfully.
+2026-03-28 08:50:06 — INFO — Model classes: 80 total
+2026-03-28 08:50:06 — INFO — Obstacle detector ready.
+2026-03-28 08:50:06 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 08:50:06 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 08:50:06 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 08:50:06 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 08:50:06 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 08:50:06 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 08:50:06 — INFO — InteractionDetector ready.
+2026-03-28 08:50:06 — INFO — Step 2c: Initialising OCR...
+2026-03-28 08:50:06 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 08:50:06 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 08:50:06 — INFO — First run will download model files (~100MB)...
+2026-03-28 08:50:07 — INFO — EasyOCR loaded in 1411ms.
+2026-03-28 08:50:07 — INFO — OCRReader ready.
+2026-03-28 08:50:07 — INFO — Module-level OCR reader ready.
+2026-03-28 08:50:07 — INFO — OCR ready.
+2026-03-28 08:50:07 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 08:50:07 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 08:50:07 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-28 08:50:07 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-28 08:50:07 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 08:50:07 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 08:50:07 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 08:50:07 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 08:50:07 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 08:50:07 — INFO — Module-level banknote detector ready.
+2026-03-28 08:50:07 — INFO — Banknote detector ready.
+2026-03-28 08:50:07 — INFO — Step 3/5: Starting audio system...
+2026-03-28 08:50:07 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 08:50:07 — INFO — Initialising audio system...
+2026-03-28 08:50:07 — INFO — pygame mixer initialised.
+2026-03-28 08:50:07 — INFO — Generated danger tone (880Hz).
+2026-03-28 08:50:07 — INFO — Generated warning tone (440Hz).
+2026-03-28 08:50:07 — INFO — Generated chime tone (523Hz).
+2026-03-28 08:50:08 — INFO — TTS engine initialised.
+2026-03-28 08:50:08 — INFO — Selected TTS voice: Karen
+2026-03-28 08:50:08 — INFO — Speech worker thread running.
+2026-03-28 08:50:08 — INFO — Speech worker thread started.
+2026-03-28 08:50:08 — INFO — Audio system ready.
+2026-03-28 08:50:08 — INFO — Audio ready.
+2026-03-28 08:50:08 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 08:50:08 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 08:50:08 — INFO — State machine ready.
+2026-03-28 08:50:08 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 08:50:08 — INFO — Callbacks registered.
+2026-03-28 08:50:08 — INFO — ============================================================
+2026-03-28 08:50:08 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 08:50:08 — INFO — ============================================================
+2026-03-28 08:50:08 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 08:50:18 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-28 08:50:18 — INFO — Obstacle tracker reset.
+2026-03-28 08:50:18 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 08:50:18 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 08:50:20 — WARNING — Emergency override: person at 797mm is in DANGER zone.
+2026-03-28 08:50:20 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 08:50:20 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 08:50:20 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 08:50:21 — INFO — KalmanTracker reset. Cleared 2 tracks.
+2026-03-28 08:50:21 — INFO — Obstacle tracker reset.
+2026-03-28 08:50:21 — INFO — Mode switch: NAVIGATION → BANKNOTE (transition from NAVIGATION)
+2026-03-28 08:50:21 — INFO — Active mode: NAVIGATION → BANKNOTE
+2026-03-28 08:50:21 — WARNING — Unknown banknote class: '1'. Add it to DENOMINATION_MAP.
+2026-03-28 08:50:22 — WARNING — Unknown banknote class: '1'. Add it to DENOMINATION_MAP.
+2026-03-28 08:50:22 — WARNING — Emergency override: person at 903mm is in DANGER zone.
+2026-03-28 08:50:22 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from BANKNOTE.
+2026-03-28 08:50:22 — INFO — Mode switch: BANKNOTE → NAVIGATION (transition from BANKNOTE)
+2026-03-28 08:50:22 — INFO — Active mode: BANKNOTE → NAVIGATION
+2026-03-28 08:50:23 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-28 08:50:23 — INFO — Obstacle tracker reset.
+2026-03-28 08:50:23 — INFO — Mode switch: NAVIGATION → BANKNOTE (transition from NAVIGATION)
+2026-03-28 08:50:23 — INFO — Active mode: NAVIGATION → BANKNOTE
+2026-03-28 08:50:23 — WARNING — Unknown banknote class: '1'. Add it to DENOMINATION_MAP.
+2026-03-28 08:50:24 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-28 08:50:25 — WARNING — Emergency override: person at 1244mm is in DANGER zone.
+2026-03-28 08:50:25 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from BANKNOTE.
+2026-03-28 08:50:25 — INFO — Mode switch: BANKNOTE → NAVIGATION (transition from BANKNOTE)
+2026-03-28 08:50:25 — INFO — Active mode: BANKNOTE → NAVIGATION
+2026-03-28 08:50:26 — INFO — KalmanTracker reset. Cleared 2 tracks.
+2026-03-28 08:50:26 — INFO — Obstacle tracker reset.
+2026-03-28 08:50:26 — INFO — Mode switch: NAVIGATION → BANKNOTE (transition from NAVIGATION)
+2026-03-28 08:50:26 — INFO — Active mode: NAVIGATION → BANKNOTE
+2026-03-28 08:50:34 — WARNING — Unknown banknote class: '1'. Add it to DENOMINATION_MAP.
+2026-03-28 08:50:35 — WARNING — Unknown banknote class: '1'. Add it to DENOMINATION_MAP.
+2026-03-28 08:50:35 — INFO — Performance | Frame 30 | FPS: 1.1 | Avg: 876.1ms | Slow frames: 30 | Uptime: 32s | Mode: BANKNOTE | Tracks: 0
+2026-03-28 08:50:38 — WARNING — Unknown banknote class: '1'. Add it to DENOMINATION_MAP.
+2026-03-28 08:50:45 — INFO — Banknote gone. Returning to NAVIGATION.
+2026-03-28 08:50:45 — INFO — Mode switch: BANKNOTE → NAVIGATION (transition from BANKNOTE)
+2026-03-28 08:50:45 — INFO — Active mode: BANKNOTE → NAVIGATION
+2026-03-28 08:50:47 — INFO — KalmanTracker reset. Cleared 2 tracks.
+2026-03-28 08:50:47 — INFO — Obstacle tracker reset.
+2026-03-28 08:50:47 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 08:50:47 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 08:50:51 — WARNING — Emergency override: person at 1181mm is in DANGER zone.
+2026-03-28 08:50:51 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 08:50:51 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 08:50:51 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 08:50:52 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-28 08:50:52 — INFO — Obstacle tracker reset.
+2026-03-28 08:50:52 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 08:50:52 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 08:51:03 — INFO — Performance | Frame 60 | FPS: 1.1 | Avg: 899.3ms | Slow frames: 60 | Uptime: 59s | Mode: OCR | Tracks: 0
+2026-03-28 08:51:09 — WARNING — Emergency override: person at 1071mm is in DANGER zone.
+2026-03-28 08:51:09 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 08:51:09 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 08:51:09 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 08:51:09 — INFO — Q key pressed — exiting main loop.
+2026-03-28 08:51:09 — INFO — Shutting down ECHORA...
+2026-03-28 08:51:11 — INFO — Releasing audio resources...
+2026-03-28 08:51:11 — INFO — Speech worker thread stopped.
+2026-03-28 08:51:11 — INFO — Audio released cleanly.
+2026-03-28 08:51:11 — INFO — HapticBridge disconnected.
+2026-03-28 08:51:11 — INFO — InteractionDetector released.
+2026-03-28 08:51:11 — INFO — Releasing camera resources...
+2026-03-28 08:51:11 — INFO — IMU reader thread stopped.
+2026-03-28 08:51:12 — INFO — Camera released cleanly.
+2026-03-28 08:51:12 — INFO — ECHORA stopped. Frames: 66 | Uptime: 68.5s | Slow frames: 66
+2026-03-28 08:51:12 — INFO — Shutdown complete.
