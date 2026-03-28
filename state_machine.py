@@ -547,37 +547,51 @@ class StateMachine:
         )
         return True
 
-
     def _emergency_override(self, obstacle_result: Dict) -> bool:
         """
-        Returns True if a DANGER obstacle requires immediate return to NAVIGATION.
+        Returns True if a DANGER obstacle requires return to NAVIGATION.
 
-        This is the highest-priority check. It fires if ANY confirmed track
-        is within DANGER_DIST_MM, regardless of what mode we are in.
-
-        The only exception is if we are ALREADY in NAVIGATION mode — in that
-        case there is nothing to override.
+        Exception: if we are in FACE_ID mode, we do NOT override for a
+        single person-class obstacle — that person IS the face we are
+        trying to identify. We only override if there is a non-person
+        danger obstacle (chair, table, wall etc.) threatening the user.
         """
 
-        # If we're already in NAVIGATION, no override needed.
         if self._current_mode == MODE.NAVIGATION:
             return False
 
-        # Check if there are any DANGER-level obstacles.
-        # obstacle_result["danger"] is the list of tracks in the danger zone.
         danger_tracks = obstacle_result.get("danger", [])
 
-        if danger_tracks:
-            # Log which object triggered the override.
-            # danger_tracks[0] is the most urgent (sorted by distance).
-            most_urgent = danger_tracks[0]
+        if not danger_tracks:
+            return False
+
+        # Special case for FACE_ID mode:
+        # If the only danger objects are "person" class, do not override.
+        # That person IS who we are trying to identify.
+        # Only override for non-person obstacles (chairs, walls, etc.)
+        if self._current_mode == MODE.FACE_ID:
+            non_person_dangers = [
+                t for t in danger_tracks
+                if t.get("label", "") != "person"
+            ]
+            if not non_person_dangers:
+                # Only persons in danger zone — allow FACE_ID to continue.
+                return False
+            # Non-person obstacle is dangerous — override.
+            most_urgent = non_person_dangers[0]
             logger.warning(
-                f"Emergency override: {most_urgent['label']} at "
-                f"{most_urgent['distance_mm']:.0f}mm is in DANGER zone."
+                f"Emergency override in FACE_ID: {most_urgent['label']} at "
+                f"{most_urgent['distance_mm']:.0f}mm is DANGER."
             )
             return True
 
-        return False
+        # For all other modes — standard override behaviour.
+        most_urgent = danger_tracks[0]
+        logger.warning(
+            f"Emergency override: {most_urgent['label']} at "
+            f"{most_urgent['distance_mm']:.0f}mm is in DANGER zone."
+        )
+        return True
 
 
     # =========================================================================
@@ -665,7 +679,7 @@ class StateMachine:
 
         # ── Log the transition ─────────────────────────────────────────────────
         logger.info(
-            f"Mode switch: {old_mode} → {new_mode}"
+            f"Mode switch: {old_mode} -> {new_mode}"
             + (f" ({reason})" if reason else "")
         )
 

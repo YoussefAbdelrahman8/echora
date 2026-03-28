@@ -14,13 +14,7 @@
 # =============================================================================
 # WINDOWS PROCESS PRIORITY — must be first, before any other import
 # =============================================================================
-# Sets this Python process to HIGH priority in the Windows scheduler.
-# Prevents Windows from pausing ECHORA to service background apps.
-# This alone can recover 5-10 FPS on Windows machines.
 import sys
-
-from sympy import false
-
 if sys.platform == "win32":
     import ctypes
     ctypes.windll.kernel32.SetPriorityClass(
@@ -98,17 +92,20 @@ class ControlUnit:
         self._last_face_name:    str = ""
         self._last_denomination: str = ""
 
-        # Rate-limited signal cache — updated on schedule, not every frame.
-        # Initialised here so _process_frame never gets AttributeError
-        # on the very first frame before the rate limiter fires.
+        # Rate-limited signal cache
         self._last_ocr_dist:      float = 0.0
         self._last_face_conf:     float = 0.0
         self._last_note_visible:  bool  = False
         self._last_interact_dist: float = 0.0
 
-        # OCR background thread state.
-        # _ocr_running flag prevents two OCR threads running simultaneously.
+        # OCR background thread
         self._ocr_running: bool = False
+
+        # Face ID background thread
+        # _face_id_result is checked every frame in _process_frame()
+        # so it is never missed even if mode changes before we read it.
+        self._face_id_running: bool         = False
+        self._face_id_result:  Optional[Dict] = None
 
         logger.info("ControlUnit created. Call startup() to begin.")
 
@@ -155,13 +152,13 @@ class ControlUnit:
         banknote_module.init_banknote()
         logger.info("Banknote detector ready.")
 
-        # ── Step 2e: Initialise database ──────────────────────────────────────────
+        # Step 2e: Database
         logger.info("Step 2e: Initialising database...")
         from database import init_database
         init_database()
         logger.info("Database ready.")
 
-        # ── Step 2f: Initialise face recognition ──────────────────────────────────
+        # Step 2f: Face recognition
         logger.info("Step 2f: Initialising face recognition...")
         from echora_face import init_face_recognition
         init_face_recognition()
@@ -209,9 +206,7 @@ class ControlUnit:
                 f"{label} detected. {dist_str}. Raise your hand to reach it.",
                 priority=SpeechPriority.HIGH
             )
-            logger.info(
-                f"INTERACTION mode entered. Target: {label} at {dist:.0f}mm"
-            )
+            logger.info(f"INTERACTION: target={label} at {dist:.0f}mm")
         else:
             self._audio.announce_mode_change(MODE.INTERACTION)
 
@@ -278,12 +273,13 @@ class ControlUnit:
             on_enter = lambda: self._audio.announce_mode_change(MODE.FACE_ID)
         )
         sm.register_callback(
-            mode=MODE.FACE_ID,
-            on_exit=lambda: (
+            mode    = MODE.FACE_ID,
+            on_exit = lambda: (
                 self._reset_face_state(),
                 __import__('echora_face').reset_face()
             )
         )
+
         # BANKNOTE
         sm.register_callback(
             mode     = MODE.BANKNOTE,
@@ -318,8 +314,8 @@ class ControlUnit:
                 if bundle is None:
                     continue
 
-                frame_start = get_timestamp_ms()
-                debug_frame = self._process_frame(bundle)
+                frame_start    = get_timestamp_ms()
+                debug_frame    = self._process_frame(bundle)
                 frame_duration = get_timestamp_ms() - frame_start
 
                 self._frame_times.append(frame_duration)
@@ -361,19 +357,42 @@ class ControlUnit:
             rgb_frame = bundle["rgb"]
             depth_map = bundle["depth"]
 
-            # ── Step 1: YOLO — runs EVERY frame ───────────────────────────────
-            # With FP16 + CUDA this takes ~2-5ms. Always current.
+            # ── PRIORITY ZERO: Check face ID result from background thread ─────
+            # This runs EVERY frame regardless of current mode.
+            # The background thread stores its result in _face_id_result.
+            # We must check it here — not inside _handle_face_id() — because
+            # the mode may have changed (e.g. emergency override to NAVIGATION)
+            # before the thread finished. Without this check the result is lost.
+            if self._face_id_result is not None:
+                result = self._face_id_result
+                self._face_id_result = None   # clear immediately
+
+                name = result.get("name", "")
+
+                if name and name != self._last_face_name:
+                    self._last_face_name = name
+                    # Speak in main thread — pyttsx3 is not thread-safe on Windows.
+                    self._audio.speak(
+                        f"This is {name}.",
+                        priority = SpeechPriority.HIGH,
+                        ttl_sec  = 8.0
+                    )
+                    logger.info(f"Face announced: {name}")
+
+                elif not name and self._last_face_name == "":
+                    self._last_face_name = "unknown"
+                    self._audio.speak(
+                        "Unknown person.",
+                        priority = SpeechPriority.NORMAL,
+                        ttl_sec  = 4.0
+                    )
+
+            # ── Step 1: YOLO — every frame ─────────────────────────────────────
             obstacle_result = self._detector.update(bundle)
 
             # ── Step 2: Rate-limited perception signals ────────────────────────
-            # Signals that change slowly — computed on a schedule, not every
-            # frame. Cached values used on all other frames.
 
-            # ── OCR — background thread, NEVER blocks main loop ────────────────
-            # EasyOCR takes 30-136ms even with GPU. Running it in the main
-            # loop would halve our FPS. Background thread fires every 15 frames.
-            # The thread updates _last_ocr_dist when done.
-            # _ocr_running ensures only one OCR thread runs at a time.
+            # OCR — background thread, every 15 frames
             if self._frame_count % 15 == 0 and not self._ocr_running:
                 self._ocr_running = True
                 rgb_copy   = rgb_frame.copy()
@@ -383,24 +402,21 @@ class ControlUnit:
                     self._last_ocr_dist = ocr.get_text_distance(f, d)
                     self._ocr_running   = False
 
-                threading.Thread(
-                    target = _ocr_worker,
-                    daemon = True
-                ).start()
+                threading.Thread(target=_ocr_worker, daemon=True).start()
 
             ocr_dist = self._last_ocr_dist
 
-            # ── Face detection — every 5 frames ───────────────────────────────
-            if self._frame_count % 5 == 0:
+            # Face detection confidence — every 5 frames, skip in FACE_ID mode
+            if self._frame_count % 5 == 0 and self._last_mode != MODE.FACE_ID:
                 self._last_face_conf = face_recognition.detect_face(rgb_frame)
             face_conf = self._last_face_conf
 
-            # ── Banknote detection — every 5 frames ───────────────────────────
+            # Banknote detection — every 5 frames
             if self._frame_count % 5 == 0:
                 self._last_note_visible = banknote.detect_banknote(rgb_frame)
             note_visible = self._last_note_visible
 
-            # ── Interactable scan — every 5 frames ────────────────────────────
+            # Interactable scan — every 5 frames
             if self._frame_count % 5 == 0:
                 current_tracks = obstacle_result.get("tracks", [])
                 self._last_interact_dist = (
@@ -411,7 +427,7 @@ class ControlUnit:
                 )
             interact_dist = self._last_interact_dist
 
-            # ── Step 3: State machine update ───────────────────────────────────
+            # ── Step 3: State machine ──────────────────────────────────────────
             current_mode = self._state_machine.update(
                 bundle                = bundle,
                 obstacle_result       = obstacle_result,
@@ -423,10 +439,10 @@ class ControlUnit:
 
             # ── Step 4: Log mode changes ───────────────────────────────────────
             if current_mode != self._last_mode:
-                logger.info(f"Mode: {self._last_mode} → {current_mode}")
+                logger.info(f"Mode: {self._last_mode} -> {current_mode}")
                 self._last_mode = current_mode
 
-            # ── Step 5: Run mode handler ───────────────────────────────────────
+            # ── Step 5: Mode handler ───────────────────────────────────────────
             if current_mode == MODE.NAVIGATION:
                 self._handle_navigation(bundle, obstacle_result)
             elif current_mode == MODE.OCR:
@@ -438,14 +454,11 @@ class ControlUnit:
             elif current_mode == MODE.BANKNOTE:
                 self._handle_banknote(bundle)
 
-            # ── Step 6: Build debug frame ──────────────────────────────────────
+            # ── Step 6: Debug frame ────────────────────────────────────────────
             debug_frame = rgb_frame.copy()
 
             if obstacle_result["tracks"]:
-                debug_frame = draw_overlay(
-                    debug_frame,
-                    obstacle_result["tracks"]
-                )
+                debug_frame = draw_overlay(debug_frame, obstacle_result["tracks"])
 
             if current_mode == MODE.INTERACTION:
                 if self._interaction_detector._last_grid is not None:
@@ -497,7 +510,7 @@ class ControlUnit:
     def _handle_ocr(self, bundle: Dict):
 
         rgb_frame = bundle["rgb"]
-        text = ocr.read_text(rgb_frame)
+        text      = ocr.read_text(rgb_frame)
 
         if not text or not text.strip():
             return
@@ -531,30 +544,45 @@ class ControlUnit:
             )
 
         if result.get("on_target"):
-            self._audio.speak(
-                "Object reached.", priority=SpeechPriority.HIGH
-            )
+            self._audio.speak("Object reached.", priority=SpeechPriority.HIGH)
             logger.info("Interaction SUCCESS.")
-            self._state_machine.force_mode(
-                MODE.NAVIGATION, reason="object reached"
-            )
+            self._state_machine.force_mode(MODE.NAVIGATION, reason="object reached")
 
 
     def _handle_face_id(self, bundle: Dict):
+        """
+        Launches the face identification background thread every 5 frames.
 
-        rgb_frame     = bundle["rgb"]
-        name, details = face_recognition.identify_face(rgb_frame)
+        NOTE: The result is NOT processed here. It is processed at the very
+        top of _process_frame() on the NEXT frame, in the main thread.
+        This guarantees the announcement is never lost even if the mode
+        changes (e.g. emergency override) before the thread finishes.
+        """
 
-        if name and name != self._last_face_name:
-            self._last_face_name = name
-            self._audio.announce_face(name, details)
-            logger.info(f"Face identified: {name}")
+        # Only launch every 5 frames.
+        if self._frame_count % 5 != 0:
+            return
 
-        elif not name and self._last_face_name == "":
-            self._last_face_name = "unknown"
-            self._audio.speak(
-                "Unknown person.", priority=SpeechPriority.NORMAL
-            )
+        # Only one thread at a time.
+        if self._face_id_running:
+            return
+
+        self._face_id_running = True
+        rgb_copy = bundle["rgb"].copy()
+
+        def _face_worker(f=rgb_copy):
+            try:
+                name, details = face_recognition.identify_face(f)
+                # Store result — main thread reads this next frame.
+                # Never call self._audio from here — not thread-safe on Windows.
+                self._face_id_result = {"name": name, "details": details}
+            except Exception as e:
+                logger.error(f"Face worker error: {e}")
+                self._face_id_result = {"name": "", "details": ""}
+            finally:
+                self._face_id_running = False
+
+        threading.Thread(target=_face_worker, daemon=True).start()
 
 
     def _handle_banknote(self, bundle: Dict):
@@ -608,16 +636,14 @@ class ControlUnit:
         (text_w, _), _ = cv2.getTextSize(
             fps_text, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 1
         )
-        cv2.rectangle(
-            frame, (w - text_w - 16, 0), (w, 28), (0, 0, 0), -1
-        )
+        cv2.rectangle(frame, (w - text_w - 16, 0), (w, 28), (0, 0, 0), -1)
         cv2.putText(
             frame, fps_text,
             (w - text_w - 8, 20), cv2.FONT_HERSHEY_SIMPLEX,
             0.55, (200, 200, 200), 1, cv2.LINE_AA
         )
 
-        # Danger / warning counts — bottom right
+        # Counts — bottom right
         n_danger  = len(obstacle_result.get("danger",  []))
         n_warning = len(obstacle_result.get("warning", []))
         n_tracks  = len(obstacle_result.get("tracks",  []))
@@ -637,7 +663,7 @@ class ControlUnit:
                 0.5, colour, 1, cv2.LINE_AA
             )
 
-        # State machine stats — bottom left
+        # State machine — bottom left
         sm_stats = self._state_machine.get_stats()
         for i, line in enumerate([
             f"Motion: {sm_stats['motion_level']:.2f} m/s2",
@@ -651,7 +677,7 @@ class ControlUnit:
                 0.45, (160, 160, 160), 1, cv2.LINE_AA
             )
 
-        # Most urgent track — center top
+        # Most urgent — center top
         most_urgent = self._detector.get_most_urgent_obstacle()
         if most_urgent:
             urgent_text = (
@@ -670,8 +696,7 @@ class ControlUnit:
             )
             x_pos = (w - tw) // 2
             cv2.rectangle(
-                frame,
-                (x_pos - 6, 38), (x_pos + tw + 6, 64),
+                frame, (x_pos - 6, 38), (x_pos + tw + 6, 64),
                 (0, 0, 0), -1
             )
             cv2.putText(
@@ -734,18 +759,16 @@ class ControlUnit:
         if self._camera:
             self._camera.release()
 
-        uptime = time.time() - self._start_time
-        logger.info(
-            f"ECHORA stopped. Frames: {self._frame_count} | "
-            f"Uptime: {uptime:.1f}s | Slow frames: {self._slow_frames}"
-        )
-        # ── Close database ─────────────────────────────────────────────────────────
         from database import get_db
         db = get_db()
         if db:
             db.close()
 
-
+        uptime = time.time() - self._start_time
+        logger.info(
+            f"ECHORA stopped. Frames: {self._frame_count} | "
+            f"Uptime: {uptime:.1f}s | Slow frames: {self._slow_frames}"
+        )
         self._started = False
         logger.info("Shutdown complete.")
 
