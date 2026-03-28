@@ -144,12 +144,12 @@ DETECTION_CONFIDENCE_THRESHOLD = 0.5
 
 # The YOLO model file. This is built relative to BASE_DIR.
 # So the full path will be: /your/project/folder/models/yolov8n.tar.xz
-YOLO_MODEL_PATH = BASE_DIR / "models" / "yolov8n.pt"
-YOLO_INPUT_WIDTH  = 640
-YOLO_INPUT_HEIGHT = 400
+YOLO_MODEL_PATH = BASE_DIR / "models" / "yolov8s.pt"
+YOLO_INPUT_WIDTH  =416
+YOLO_INPUT_HEIGHT = 256
 
 # The COCO classes that actually matter for a blind user navigating the world.
-# YOLO can detect 80 classes, but most are irrelevant (frisbee, snowboard, etc.)
+# YOLO can detect 80 classes, but most are irrelevant (Frisbee, snowboard, etc.)
 # We only alert on these. Everything else is silently ignored.
 RELEVANT_CLASSES = [
     "person",           # most important — other people

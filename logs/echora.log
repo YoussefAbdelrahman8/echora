@@ -1369,3 +1369,1475 @@ AttributeError: 'ControlUnit' object has no attribute '_handle_interaction'
 2026-03-28 11:34:26 â€” INFO â€” Camera released cleanly.
 2026-03-28 11:34:26 â€” INFO â€” ECHORA stopped. Frames: 95 | Uptime: 90.3s | Slow frames: 95
 2026-03-28 11:34:26 â€” INFO â€” Shutdown complete.
+2026-03-28 13:00:02 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 13:00:02 — INFO — ============================================================
+2026-03-28 13:00:02 — INFO — ECHORA Control Unit starting up...
+2026-03-28 13:00:02 — INFO — ============================================================
+2026-03-28 13:00:02 — INFO — Step 1/5: Starting camera...
+2026-03-28 13:00:02 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 13:00:02 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 13:00:05 — INFO — Starting OAK-D Lite device...
+2026-03-28 13:00:05 — INFO — Device started successfully.
+2026-03-28 13:00:05 — INFO — Kalman filter initialised.
+2026-03-28 13:00:05 — INFO — IMU reader thread started.
+2026-03-28 13:00:05 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 13:00:05 — INFO — Camera ready.
+2026-03-28 13:00:05 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 13:00:05 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 13:00:05 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 13:00:05 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 13:00:05 — INFO — YOLO will run on CPU (no GPU available).
+2026-03-28 13:00:05 — INFO — YOLO model loaded successfully.
+2026-03-28 13:00:05 — INFO — Model classes: 80 total
+2026-03-28 13:00:05 — INFO — Obstacle detector ready.
+2026-03-28 13:00:05 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 13:00:05 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 13:00:05 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 13:00:05 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 13:00:05 — ERROR — Failed to load MediaPipe: module 'mediapipe' has no attribute 'solutions'
+2026-03-28 13:00:05 — ERROR — Fatal error: module 'mediapipe' has no attribute 'solutions'
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 1080, in <module>
+    cu.startup()
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 214, in startup
+    self._interaction_detector.load_model()
+  File "C:\Users\TAMER\PycharmProjects\echora\interaction_detection.py", line 543, in load_model
+    self._mp_hands   = mp.solutions.hands
+AttributeError: module 'mediapipe' has no attribute 'solutions'
+2026-03-28 13:02:05 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 13:02:05 — INFO — ============================================================
+2026-03-28 13:02:05 — INFO — ECHORA Control Unit starting up...
+2026-03-28 13:02:05 — INFO — ============================================================
+2026-03-28 13:02:05 — INFO — Step 1/5: Starting camera...
+2026-03-28 13:02:05 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 13:02:05 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 13:02:07 — INFO — Starting OAK-D Lite device...
+2026-03-28 13:02:07 — INFO — Device started successfully.
+2026-03-28 13:02:07 — INFO — Kalman filter initialised.
+2026-03-28 13:02:07 — INFO — IMU reader thread started.
+2026-03-28 13:02:07 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 13:02:07 — INFO — Camera ready.
+2026-03-28 13:02:07 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 13:02:07 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 13:02:07 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 13:02:07 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 13:02:07 — INFO — YOLO will run on CPU (no GPU available).
+2026-03-28 13:02:07 — INFO — YOLO model loaded successfully.
+2026-03-28 13:02:07 — INFO — Model classes: 80 total
+2026-03-28 13:02:07 — INFO — Obstacle detector ready.
+2026-03-28 13:02:07 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 13:02:07 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 13:02:07 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 13:02:07 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 13:02:07 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 13:02:07 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 13:02:07 — INFO — InteractionDetector ready.
+2026-03-28 13:02:07 — INFO — Step 2c: Initialising OCR...
+2026-03-28 13:02:07 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 13:02:07 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 13:02:07 — INFO — First run will download model files (~100MB)...
+2026-03-28 13:02:07 — ERROR — EasyOCR failed to load: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+2026-03-28 13:02:07 — ERROR — Fatal error: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+Traceback (most recent call last):
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 1348, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 1038, in _send_output
+    self.send(msg)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 976, in send
+    self.connect()
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 1455, in connect
+    self.sock = self._context.wrap_socket(self.sock,
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\ssl.py", line 513, in wrap_socket
+    return self.sslsocket_class._create(
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\ssl.py", line 1071, in _create
+    self.do_handshake()
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\ssl.py", line 1342, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 1080, in <module>
+    cu.startup()
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 219, in startup
+    ocr_module.init_ocr()
+  File "C:\Users\TAMER\PycharmProjects\echora\ocr.py", line 895, in init_ocr
+    _ocr_reader.load_model()
+  File "C:\Users\TAMER\PycharmProjects\echora\ocr.py", line 187, in load_model
+    self._reader = easyocr.Reader(
+  File "C:\Users\TAMER\PycharmProjects\echora\.venv\lib\site-packages\easyocr\easyocr.py", line 92, in __init__
+    detector_path = self.getDetectorPath(detect_network)
+  File "C:\Users\TAMER\PycharmProjects\echora\.venv\lib\site-packages\easyocr\easyocr.py", line 253, in getDetectorPath
+    download_and_unzip(self.detection_models[self.detect_network]['url'], self.detection_models[self.detect_network]['filename'], self.model_storage_directory, self.verbose)
+  File "C:\Users\TAMER\PycharmProjects\echora\.venv\lib\site-packages\easyocr\utils.py", line 628, in download_and_unzip
+    urlretrieve(url, zip_path, reporthook=reporthook)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 241, in urlretrieve
+    with contextlib.closing(urlopen(url, data)) as fp:
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 519, in open
+    response = self._open(req, data)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 496, in _call_chain
+    result = func(*args)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 1391, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+2026-03-28 13:03:23 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 13:03:23 — INFO — ============================================================
+2026-03-28 13:03:23 — INFO — ECHORA Control Unit starting up...
+2026-03-28 13:03:23 — INFO — ============================================================
+2026-03-28 13:03:23 — INFO — Step 1/5: Starting camera...
+2026-03-28 13:03:23 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 13:03:23 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 13:03:26 — INFO — Starting OAK-D Lite device...
+2026-03-28 13:03:26 — INFO — Device started successfully.
+2026-03-28 13:03:26 — INFO — Kalman filter initialised.
+2026-03-28 13:03:26 — INFO — IMU reader thread started.
+2026-03-28 13:03:26 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 13:03:26 — INFO — Camera ready.
+2026-03-28 13:03:26 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 13:03:26 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 13:03:26 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 13:03:26 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 13:03:26 — INFO — YOLO will run on CPU (no GPU available).
+2026-03-28 13:03:26 — INFO — YOLO model loaded successfully.
+2026-03-28 13:03:26 — INFO — Model classes: 80 total
+2026-03-28 13:03:26 — INFO — Obstacle detector ready.
+2026-03-28 13:03:26 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 13:03:26 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 13:03:26 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 13:03:26 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 13:03:26 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 13:03:26 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 13:03:26 — INFO — InteractionDetector ready.
+2026-03-28 13:03:26 — INFO — Step 2c: Initialising OCR...
+2026-03-28 13:03:26 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 13:03:26 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 13:03:26 — INFO — First run will download model files (~100MB)...
+2026-03-28 13:03:26 — ERROR — EasyOCR failed to load: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+2026-03-28 13:03:26 — ERROR — Fatal error: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+Traceback (most recent call last):
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 1348, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 1038, in _send_output
+    self.send(msg)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 976, in send
+    self.connect()
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\http\client.py", line 1455, in connect
+    self.sock = self._context.wrap_socket(self.sock,
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\ssl.py", line 513, in wrap_socket
+    return self.sslsocket_class._create(
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\ssl.py", line 1071, in _create
+    self.do_handshake()
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\ssl.py", line 1342, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 1080, in <module>
+    cu.startup()
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 219, in startup
+    ocr_module.init_ocr()
+  File "C:\Users\TAMER\PycharmProjects\echora\ocr.py", line 895, in init_ocr
+    _ocr_reader.load_model()
+  File "C:\Users\TAMER\PycharmProjects\echora\ocr.py", line 187, in load_model
+    self._reader = easyocr.Reader(
+  File "C:\Users\TAMER\PycharmProjects\echora\.venv\lib\site-packages\easyocr\easyocr.py", line 92, in __init__
+    detector_path = self.getDetectorPath(detect_network)
+  File "C:\Users\TAMER\PycharmProjects\echora\.venv\lib\site-packages\easyocr\easyocr.py", line 253, in getDetectorPath
+    download_and_unzip(self.detection_models[self.detect_network]['url'], self.detection_models[self.detect_network]['filename'], self.model_storage_directory, self.verbose)
+  File "C:\Users\TAMER\PycharmProjects\echora\.venv\lib\site-packages\easyocr\utils.py", line 628, in download_and_unzip
+    urlretrieve(url, zip_path, reporthook=reporthook)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 241, in urlretrieve
+    with contextlib.closing(urlopen(url, data)) as fp:
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 519, in open
+    response = self._open(req, data)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 496, in _call_chain
+    result = func(*args)
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 1391, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+  File "C:\Users\TAMER\AppData\Local\Programs\Python\Python310\lib\urllib\request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+2026-03-28 13:04:35 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 13:04:35 — INFO — ============================================================
+2026-03-28 13:04:35 — INFO — ECHORA Control Unit starting up...
+2026-03-28 13:04:35 — INFO — ============================================================
+2026-03-28 13:04:35 — INFO — Step 1/5: Starting camera...
+2026-03-28 13:04:35 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 13:04:35 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 13:04:37 — INFO — Starting OAK-D Lite device...
+2026-03-28 13:04:37 — INFO — Device started successfully.
+2026-03-28 13:04:37 — INFO — Kalman filter initialised.
+2026-03-28 13:04:37 — INFO — IMU reader thread started.
+2026-03-28 13:04:37 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 13:04:37 — INFO — Camera ready.
+2026-03-28 13:04:37 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 13:04:37 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 13:04:37 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 13:04:37 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 13:04:37 — INFO — YOLO will run on CPU (no GPU available).
+2026-03-28 13:04:37 — INFO — YOLO model loaded successfully.
+2026-03-28 13:04:37 — INFO — Model classes: 80 total
+2026-03-28 13:04:37 — INFO — Obstacle detector ready.
+2026-03-28 13:04:37 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 13:04:37 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 13:04:37 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 13:04:37 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 13:04:37 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 13:04:37 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 13:04:37 — INFO — InteractionDetector ready.
+2026-03-28 13:04:37 — INFO — Step 2c: Initialising OCR...
+2026-03-28 13:04:37 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 13:04:37 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 13:04:37 — INFO — First run will download model files (~100MB)...
+2026-03-28 13:05:08 — INFO — EasyOCR loaded in 30621ms.
+2026-03-28 13:05:08 — INFO — OCRReader ready.
+2026-03-28 13:05:08 — INFO — Module-level OCR reader ready.
+2026-03-28 13:05:08 — INFO — OCR ready.
+2026-03-28 13:05:08 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 13:05:08 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 13:05:08 — INFO — Banknote detector will use CPU.
+2026-03-28 13:05:08 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 13:05:08 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 13:05:08 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:05:08 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:05:08 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:05:08 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 13:05:08 — INFO — Module-level banknote detector ready.
+2026-03-28 13:05:08 — INFO — Banknote detector ready.
+2026-03-28 13:05:08 — INFO — Step 3/5: Starting audio system...
+2026-03-28 13:05:08 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 13:05:08 — INFO — Initialising audio system...
+2026-03-28 13:05:08 — INFO — pygame mixer initialised.
+2026-03-28 13:05:08 — INFO — Generated danger tone (880Hz).
+2026-03-28 13:05:08 — INFO — Generated warning tone (440Hz).
+2026-03-28 13:05:08 — INFO — Generated chime tone (523Hz).
+2026-03-28 13:05:08 — INFO — TTS engine initialised.
+2026-03-28 13:05:08 — INFO — Using default TTS voice.
+2026-03-28 13:05:08 — INFO — Speech worker thread running.
+2026-03-28 13:05:08 — INFO — Speech worker thread started.
+2026-03-28 13:05:08 — INFO — Audio system ready.
+2026-03-28 13:05:08 — INFO — Audio ready.
+2026-03-28 13:05:08 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 13:05:08 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 13:05:08 — INFO — State machine ready.
+2026-03-28 13:05:08 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 13:05:08 — INFO — Callbacks registered.
+2026-03-28 13:05:08 — INFO — ============================================================
+2026-03-28 13:05:08 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 13:05:08 — INFO — ============================================================
+2026-03-28 13:05:08 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 13:05:52 — INFO — Q key pressed — exiting main loop.
+2026-03-28 13:05:52 — INFO — Performance | Frame 30 | FPS: 1.4 | Avg: 718.9ms | Slow frames: 30 | Uptime: 78s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 13:05:52 — INFO — Shutting down ECHORA...
+2026-03-28 13:05:54 — INFO — Releasing audio resources...
+2026-03-28 13:05:54 — INFO — Speech worker thread stopped.
+2026-03-28 13:05:54 — INFO — Audio released cleanly.
+2026-03-28 13:05:54 — INFO — HapticBridge disconnected.
+2026-03-28 13:05:54 — INFO — InteractionDetector released.
+2026-03-28 13:05:54 — INFO — Releasing camera resources...
+2026-03-28 13:05:54 — INFO — IMU reader thread stopped.
+2026-03-28 13:05:58 — INFO — Camera released cleanly.
+2026-03-28 13:05:58 — INFO — ECHORA stopped. Frames: 30 | Uptime: 83.5s | Slow frames: 30
+2026-03-28 13:05:58 — INFO — Shutdown complete.
+2026-03-28 13:26:41 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 13:26:41 — INFO — ============================================================
+2026-03-28 13:26:41 — INFO — ECHORA Control Unit starting up...
+2026-03-28 13:26:41 — INFO — ============================================================
+2026-03-28 13:26:41 — INFO — Step 1/5: Starting camera...
+2026-03-28 13:26:41 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 13:26:41 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 13:26:44 — INFO — Starting OAK-D Lite device...
+2026-03-28 13:26:44 — INFO — Device started successfully.
+2026-03-28 13:26:44 — INFO — Kalman filter initialised.
+2026-03-28 13:26:44 — INFO — IMU reader thread started.
+2026-03-28 13:26:44 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 13:26:44 — INFO — Camera ready.
+2026-03-28 13:26:44 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 13:26:44 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 13:26:44 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 13:26:44 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 13:26:44 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 13:26:44 — INFO — YOLO model loaded successfully.
+2026-03-28 13:26:44 — INFO — Model classes: 80 total
+2026-03-28 13:26:44 — INFO — Obstacle detector ready.
+2026-03-28 13:26:44 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 13:26:44 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 13:26:44 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 13:26:44 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 13:26:44 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 13:26:44 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 13:26:44 — INFO — InteractionDetector ready.
+2026-03-28 13:26:44 — INFO — Step 2c: Initialising OCR...
+2026-03-28 13:26:44 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 13:26:44 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 13:26:44 — INFO — First run will download model files (~100MB)...
+2026-03-28 13:26:46 — INFO — EasyOCR loaded in 1173ms.
+2026-03-28 13:26:46 — INFO — OCRReader ready.
+2026-03-28 13:26:46 — INFO — Module-level OCR reader ready.
+2026-03-28 13:26:46 — INFO — OCR ready.
+2026-03-28 13:26:46 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 13:26:46 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 13:26:46 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 13:26:46 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 13:26:46 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 13:26:46 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:26:46 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:26:46 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:26:46 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 13:26:46 — INFO — Module-level banknote detector ready.
+2026-03-28 13:26:46 — INFO — Banknote detector ready.
+2026-03-28 13:26:46 — INFO — Step 3/5: Starting audio system...
+2026-03-28 13:26:46 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 13:26:46 — INFO — Initialising audio system...
+2026-03-28 13:26:46 — INFO — pygame mixer initialised.
+2026-03-28 13:26:46 — INFO — Generated danger tone (880Hz).
+2026-03-28 13:26:46 — INFO — Generated warning tone (440Hz).
+2026-03-28 13:26:46 — INFO — Generated chime tone (523Hz).
+2026-03-28 13:26:46 — INFO — TTS engine initialised.
+2026-03-28 13:26:46 — INFO — Using default TTS voice.
+2026-03-28 13:26:46 — INFO — Speech worker thread running.
+2026-03-28 13:26:46 — INFO — Speech worker thread started.
+2026-03-28 13:26:46 — INFO — Audio system ready.
+2026-03-28 13:26:46 — INFO — Audio ready.
+2026-03-28 13:26:46 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 13:26:46 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 13:26:46 — INFO — State machine ready.
+2026-03-28 13:26:46 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 13:26:46 — INFO — Callbacks registered.
+2026-03-28 13:26:46 — INFO — ============================================================
+2026-03-28 13:26:46 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 13:26:46 — INFO — ============================================================
+2026-03-28 13:26:46 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 13:27:36 — INFO — Q key pressed — exiting main loop.
+2026-03-28 13:27:36 — INFO — Shutting down ECHORA...
+2026-03-28 13:27:38 — INFO — Releasing audio resources...
+2026-03-28 13:27:39 — INFO — Speech worker thread stopped.
+2026-03-28 13:27:39 — INFO — Audio released cleanly.
+2026-03-28 13:27:39 — INFO — HapticBridge disconnected.
+2026-03-28 13:27:39 — INFO — InteractionDetector released.
+2026-03-28 13:27:39 — INFO — Releasing camera resources...
+2026-03-28 13:27:39 — INFO — IMU reader thread stopped.
+2026-03-28 13:27:41 — INFO — Camera released cleanly.
+2026-03-28 13:27:41 — INFO — ECHORA stopped. Frames: 14 | Uptime: 60.2s | Slow frames: 14
+2026-03-28 13:27:41 — INFO — Shutdown complete.
+2026-03-28 13:33:19 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 13:33:19 — INFO — ============================================================
+2026-03-28 13:33:19 — INFO — ECHORA Control Unit starting up...
+2026-03-28 13:33:19 — INFO — ============================================================
+2026-03-28 13:33:19 — INFO — Step 1/5: Starting camera...
+2026-03-28 13:33:19 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 13:33:19 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 13:33:21 — INFO — Starting OAK-D Lite device...
+2026-03-28 13:33:21 — INFO — Device started successfully.
+2026-03-28 13:33:21 — INFO — Kalman filter initialised.
+2026-03-28 13:33:21 — INFO — IMU reader thread started.
+2026-03-28 13:33:21 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 13:33:21 — INFO — Camera ready.
+2026-03-28 13:33:21 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 13:33:21 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 13:33:21 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 13:33:21 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 13:33:21 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 13:33:21 — INFO — YOLO model loaded successfully.
+2026-03-28 13:33:21 — INFO — Model classes: 80 total
+2026-03-28 13:33:21 — INFO — Obstacle detector ready.
+2026-03-28 13:33:21 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 13:33:21 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 13:33:21 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 13:33:21 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 13:33:21 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 13:33:21 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 13:33:21 — INFO — InteractionDetector ready.
+2026-03-28 13:33:21 — INFO — Step 2c: Initialising OCR...
+2026-03-28 13:33:21 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 13:33:21 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 13:33:21 — INFO — First run will download model files (~100MB)...
+2026-03-28 13:33:22 — INFO — EasyOCR loaded in 1135ms.
+2026-03-28 13:33:22 — INFO — OCRReader ready.
+2026-03-28 13:33:22 — INFO — Module-level OCR reader ready.
+2026-03-28 13:33:22 — INFO — OCR ready.
+2026-03-28 13:33:22 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 13:33:22 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 13:33:22 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 13:33:22 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 13:33:22 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 13:33:22 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:33:22 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:33:22 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:33:22 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 13:33:22 — INFO — Module-level banknote detector ready.
+2026-03-28 13:33:22 — INFO — Banknote detector ready.
+2026-03-28 13:33:22 — INFO — Step 3/5: Starting audio system...
+2026-03-28 13:33:22 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 13:33:22 — INFO — Initialising audio system...
+2026-03-28 13:33:22 — INFO — pygame mixer initialised.
+2026-03-28 13:33:22 — INFO — Generated danger tone (880Hz).
+2026-03-28 13:33:22 — INFO — Generated warning tone (440Hz).
+2026-03-28 13:33:22 — INFO — Generated chime tone (523Hz).
+2026-03-28 13:33:22 — INFO — TTS engine initialised.
+2026-03-28 13:33:22 — INFO — Using default TTS voice.
+2026-03-28 13:33:22 — INFO — Speech worker thread running.
+2026-03-28 13:33:22 — INFO — Speech worker thread started.
+2026-03-28 13:33:22 — INFO — Audio system ready.
+2026-03-28 13:33:22 — INFO — Audio ready.
+2026-03-28 13:33:22 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 13:33:22 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 13:33:22 — INFO — State machine ready.
+2026-03-28 13:33:22 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 13:33:22 — INFO — Callbacks registered.
+2026-03-28 13:33:22 — INFO — ============================================================
+2026-03-28 13:33:22 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 13:33:22 — INFO — ============================================================
+2026-03-28 13:33:22 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 13:33:51 — INFO — Q key pressed — exiting main loop.
+2026-03-28 13:33:52 — INFO — Shutting down ECHORA...
+2026-03-28 13:33:54 — INFO — Releasing audio resources...
+2026-03-28 13:33:54 — INFO — Speech worker thread stopped.
+2026-03-28 13:33:54 — INFO — Audio released cleanly.
+2026-03-28 13:33:54 — INFO — HapticBridge disconnected.
+2026-03-28 13:33:54 — INFO — InteractionDetector released.
+2026-03-28 13:33:54 — INFO — Releasing camera resources...
+2026-03-28 13:33:54 — INFO — IMU reader thread stopped.
+2026-03-28 13:41:15 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 13:41:15 — INFO — ============================================================
+2026-03-28 13:41:15 — INFO — ECHORA Control Unit starting up...
+2026-03-28 13:41:15 — INFO — ============================================================
+2026-03-28 13:41:15 — INFO — Step 1/5: Starting camera...
+2026-03-28 13:41:15 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 13:41:15 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 13:41:18 — INFO — Starting OAK-D Lite device...
+2026-03-28 13:41:18 — INFO — Device started successfully.
+2026-03-28 13:41:18 — INFO — Kalman filter initialised.
+2026-03-28 13:41:18 — INFO — IMU reader thread started.
+2026-03-28 13:41:18 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 13:41:18 — INFO — Camera ready.
+2026-03-28 13:41:18 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 13:41:18 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 13:41:18 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 13:41:18 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 13:41:18 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 13:41:18 — INFO — YOLO model loaded successfully.
+2026-03-28 13:41:18 — INFO — Model classes: 80 total
+2026-03-28 13:41:18 — INFO — Obstacle detector ready.
+2026-03-28 13:41:18 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 13:41:18 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 13:41:18 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 13:41:18 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 13:41:18 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 13:41:18 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 13:41:18 — INFO — InteractionDetector ready.
+2026-03-28 13:41:18 — INFO — Step 2c: Initialising OCR...
+2026-03-28 13:41:18 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 13:41:18 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 13:41:18 — INFO — First run will download model files (~100MB)...
+2026-03-28 13:41:20 — INFO — EasyOCR loaded in 1242ms.
+2026-03-28 13:41:20 — INFO — OCRReader ready.
+2026-03-28 13:41:20 — INFO — Module-level OCR reader ready.
+2026-03-28 13:41:20 — INFO — OCR ready.
+2026-03-28 13:41:20 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 13:41:20 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 13:41:20 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 13:41:20 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 13:41:20 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 13:41:20 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:41:20 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:41:20 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:41:20 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 13:41:20 — INFO — Module-level banknote detector ready.
+2026-03-28 13:41:20 — INFO — Banknote detector ready.
+2026-03-28 13:41:20 — INFO — Step 3/5: Starting audio system...
+2026-03-28 13:41:20 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 13:41:20 — INFO — Initialising audio system...
+2026-03-28 13:41:20 — INFO — pygame mixer initialised.
+2026-03-28 13:41:20 — INFO — Generated danger tone (880Hz).
+2026-03-28 13:41:20 — INFO — Generated warning tone (440Hz).
+2026-03-28 13:41:20 — INFO — Generated chime tone (523Hz).
+2026-03-28 13:41:20 — INFO — TTS engine initialised.
+2026-03-28 13:41:20 — INFO — Using default TTS voice.
+2026-03-28 13:41:20 — INFO — Speech worker thread running.
+2026-03-28 13:41:20 — INFO — Speech worker thread started.
+2026-03-28 13:41:20 — INFO — Audio system ready.
+2026-03-28 13:41:20 — INFO — Audio ready.
+2026-03-28 13:41:20 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 13:41:20 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 13:41:20 — INFO — State machine ready.
+2026-03-28 13:41:20 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 13:41:20 — INFO — Callbacks registered.
+2026-03-28 13:41:20 — INFO — ============================================================
+2026-03-28 13:41:20 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 13:41:20 — INFO — ============================================================
+2026-03-28 13:41:20 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 13:41:37 — INFO — Q key pressed — exiting main loop.
+2026-03-28 13:41:37 — INFO — Shutting down ECHORA...
+2026-03-28 13:41:39 — INFO — Releasing audio resources...
+2026-03-28 13:41:39 — INFO — Speech worker thread stopped.
+2026-03-28 13:41:39 — INFO — Audio released cleanly.
+2026-03-28 13:41:39 — INFO — HapticBridge disconnected.
+2026-03-28 13:41:39 — INFO — InteractionDetector released.
+2026-03-28 13:41:39 — INFO — Releasing camera resources...
+2026-03-28 13:41:39 — INFO — IMU reader thread stopped.
+2026-03-28 13:41:40 — INFO — Camera released cleanly.
+2026-03-28 13:41:40 — INFO — ECHORA stopped. Frames: 13 | Uptime: 24.8s | Slow frames: 13
+2026-03-28 13:41:40 — INFO — Shutdown complete.
+2026-03-28 13:44:21 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 13:44:21 — INFO — ============================================================
+2026-03-28 13:44:21 — INFO — ECHORA Control Unit starting up...
+2026-03-28 13:44:21 — INFO — ============================================================
+2026-03-28 13:44:21 — INFO — Step 1/5: Starting camera...
+2026-03-28 13:44:21 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 13:44:21 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 13:44:23 — INFO — Starting OAK-D Lite device...
+2026-03-28 13:44:23 — INFO — Device started successfully.
+2026-03-28 13:44:23 — INFO — Kalman filter initialised.
+2026-03-28 13:44:23 — INFO — IMU reader thread started.
+2026-03-28 13:44:23 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 13:44:23 — INFO — Camera ready.
+2026-03-28 13:44:23 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 13:44:23 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 13:44:23 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 13:44:23 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 13:44:23 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 13:44:23 — INFO — YOLO model loaded successfully.
+2026-03-28 13:44:23 — INFO — Model classes: 80 total
+2026-03-28 13:44:23 — INFO — Obstacle detector ready.
+2026-03-28 13:44:23 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 13:44:23 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 13:44:23 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 13:44:23 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 13:44:23 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 13:44:23 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 13:44:23 — INFO — InteractionDetector ready.
+2026-03-28 13:44:23 — INFO — Step 2c: Initialising OCR...
+2026-03-28 13:44:23 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 13:44:23 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 13:44:23 — INFO — First run will download model files (~100MB)...
+2026-03-28 13:44:24 — INFO — EasyOCR loaded in 1246ms.
+2026-03-28 13:44:24 — INFO — OCRReader ready.
+2026-03-28 13:44:24 — INFO — Module-level OCR reader ready.
+2026-03-28 13:44:24 — INFO — OCR ready.
+2026-03-28 13:44:24 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 13:44:24 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 13:44:24 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 13:44:24 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 13:44:24 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 13:44:24 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:44:24 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:44:24 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:44:24 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 13:44:24 — INFO — Module-level banknote detector ready.
+2026-03-28 13:44:24 — INFO — Banknote detector ready.
+2026-03-28 13:44:24 — INFO — Step 3/5: Starting audio system...
+2026-03-28 13:44:24 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 13:44:24 — INFO — Initialising audio system...
+2026-03-28 13:44:24 — INFO — pygame mixer initialised.
+2026-03-28 13:44:24 — INFO — Generated danger tone (880Hz).
+2026-03-28 13:44:24 — INFO — Generated warning tone (440Hz).
+2026-03-28 13:44:24 — INFO — Generated chime tone (523Hz).
+2026-03-28 13:44:24 — INFO — TTS engine initialised.
+2026-03-28 13:44:24 — INFO — Using default TTS voice.
+2026-03-28 13:44:24 — INFO — Speech worker thread running.
+2026-03-28 13:44:24 — INFO — Speech worker thread started.
+2026-03-28 13:44:24 — INFO — Audio system ready.
+2026-03-28 13:44:24 — INFO — Audio ready.
+2026-03-28 13:44:24 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 13:44:24 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 13:44:24 — INFO — State machine ready.
+2026-03-28 13:44:24 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 13:44:24 — INFO — Callbacks registered.
+2026-03-28 13:44:25 — INFO — ============================================================
+2026-03-28 13:44:25 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 13:44:25 — INFO — ============================================================
+2026-03-28 13:44:25 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 13:45:10 — INFO — Performance | Frame 30 | FPS: 6.9 | Avg: 145.5ms | Slow frames: 29 | Uptime: 50s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 13:45:49 — INFO — Q key pressed — exiting main loop.
+2026-03-28 13:45:49 — INFO — Shutting down ECHORA...
+2026-03-28 13:45:51 — INFO — Releasing audio resources...
+2026-03-28 13:45:51 — INFO — Speech worker thread stopped.
+2026-03-28 13:45:51 — INFO — Audio released cleanly.
+2026-03-28 13:45:51 — INFO — HapticBridge disconnected.
+2026-03-28 13:45:51 — INFO — InteractionDetector released.
+2026-03-28 13:45:51 — INFO — Releasing camera resources...
+2026-03-28 13:45:51 — INFO — IMU reader thread stopped.
+2026-03-28 13:45:52 — INFO — Camera released cleanly.
+2026-03-28 13:45:52 — INFO — ECHORA stopped. Frames: 54 | Uptime: 91.4s | Slow frames: 52
+2026-03-28 13:45:52 — INFO — Shutdown complete.
+2026-03-28 13:49:58 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 13:49:58 — INFO — ============================================================
+2026-03-28 13:49:58 — INFO — ECHORA Control Unit starting up...
+2026-03-28 13:49:58 — INFO — ============================================================
+2026-03-28 13:49:58 — INFO — Step 1/5: Starting camera...
+2026-03-28 13:49:58 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 13:49:58 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 13:50:00 — INFO — Starting OAK-D Lite device...
+2026-03-28 13:50:01 — INFO — Device started successfully.
+2026-03-28 13:50:01 — INFO — Kalman filter initialised.
+2026-03-28 13:50:01 — INFO — IMU reader thread started.
+2026-03-28 13:50:01 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 13:50:01 — INFO — Camera ready.
+2026-03-28 13:50:01 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 13:50:01 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 13:50:01 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 13:50:01 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 13:50:01 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 13:50:01 — INFO — YOLO model loaded successfully.
+2026-03-28 13:50:01 — INFO — Model classes: 80 total
+2026-03-28 13:50:01 — INFO — Obstacle detector ready.
+2026-03-28 13:50:01 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 13:50:01 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 13:50:01 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 13:50:01 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 13:50:01 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 13:50:01 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 13:50:01 — INFO — InteractionDetector ready.
+2026-03-28 13:50:01 — INFO — Step 2c: Initialising OCR...
+2026-03-28 13:50:01 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 13:50:01 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 13:50:01 — INFO — First run will download model files (~100MB)...
+2026-03-28 13:50:02 — INFO — EasyOCR loaded in 1249ms.
+2026-03-28 13:50:02 — INFO — OCRReader ready.
+2026-03-28 13:50:02 — INFO — Module-level OCR reader ready.
+2026-03-28 13:50:02 — INFO — OCR ready.
+2026-03-28 13:50:02 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 13:50:02 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 13:50:02 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 13:50:02 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 13:50:02 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 13:50:02 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:50:02 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:50:02 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:50:02 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 13:50:02 — INFO — Module-level banknote detector ready.
+2026-03-28 13:50:02 — INFO — Banknote detector ready.
+2026-03-28 13:50:02 — INFO — Step 3/5: Starting audio system...
+2026-03-28 13:50:02 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 13:50:02 — INFO — Initialising audio system...
+2026-03-28 13:50:02 — INFO — pygame mixer initialised.
+2026-03-28 13:50:02 — INFO — Generated danger tone (880Hz).
+2026-03-28 13:50:02 — INFO — Generated warning tone (440Hz).
+2026-03-28 13:50:02 — INFO — Generated chime tone (523Hz).
+2026-03-28 13:50:02 — INFO — TTS engine initialised.
+2026-03-28 13:50:02 — INFO — Using default TTS voice.
+2026-03-28 13:50:02 — INFO — Speech worker thread running.
+2026-03-28 13:50:02 — INFO — Speech worker thread started.
+2026-03-28 13:50:02 — INFO — Audio system ready.
+2026-03-28 13:50:02 — INFO — Audio ready.
+2026-03-28 13:50:02 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 13:50:02 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 13:50:02 — INFO — State machine ready.
+2026-03-28 13:50:02 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 13:50:02 — INFO — Callbacks registered.
+2026-03-28 13:50:02 — INFO — ============================================================
+2026-03-28 13:50:02 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 13:50:02 — INFO — ============================================================
+2026-03-28 13:50:02 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 13:50:03 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:03 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:03 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:03 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:04 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:04 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:06 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:07 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:07 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:08 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:08 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:09 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:11 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:13 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:16 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:19 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:20 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:24 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:25 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:28 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:31 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:32 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:34 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:35 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:35 — INFO — Performance | Frame 30 | FPS: 7.9 | Avg: 126.4ms | Slow frames: 18 | Uptime: 37s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 13:50:39 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:39 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:40 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:40 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:41 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:43 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:44 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:44 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:46 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:47 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:47 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:48 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:53 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:53 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:58 — ERROR — Frame processing error: local variable 'current_tracks' referenced before assignment
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 617, in _process_frame
+    detections=current_tracks,
+UnboundLocalError: local variable 'current_tracks' referenced before assignment
+2026-03-28 13:50:58 — INFO — Q key pressed — exiting main loop.
+2026-03-28 13:50:58 — INFO — Shutting down ECHORA...
+2026-03-28 13:51:00 — INFO — Releasing audio resources...
+2026-03-28 13:51:00 — INFO — Speech worker thread stopped.
+2026-03-28 13:51:00 — INFO — Audio released cleanly.
+2026-03-28 13:51:00 — INFO — HapticBridge disconnected.
+2026-03-28 13:51:00 — INFO — InteractionDetector released.
+2026-03-28 13:51:00 — INFO — Releasing camera resources...
+2026-03-28 13:51:00 — INFO — IMU reader thread stopped.
+2026-03-28 13:51:01 — INFO — Camera released cleanly.
+2026-03-28 13:51:01 — INFO — ECHORA stopped. Frames: 49 | Uptime: 63.1s | Slow frames: 30
+2026-03-28 13:51:01 — INFO — Shutdown complete.
+2026-03-28 13:55:29 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 13:55:29 — INFO — ============================================================
+2026-03-28 13:55:29 — INFO — ECHORA Control Unit starting up...
+2026-03-28 13:55:29 — INFO — ============================================================
+2026-03-28 13:55:29 — INFO — Step 1: Starting camera...
+2026-03-28 13:55:29 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 13:55:29 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 13:55:31 — INFO — Starting OAK-D Lite device...
+2026-03-28 13:55:31 — INFO — Device started successfully.
+2026-03-28 13:55:31 — INFO — Kalman filter initialised.
+2026-03-28 13:55:31 — INFO — IMU reader thread started.
+2026-03-28 13:55:31 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 13:55:31 — INFO — Camera ready.
+2026-03-28 13:55:31 — INFO — Step 2: Loading obstacle detector...
+2026-03-28 13:55:31 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 13:55:31 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 13:55:31 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 13:55:31 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 13:55:31 — INFO — YOLO model loaded successfully.
+2026-03-28 13:55:31 — INFO — Model classes: 80 total
+2026-03-28 13:55:31 — INFO — Obstacle detector ready.
+2026-03-28 13:55:31 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 13:55:31 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 13:55:31 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 13:55:31 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 13:55:31 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 13:55:31 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 13:55:31 — INFO — InteractionDetector ready.
+2026-03-28 13:55:31 — INFO — Interaction detector ready.
+2026-03-28 13:55:31 — INFO — Step 2c: Initialising OCR...
+2026-03-28 13:55:31 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 13:55:31 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 13:55:31 — INFO — First run will download model files (~100MB)...
+2026-03-28 13:55:32 — INFO — EasyOCR loaded in 1248ms.
+2026-03-28 13:55:32 — INFO — OCRReader ready.
+2026-03-28 13:55:32 — INFO — Module-level OCR reader ready.
+2026-03-28 13:55:32 — INFO — OCR ready.
+2026-03-28 13:55:32 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 13:55:32 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 13:55:32 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 13:55:32 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 13:55:32 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 13:55:32 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:55:32 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:55:32 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 13:55:32 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 13:55:32 — INFO — Module-level banknote detector ready.
+2026-03-28 13:55:32 — INFO — Banknote detector ready.
+2026-03-28 13:55:32 — INFO — Step 3: Starting audio system...
+2026-03-28 13:55:32 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 13:55:32 — INFO — Initialising audio system...
+2026-03-28 13:55:32 — INFO — pygame mixer initialised.
+2026-03-28 13:55:32 — INFO — Generated danger tone (880Hz).
+2026-03-28 13:55:32 — INFO — Generated warning tone (440Hz).
+2026-03-28 13:55:32 — INFO — Generated chime tone (523Hz).
+2026-03-28 13:55:32 — INFO — TTS engine initialised.
+2026-03-28 13:55:32 — INFO — Using default TTS voice.
+2026-03-28 13:55:32 — INFO — Speech worker thread running.
+2026-03-28 13:55:32 — INFO — Speech worker thread started.
+2026-03-28 13:55:32 — INFO — Audio system ready.
+2026-03-28 13:55:32 — INFO — Audio ready.
+2026-03-28 13:55:32 — INFO — Step 4: Initialising state machine...
+2026-03-28 13:55:32 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 13:55:32 — INFO — State machine ready.
+2026-03-28 13:55:32 — INFO — Step 5: Registering mode callbacks...
+2026-03-28 13:55:32 — INFO — Callbacks registered.
+2026-03-28 13:55:33 — INFO — ============================================================
+2026-03-28 13:55:33 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 13:55:33 — INFO — ============================================================
+2026-03-28 13:55:33 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 13:56:05 — INFO — Performance | Frame 30 | FPS: 21.9 | Avg: 45.7ms | Slow: 2 | Uptime: 36s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 13:57:11 — INFO — Performance | Frame 60 | FPS: 20.0 | Avg: 50.1ms | Slow: 6 | Uptime: 102s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 13:57:29 — INFO — Q key pressed — exiting.
+2026-03-28 13:57:29 — INFO — Shutting down ECHORA...
+2026-03-28 13:57:31 — INFO — Releasing audio resources...
+2026-03-28 13:57:31 — INFO — Speech worker thread stopped.
+2026-03-28 13:57:31 — INFO — Audio released cleanly.
+2026-03-28 13:57:31 — INFO — HapticBridge disconnected.
+2026-03-28 13:57:31 — INFO — InteractionDetector released.
+2026-03-28 13:57:31 — INFO — Releasing camera resources...
+2026-03-28 13:57:31 — INFO — IMU reader thread stopped.
+2026-03-28 13:57:32 — INFO — Camera released cleanly.
+2026-03-28 13:57:32 — INFO — ECHORA stopped. Frames: 72 | Uptime: 123.3s | Slow frames: 7
+2026-03-28 13:57:32 — INFO — Shutdown complete.
+2026-03-28 14:12:35 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 14:12:35 — INFO — ============================================================
+2026-03-28 14:12:35 — INFO — ECHORA Control Unit starting up...
+2026-03-28 14:12:35 — INFO — ============================================================
+2026-03-28 14:12:35 — INFO — Step 1: Starting camera...
+2026-03-28 14:12:35 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 14:12:35 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 14:12:38 — ERROR — Fatal error: setSyncThreshold(): incompatible function arguments. The following argument types are supported:
+    1. (self: depthai.node.Sync, syncThreshold: datetime.timedelta) -> None
+
+Invoked with: <depthai.node.Sync object at 0x0000028093A5ABB0>, 200
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 685, in <module>
+    cu.startup()
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 106, in startup
+    self._camera.init_pipeline()
+  File "C:\Users\TAMER\PycharmProjects\echora\camera.py", line 188, in init_pipeline
+    sync.setSyncThreshold(200)
+TypeError: setSyncThreshold(): incompatible function arguments. The following argument types are supported:
+    1. (self: depthai.node.Sync, syncThreshold: datetime.timedelta) -> None
+
+Invoked with: <depthai.node.Sync object at 0x0000028093A5ABB0>, 200
+2026-03-28 14:15:55 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 14:15:55 — INFO — ============================================================
+2026-03-28 14:15:55 — INFO — ECHORA Control Unit starting up...
+2026-03-28 14:15:55 — INFO — ============================================================
+2026-03-28 14:15:55 — INFO — Step 1: Starting camera...
+2026-03-28 14:15:55 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 14:15:55 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 14:15:57 — ERROR — Fatal error: setSyncThreshold(): incompatible function arguments. The following argument types are supported:
+    1. (self: depthai.node.Sync, syncThreshold: datetime.timedelta) -> None
+
+Invoked with: <depthai.node.Sync object at 0x000002580319EB30>, 200
+Traceback (most recent call last):
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 746, in <module>
+    cu.startup()
+  File "C:\Users\TAMER\PycharmProjects\echora\control_unit.py", line 128, in startup
+    self._camera.init_pipeline()
+  File "C:\Users\TAMER\PycharmProjects\echora\camera.py", line 188, in init_pipeline
+    sync.setSyncThreshold(200)
+TypeError: setSyncThreshold(): incompatible function arguments. The following argument types are supported:
+    1. (self: depthai.node.Sync, syncThreshold: datetime.timedelta) -> None
+
+Invoked with: <depthai.node.Sync object at 0x000002580319EB30>, 200
+2026-03-28 14:17:20 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 14:17:20 — INFO — ============================================================
+2026-03-28 14:17:20 — INFO — ECHORA Control Unit starting up...
+2026-03-28 14:17:20 — INFO — ============================================================
+2026-03-28 14:17:20 — INFO — Step 1: Starting camera...
+2026-03-28 14:17:20 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 14:17:20 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 14:17:23 — INFO — Starting OAK-D device...
+2026-03-28 14:17:23 — INFO — Device started successfully.
+2026-03-28 14:17:23 — INFO — Kalman filter initialised.
+2026-03-28 14:17:23 — INFO — IMU reader thread started.
+2026-03-28 14:17:23 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 14:17:23 — INFO — Camera ready.
+2026-03-28 14:17:23 — INFO — Step 2: Loading obstacle detector...
+2026-03-28 14:17:23 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 14:17:23 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 14:17:23 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 14:17:23 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 14:17:23 — INFO — YOLO model loaded successfully.
+2026-03-28 14:17:23 — INFO — Model classes: 80 total
+2026-03-28 14:17:23 — INFO — Warming up YOLO on CUDA...
+2026-03-28 14:17:23 — INFO — YOLO warmup complete.
+2026-03-28 14:17:23 — INFO — Obstacle detector ready.
+2026-03-28 14:17:23 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 14:17:23 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 14:17:23 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 14:17:23 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 14:17:23 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 14:17:23 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 14:17:23 — INFO — InteractionDetector ready.
+2026-03-28 14:17:23 — INFO — Interaction detector ready.
+2026-03-28 14:17:23 — INFO — Step 2c: Initialising OCR...
+2026-03-28 14:17:23 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 14:17:23 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 14:17:23 — INFO — First run will download model files (~100MB)...
+2026-03-28 14:17:24 — INFO — EasyOCR loaded in 1110ms.
+2026-03-28 14:17:24 — INFO — OCRReader ready.
+2026-03-28 14:17:24 — INFO — Module-level OCR reader ready.
+2026-03-28 14:17:24 — INFO — OCR ready.
+2026-03-28 14:17:24 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 14:17:24 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 14:17:24 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 14:17:24 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 14:17:24 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 14:17:24 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:17:24 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:17:24 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:17:24 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 14:17:24 — INFO — Module-level banknote detector ready.
+2026-03-28 14:17:24 — INFO — Banknote detector ready.
+2026-03-28 14:17:24 — INFO — Step 3: Starting audio system...
+2026-03-28 14:17:24 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 14:17:24 — INFO — Initialising audio system...
+2026-03-28 14:17:24 — INFO — pygame mixer initialised.
+2026-03-28 14:17:24 — INFO — Generated danger tone (880Hz).
+2026-03-28 14:17:24 — INFO — Generated warning tone (440Hz).
+2026-03-28 14:17:24 — INFO — Generated chime tone (523Hz).
+2026-03-28 14:17:25 — INFO — TTS engine initialised.
+2026-03-28 14:17:25 — INFO — Using default TTS voice.
+2026-03-28 14:17:25 — INFO — Speech worker thread running.
+2026-03-28 14:17:25 — INFO — Speech worker thread started.
+2026-03-28 14:17:25 — INFO — Audio system ready.
+2026-03-28 14:17:25 — INFO — Audio ready.
+2026-03-28 14:17:25 — INFO — Step 4: Initialising state machine...
+2026-03-28 14:17:25 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 14:17:25 — INFO — State machine ready.
+2026-03-28 14:17:25 — INFO — Step 5: Registering mode callbacks...
+2026-03-28 14:17:25 — INFO — Callbacks registered.
+2026-03-28 14:17:25 — INFO — ============================================================
+2026-03-28 14:17:25 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 14:17:25 — INFO — ============================================================
+2026-03-28 14:17:25 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 14:17:30 — INFO — Performance | Frame 30 | FPS: 57.6 | Avg: 17.4ms | Slow: 1 | Uptime: 9s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:17:34 — INFO — Performance | Frame 60 | FPS: 46.3 | Avg: 21.6ms | Slow: 3 | Uptime: 14s | Mode: NAVIGATION | Tracks: 2
+2026-03-28 14:17:39 — INFO — Performance | Frame 90 | FPS: 50.3 | Avg: 19.9ms | Slow: 4 | Uptime: 18s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 14:17:43 — INFO — Performance | Frame 120 | FPS: 45.8 | Avg: 21.8ms | Slow: 5 | Uptime: 23s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 14:17:48 — INFO — Performance | Frame 150 | FPS: 43.7 | Avg: 22.9ms | Slow: 7 | Uptime: 27s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 14:17:53 — INFO — Performance | Frame 180 | FPS: 49.9 | Avg: 20.0ms | Slow: 9 | Uptime: 32s | Mode: NAVIGATION | Tracks: 4
+2026-03-28 14:17:57 — INFO — Performance | Frame 210 | FPS: 52.5 | Avg: 19.1ms | Slow: 10 | Uptime: 36s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:18:00 — INFO — Q key pressed — exiting.
+2026-03-28 14:18:00 — INFO — Shutting down ECHORA...
+2026-03-28 14:18:02 — INFO — Releasing audio resources...
+2026-03-28 14:18:02 — INFO — Speech worker thread stopped.
+2026-03-28 14:18:02 — INFO — Audio released cleanly.
+2026-03-28 14:18:02 — INFO — HapticBridge disconnected.
+2026-03-28 14:18:02 — INFO — InteractionDetector released.
+2026-03-28 14:18:02 — INFO — Releasing camera resources...
+2026-03-28 14:18:02 — INFO — IMU reader thread stopped.
+2026-03-28 14:18:03 — INFO — Camera released cleanly.
+2026-03-28 14:18:03 — INFO — ECHORA stopped. Frames: 228 | Uptime: 42.7s | Slow frames: 12
+2026-03-28 14:18:03 — INFO — Shutdown complete.
+2026-03-28 14:21:09 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 14:21:09 — INFO — ============================================================
+2026-03-28 14:21:09 — INFO — ECHORA Control Unit starting up...
+2026-03-28 14:21:09 — INFO — ============================================================
+2026-03-28 14:21:09 — INFO — Step 1: Starting camera...
+2026-03-28 14:21:09 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 14:21:09 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 14:21:11 — INFO — Starting OAK-D device...
+2026-03-28 14:21:11 — INFO — Device started successfully.
+2026-03-28 14:21:11 — INFO — Kalman filter initialised.
+2026-03-28 14:21:11 — INFO — IMU reader thread started.
+2026-03-28 14:21:11 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 14:21:11 — INFO — Camera ready.
+2026-03-28 14:21:11 — INFO — Step 2: Loading obstacle detector...
+2026-03-28 14:21:11 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 14:21:11 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 14:21:11 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 14:21:11 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 14:21:11 — INFO — YOLO model loaded successfully.
+2026-03-28 14:21:11 — INFO — Model classes: 80 total
+2026-03-28 14:21:11 — INFO — Warming up YOLO on CUDA...
+2026-03-28 14:21:11 — INFO — YOLO warmup complete.
+2026-03-28 14:21:11 — INFO — Obstacle detector ready.
+2026-03-28 14:21:11 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 14:21:11 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 14:21:11 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 14:21:11 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 14:21:11 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 14:21:11 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 14:21:11 — INFO — InteractionDetector ready.
+2026-03-28 14:21:11 — INFO — Interaction detector ready.
+2026-03-28 14:21:11 — INFO — Step 2c: Initialising OCR...
+2026-03-28 14:21:11 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 14:21:11 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 14:21:11 — INFO — First run will download model files (~100MB)...
+2026-03-28 14:21:12 — INFO — EasyOCR loaded in 1121ms.
+2026-03-28 14:21:12 — INFO — OCRReader ready.
+2026-03-28 14:21:12 — INFO — Module-level OCR reader ready.
+2026-03-28 14:21:12 — INFO — OCR ready.
+2026-03-28 14:21:12 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 14:21:12 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 14:21:12 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 14:21:12 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 14:21:12 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 14:21:12 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:21:12 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:21:12 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:21:12 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 14:21:12 — INFO — Module-level banknote detector ready.
+2026-03-28 14:21:12 — INFO — Banknote detector ready.
+2026-03-28 14:21:12 — INFO — Step 3: Starting audio system...
+2026-03-28 14:21:12 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 14:21:12 — INFO — Initialising audio system...
+2026-03-28 14:21:12 — INFO — pygame mixer initialised.
+2026-03-28 14:21:12 — INFO — Generated danger tone (880Hz).
+2026-03-28 14:21:12 — INFO — Generated warning tone (440Hz).
+2026-03-28 14:21:12 — INFO — Generated chime tone (523Hz).
+2026-03-28 14:21:13 — INFO — TTS engine initialised.
+2026-03-28 14:21:13 — INFO — Using default TTS voice.
+2026-03-28 14:21:13 — INFO — Speech worker thread running.
+2026-03-28 14:21:13 — INFO — Speech worker thread started.
+2026-03-28 14:21:13 — INFO — Audio system ready.
+2026-03-28 14:21:13 — INFO — Audio ready.
+2026-03-28 14:21:13 — INFO — Step 4: Initialising state machine...
+2026-03-28 14:21:13 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 14:21:13 — INFO — State machine ready.
+2026-03-28 14:21:13 — INFO — Step 5: Registering mode callbacks...
+2026-03-28 14:21:13 — INFO — Callbacks registered.
+2026-03-28 14:21:13 — INFO — ============================================================
+2026-03-28 14:21:13 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 14:21:13 — INFO — ============================================================
+2026-03-28 14:21:13 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 14:21:18 — INFO — Performance | Frame 30 | FPS: 65.6 | Avg: 15.2ms | Slow: 1 | Uptime: 9s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:21:22 — INFO — Performance | Frame 60 | FPS: 54.1 | Avg: 18.5ms | Slow: 3 | Uptime: 14s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 14:21:27 — INFO — Performance | Frame 90 | FPS: 51.3 | Avg: 19.5ms | Slow: 4 | Uptime: 18s | Mode: NAVIGATION | Tracks: 2
+2026-03-28 14:21:32 — INFO — Performance | Frame 120 | FPS: 47.1 | Avg: 21.2ms | Slow: 6 | Uptime: 23s | Mode: NAVIGATION | Tracks: 5
+2026-03-28 14:21:36 — INFO — Performance | Frame 150 | FPS: 54.9 | Avg: 18.2ms | Slow: 7 | Uptime: 28s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:21:41 — INFO — Performance | Frame 180 | FPS: 56.5 | Avg: 17.7ms | Slow: 8 | Uptime: 32s | Mode: NAVIGATION | Tracks: 2
+2026-03-28 14:21:43 — INFO — Q key pressed — exiting.
+2026-03-28 14:21:43 — INFO — Shutting down ECHORA...
+2026-03-28 14:21:45 — INFO — Releasing audio resources...
+2026-03-28 14:21:45 — INFO — Speech worker thread stopped.
+2026-03-28 14:21:45 — INFO — Audio released cleanly.
+2026-03-28 14:21:45 — INFO — HapticBridge disconnected.
+2026-03-28 14:21:45 — INFO — InteractionDetector released.
+2026-03-28 14:21:45 — INFO — Releasing camera resources...
+2026-03-28 14:21:45 — INFO — IMU reader thread stopped.
+2026-03-28 14:21:49 — INFO — Camera released cleanly.
+2026-03-28 14:21:49 — INFO — ECHORA stopped. Frames: 195 | Uptime: 40.3s | Slow frames: 9
+2026-03-28 14:21:49 — INFO — Shutdown complete.
+2026-03-28 14:25:04 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 14:25:04 — INFO — ============================================================
+2026-03-28 14:25:04 — INFO — ECHORA Control Unit starting up...
+2026-03-28 14:25:04 — INFO — ============================================================
+2026-03-28 14:25:04 — INFO — Step 1: Starting camera...
+2026-03-28 14:25:04 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 14:25:04 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 14:25:06 — INFO — Starting OAK-D device...
+2026-03-28 14:25:06 — INFO — Device started successfully.
+2026-03-28 14:25:06 — INFO — Kalman filter initialised.
+2026-03-28 14:25:06 — INFO — IMU reader thread started.
+2026-03-28 14:25:06 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 14:25:06 — INFO — Camera ready.
+2026-03-28 14:25:06 — INFO — Step 2: Loading obstacle detector...
+2026-03-28 14:25:06 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 14:25:06 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 14:25:06 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 14:25:07 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 14:25:07 — INFO — YOLO model loaded successfully.
+2026-03-28 14:25:07 — INFO — Model classes: 80 total
+2026-03-28 14:25:07 — INFO — Warming up YOLO on CUDA...
+2026-03-28 14:25:07 — INFO — YOLO warmup complete.
+2026-03-28 14:25:07 — INFO — Obstacle detector ready.
+2026-03-28 14:25:07 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 14:25:07 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 14:25:07 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 14:25:07 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 14:25:07 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 14:25:07 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 14:25:07 — INFO — InteractionDetector ready.
+2026-03-28 14:25:07 — INFO — Interaction detector ready.
+2026-03-28 14:25:07 — INFO — Step 2c: Initialising OCR...
+2026-03-28 14:25:07 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 14:25:07 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 14:25:07 — INFO — First run will download model files (~100MB)...
+2026-03-28 14:25:08 — INFO — EasyOCR loaded in 1106ms.
+2026-03-28 14:25:08 — INFO — OCRReader ready.
+2026-03-28 14:25:08 — INFO — Module-level OCR reader ready.
+2026-03-28 14:25:08 — INFO — OCR ready.
+2026-03-28 14:25:08 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 14:25:08 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 14:25:08 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 14:25:08 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 14:25:08 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 14:25:08 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:25:08 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:25:08 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:25:08 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 14:25:08 — INFO — Module-level banknote detector ready.
+2026-03-28 14:25:08 — INFO — Banknote detector ready.
+2026-03-28 14:25:08 — INFO — Step 3: Starting audio system...
+2026-03-28 14:25:08 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 14:25:08 — INFO — Initialising audio system...
+2026-03-28 14:25:08 — INFO — pygame mixer initialised.
+2026-03-28 14:25:08 — INFO — Generated danger tone (880Hz).
+2026-03-28 14:25:08 — INFO — Generated warning tone (440Hz).
+2026-03-28 14:25:08 — INFO — Generated chime tone (523Hz).
+2026-03-28 14:25:08 — INFO — TTS engine initialised.
+2026-03-28 14:25:08 — INFO — Using default TTS voice.
+2026-03-28 14:25:08 — INFO — Speech worker thread running.
+2026-03-28 14:25:08 — INFO — Speech worker thread started.
+2026-03-28 14:25:08 — INFO — Audio system ready.
+2026-03-28 14:25:08 — INFO — Audio ready.
+2026-03-28 14:25:08 — INFO — Step 4: Initialising state machine...
+2026-03-28 14:25:08 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 14:25:08 — INFO — State machine ready.
+2026-03-28 14:25:08 — INFO — Step 5: Registering mode callbacks...
+2026-03-28 14:25:08 — INFO — Callbacks registered.
+2026-03-28 14:25:08 — INFO — ============================================================
+2026-03-28 14:25:08 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 14:25:08 — INFO — ============================================================
+2026-03-28 14:25:08 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 14:25:13 — INFO — Performance | Frame 30 | FPS: 63.3 | Avg: 15.8ms | Slow: 1 | Uptime: 9s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:25:18 — INFO — Performance | Frame 60 | FPS: 47.8 | Avg: 20.9ms | Slow: 3 | Uptime: 13s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:25:22 — INFO — Performance | Frame 90 | FPS: 71.0 | Avg: 14.1ms | Slow: 4 | Uptime: 18s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:25:27 — INFO — Performance | Frame 120 | FPS: 57.8 | Avg: 17.3ms | Slow: 6 | Uptime: 23s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:25:28 — INFO — Keyboard interrupt — exiting.
+2026-03-28 14:25:28 — INFO — Shutting down ECHORA...
+2026-03-28 14:25:30 — INFO — Releasing audio resources...
+2026-03-28 14:25:33 — INFO — Audio released cleanly.
+2026-03-28 14:25:33 — INFO — HapticBridge disconnected.
+2026-03-28 14:25:33 — INFO — InteractionDetector released.
+2026-03-28 14:25:33 — INFO — Releasing camera resources...
+2026-03-28 14:25:33 — INFO — IMU reader thread stopped.
+2026-03-28 14:25:34 — INFO — Camera released cleanly.
+2026-03-28 14:25:34 — INFO — ECHORA stopped. Frames: 128 | Uptime: 30.0s | Slow frames: 7
+2026-03-28 14:25:34 — INFO — Shutdown complete.
+2026-03-28 14:25:50 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 14:25:50 — INFO — ============================================================
+2026-03-28 14:25:50 — INFO — ECHORA Control Unit starting up...
+2026-03-28 14:25:50 — INFO — ============================================================
+2026-03-28 14:25:50 — INFO — Step 1: Starting camera...
+2026-03-28 14:25:50 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 14:25:50 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 14:25:53 — INFO — Starting OAK-D device...
+2026-03-28 14:25:53 — INFO — Device started successfully.
+2026-03-28 14:25:53 — INFO — Kalman filter initialised.
+2026-03-28 14:25:53 — INFO — IMU reader thread started.
+2026-03-28 14:25:53 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 14:25:53 — INFO — Camera ready.
+2026-03-28 14:25:53 — INFO — Step 2: Loading obstacle detector...
+2026-03-28 14:25:53 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 14:25:53 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 14:25:53 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8n.pt
+2026-03-28 14:25:53 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 14:25:53 — INFO — YOLO model loaded successfully.
+2026-03-28 14:25:53 — INFO — Model classes: 80 total
+2026-03-28 14:25:53 — INFO — Warming up YOLO on CUDA...
+2026-03-28 14:25:53 — INFO — YOLO warmup complete.
+2026-03-28 14:25:53 — INFO — Obstacle detector ready.
+2026-03-28 14:25:53 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 14:25:53 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 14:25:53 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 14:25:53 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 14:25:53 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 14:25:53 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 14:25:53 — INFO — InteractionDetector ready.
+2026-03-28 14:25:53 — INFO — Interaction detector ready.
+2026-03-28 14:25:53 — INFO — Step 2c: Initialising OCR...
+2026-03-28 14:25:53 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 14:25:53 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 14:25:53 — INFO — First run will download model files (~100MB)...
+2026-03-28 14:25:54 — INFO — EasyOCR loaded in 1100ms.
+2026-03-28 14:25:54 — INFO — OCRReader ready.
+2026-03-28 14:25:54 — INFO — Module-level OCR reader ready.
+2026-03-28 14:25:54 — INFO — OCR ready.
+2026-03-28 14:25:54 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 14:25:54 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 14:25:54 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 14:25:54 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 14:25:54 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 14:25:54 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:25:54 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:25:54 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:25:54 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 14:25:54 — INFO — Module-level banknote detector ready.
+2026-03-28 14:25:54 — INFO — Banknote detector ready.
+2026-03-28 14:25:54 — INFO — Step 3: Starting audio system...
+2026-03-28 14:25:54 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 14:25:54 — INFO — Initialising audio system...
+2026-03-28 14:25:54 — INFO — pygame mixer initialised.
+2026-03-28 14:25:54 — INFO — Generated danger tone (880Hz).
+2026-03-28 14:25:54 — INFO — Generated warning tone (440Hz).
+2026-03-28 14:25:54 — INFO — Generated chime tone (523Hz).
+2026-03-28 14:25:54 — INFO — TTS engine initialised.
+2026-03-28 14:25:54 — INFO — Using default TTS voice.
+2026-03-28 14:25:54 — INFO — Speech worker thread running.
+2026-03-28 14:25:54 — INFO — Speech worker thread started.
+2026-03-28 14:25:54 — INFO — Audio system ready.
+2026-03-28 14:25:54 — INFO — Audio ready.
+2026-03-28 14:25:54 — INFO — Step 4: Initialising state machine...
+2026-03-28 14:25:54 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 14:25:54 — INFO — State machine ready.
+2026-03-28 14:25:54 — INFO — Step 5: Registering mode callbacks...
+2026-03-28 14:25:54 — INFO — Callbacks registered.
+2026-03-28 14:25:55 — INFO — ============================================================
+2026-03-28 14:25:55 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 14:25:55 — INFO — ============================================================
+2026-03-28 14:25:55 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 14:25:59 — INFO — Performance | Frame 30 | FPS: 61.1 | Avg: 16.4ms | Slow: 1 | Uptime: 9s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:26:04 — INFO — Performance | Frame 60 | FPS: 59.8 | Avg: 16.7ms | Slow: 3 | Uptime: 13s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 14:26:08 — INFO — Performance | Frame 90 | FPS: 48.3 | Avg: 20.7ms | Slow: 5 | Uptime: 18s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 14:26:13 — INFO — Performance | Frame 120 | FPS: 57.9 | Avg: 17.3ms | Slow: 6 | Uptime: 23s | Mode: NAVIGATION | Tracks: 2
+2026-03-28 14:26:17 — INFO — Performance | Frame 150 | FPS: 46.4 | Avg: 21.5ms | Slow: 8 | Uptime: 27s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:26:22 — INFO — Performance | Frame 180 | FPS: 49.7 | Avg: 20.1ms | Slow: 9 | Uptime: 31s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:26:26 — INFO — Performance | Frame 210 | FPS: 49.1 | Avg: 20.4ms | Slow: 11 | Uptime: 36s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:26:31 — INFO — Performance | Frame 240 | FPS: 44.8 | Avg: 22.3ms | Slow: 13 | Uptime: 41s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:26:36 — INFO — Performance | Frame 270 | FPS: 48.5 | Avg: 20.6ms | Slow: 15 | Uptime: 46s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:26:40 — INFO — Performance | Frame 300 | FPS: 47.6 | Avg: 21.0ms | Slow: 16 | Uptime: 50s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:26:44 — INFO — Keyboard interrupt — exiting.
+2026-03-28 14:26:44 — INFO — Shutting down ECHORA...
+2026-03-28 14:26:46 — INFO — Releasing audio resources...
+2026-03-28 14:26:49 — INFO — Audio released cleanly.
+2026-03-28 14:26:49 — INFO — HapticBridge disconnected.
+2026-03-28 14:26:49 — INFO — InteractionDetector released.
+2026-03-28 14:26:49 — INFO — Releasing camera resources...
+2026-03-28 14:26:49 — INFO — IMU reader thread stopped.
+2026-03-28 14:26:50 — INFO — Camera released cleanly.
+2026-03-28 14:26:50 — INFO — ECHORA stopped. Frames: 323 | Uptime: 59.8s | Slow frames: 17
+2026-03-28 14:26:50 — INFO — Shutdown complete.
+2026-03-28 14:28:59 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 14:28:59 — INFO — ============================================================
+2026-03-28 14:28:59 — INFO — ECHORA Control Unit starting up...
+2026-03-28 14:28:59 — INFO — ============================================================
+2026-03-28 14:28:59 — INFO — Step 1: Starting camera...
+2026-03-28 14:28:59 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 14:28:59 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 14:29:01 — INFO — Starting OAK-D device...
+2026-03-28 14:29:01 — INFO — Device started successfully.
+2026-03-28 14:29:01 — INFO — Kalman filter initialised.
+2026-03-28 14:29:01 — INFO — IMU reader thread started.
+2026-03-28 14:29:01 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 14:29:01 — INFO — Camera ready.
+2026-03-28 14:29:01 — INFO — Step 2: Loading obstacle detector...
+2026-03-28 14:29:01 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 14:29:01 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 14:29:01 — INFO — Loading YOLO model from: C:\Users\TAMER\PycharmProjects\echora\models\yolov8s.pt
+2026-03-28 14:29:01 — INFO — YOLO will run on CUDA GPU.
+2026-03-28 14:29:01 — INFO — YOLO model loaded successfully.
+2026-03-28 14:29:01 — INFO — Model classes: 80 total
+2026-03-28 14:29:01 — INFO — Warming up YOLO on CUDA...
+2026-03-28 14:29:01 — INFO — YOLO warmup complete.
+2026-03-28 14:29:01 — INFO — Obstacle detector ready.
+2026-03-28 14:29:01 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 14:29:01 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 14:29:01 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 14:29:01 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 14:29:01 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 14:29:01 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 14:29:01 — INFO — InteractionDetector ready.
+2026-03-28 14:29:01 — INFO — Interaction detector ready.
+2026-03-28 14:29:01 — INFO — Step 2c: Initialising OCR...
+2026-03-28 14:29:01 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 14:29:01 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 14:29:01 — INFO — First run will download model files (~100MB)...
+2026-03-28 14:29:03 — INFO — EasyOCR loaded in 1103ms.
+2026-03-28 14:29:03 — INFO — OCRReader ready.
+2026-03-28 14:29:03 — INFO — Module-level OCR reader ready.
+2026-03-28 14:29:03 — INFO — OCR ready.
+2026-03-28 14:29:03 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 14:29:03 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 14:29:03 — INFO — Banknote detector will use CUDA GPU.
+2026-03-28 14:29:03 — INFO — Loading banknote model from: C:\Users\TAMER\PycharmProjects\echora\models\banknote_egp.pt
+2026-03-28 14:29:03 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 14:29:03 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:29:03 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:29:03 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 14:29:03 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 14:29:03 — INFO — Module-level banknote detector ready.
+2026-03-28 14:29:03 — INFO — Banknote detector ready.
+2026-03-28 14:29:03 — INFO — Step 3: Starting audio system...
+2026-03-28 14:29:03 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 14:29:03 — INFO — Initialising audio system...
+2026-03-28 14:29:03 — INFO — pygame mixer initialised.
+2026-03-28 14:29:03 — INFO — Generated danger tone (880Hz).
+2026-03-28 14:29:03 — INFO — Generated warning tone (440Hz).
+2026-03-28 14:29:03 — INFO — Generated chime tone (523Hz).
+2026-03-28 14:29:03 — INFO — TTS engine initialised.
+2026-03-28 14:29:03 — INFO — Using default TTS voice.
+2026-03-28 14:29:03 — INFO — Speech worker thread running.
+2026-03-28 14:29:03 — INFO — Speech worker thread started.
+2026-03-28 14:29:03 — INFO — Audio system ready.
+2026-03-28 14:29:03 — INFO — Audio ready.
+2026-03-28 14:29:03 — INFO — Step 4: Initialising state machine...
+2026-03-28 14:29:03 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 14:29:03 — INFO — State machine ready.
+2026-03-28 14:29:03 — INFO — Step 5: Registering mode callbacks...
+2026-03-28 14:29:03 — INFO — Callbacks registered.
+2026-03-28 14:29:03 — INFO — ============================================================
+2026-03-28 14:29:03 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 14:29:03 — INFO — ============================================================
+2026-03-28 14:29:03 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 14:29:08 — INFO — Performance | Frame 30 | FPS: 61.9 | Avg: 16.1ms | Slow: 1 | Uptime: 9s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:29:12 — INFO — Performance | Frame 60 | FPS: 34.6 | Avg: 28.9ms | Slow: 4 | Uptime: 14s | Mode: NAVIGATION | Tracks: 3
+2026-03-28 14:29:17 — INFO — Performance | Frame 90 | FPS: 44.1 | Avg: 22.7ms | Slow: 6 | Uptime: 18s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 14:29:21 — INFO — Performance | Frame 120 | FPS: 48.6 | Avg: 20.6ms | Slow: 7 | Uptime: 23s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 14:29:25 — INFO — Performance | Frame 150 | FPS: 34.6 | Avg: 28.9ms | Slow: 9 | Uptime: 27s | Mode: NAVIGATION | Tracks: 3
+2026-03-28 14:29:29 — INFO — Performance | Frame 180 | FPS: 46.6 | Avg: 21.4ms | Slow: 10 | Uptime: 31s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 14:29:34 — INFO — Performance | Frame 210 | FPS: 46.9 | Avg: 21.3ms | Slow: 11 | Uptime: 35s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 14:29:38 — INFO — Performance | Frame 240 | FPS: 44.5 | Avg: 22.5ms | Slow: 13 | Uptime: 40s | Mode: NAVIGATION | Tracks: 3
+2026-03-28 14:30:12 — INFO — Keyboard interrupt — exiting.
+2026-03-28 14:30:12 — INFO — Shutting down ECHORA...
+2026-03-28 14:30:14 — INFO — Releasing audio resources...
+2026-03-28 14:30:14 — INFO — Speech worker thread stopped.
+2026-03-28 14:30:14 — INFO — Audio released cleanly.
+2026-03-28 14:30:14 — INFO — HapticBridge disconnected.
+2026-03-28 14:30:14 — INFO — InteractionDetector released.
+2026-03-28 14:30:14 — INFO — Releasing camera resources...
+2026-03-28 14:30:14 — INFO — IMU reader thread stopped.

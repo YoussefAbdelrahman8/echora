@@ -38,6 +38,8 @@ from collections import deque
 # Type hints.
 from typing import List, Dict, Optional, Tuple
 
+import torch
+
 # Our config and utils.
 from config import (
     OCR_CONFIDENCE_THRESHOLD,
@@ -76,7 +78,7 @@ TEXT_STABILITY_FRAMES = 2
 
 # Scale factor to resize frame before OCR — smaller = faster but less accurate.
 # 0.75 = 75% of original size. Good balance for real-time performance.
-OCR_SCALE_FACTOR = 0.75
+OCR_SCALE_FACTOR = 0.5
 
 # Languages to recognise.
 # "en" = English. Add "ar" for Arabic support: ["en", "ar"]
@@ -186,7 +188,7 @@ class OCRReader:
             #   We handle our own logging.
             self._reader = easyocr.Reader(
                 OCR_LANGUAGES,
-                gpu     = False,
+                gpu     = torch.cuda.is_available(),
                 verbose = False
             )
 

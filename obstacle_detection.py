@@ -109,7 +109,7 @@ class ObstacleDetector:
       - Filters to only RELEVANT_CLASSES from config.py.
       - Passes filtered detections to KalmanTracker for smooth tracking.
 
-    Layer 2 — VLM: runs every VLM_RUN_EVERY frames in a background thread.
+    Layer 2 — VLM: runs every VLM_RUN_EVERY frame in a background thread.
       - Sends the RGB frame to a local vision-language model.
       - Receives a plain English scene description.
       - Stores it for control_unit.py to speak aloud.
@@ -212,7 +212,16 @@ class ObstacleDetector:
 
         logger.info("YOLO model loaded successfully.")
         logger.info(f"Model classes: {len(self._yolo.names)} total")
+
+        # At the end of load_model():
+        logger.info("Warming up YOLO on CUDA...")
+
+        blank = np.zeros((288, 480, 3), dtype= np.uint8)
+        for _ in range(3):
+            self._yolo(blank, verbose=False, device=self._device, half=True)
+        logger.info("YOLO warmup complete.")
         # ... rest of load_model stays the same
+
 
 
     # =========================================================================
@@ -252,7 +261,7 @@ class ObstacleDetector:
         timestamp = bundle["timestamp_ms"]
 
         # ── Run YOLO detection ─────────────────────────────────────────────────
-        # _det_limiter.should_run() returns True every OBSTACLE_RUN_EVERY frames.
+        # _det_limiter.should_run() returns True every OBSTACLE_RUN_EVERY frame.
         # Since OBSTACLE_RUN_EVERY = 1, this is True every frame.
         # We keep the limiter here anyway for flexibility — you could change
         # OBSTACLE_RUN_EVERY to 2 to halve the CPU load if needed.
@@ -263,7 +272,7 @@ class ObstacleDetector:
             confirmed_tracks = self._tracker.get_confirmed_tracks()
 
         # ── Trigger VLM in background ──────────────────────────────────────────
-        # _vlm_limiter.should_run() returns True every VLM_RUN_EVERY frames.
+        # _vlm_limiter.should_run() returns True every VLM_RUN_EVERY frame.
         # _vlm_running is False when no VLM thread is currently active.
         # Both must be true to start a new VLM analysis.
         if self._vlm_limiter.should_run() and not self._vlm_running:
@@ -392,7 +401,8 @@ class ObstacleDetector:
                 yolo_frame,  # ← use resized frame
                 verbose=False,
                 conf=DETECTION_CONFIDENCE_THRESHOLD,
-                device=self._device
+                device=self._device,
+                half = True,
             )
 
             # After detection, scale bounding boxes back to original frame size.
@@ -447,7 +457,7 @@ class ObstacleDetector:
 
         We don't use the full bounding box for depth — the edges of bounding
         boxes often overlap with background pixels which have very different
-        depth values. Instead we shrink the box by DEPTH_BBOX_SCALE (0.5)
+        depth values. Instead, we shrink the box by DEPTH_BBOX_SCALE (0.5)
         and only sample the central region.
 
         Example with DEPTH_BBOX_SCALE = 0.5:
@@ -517,7 +527,7 @@ class ObstacleDetector:
 
             # ── Filter 1: Relevance ────────────────────────────────────────────
             # Only keep objects in our RELEVANT_CLASSES list from config.py.
-            # This removes frisbees, kites, surfboards, snowboards, etc.
+            # This removes Frisbee, kites, surfboards, snowboards, etc.
             if det["label"] not in RELEVANT_CLASSES:
                 logger.debug(f"Filtered out irrelevant class: {det['label']}")
                 continue   # 'continue' skips to the next detection
