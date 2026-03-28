@@ -353,6 +353,7 @@ class FaceRecognizer:
         self,
         rgb_frame: np.ndarray
     ) -> Tuple[str, str]:
+
         """
         Full face identification — runs only in FACE_ID mode.
 
@@ -490,6 +491,8 @@ class FaceRecognizer:
                 f"Face identified: {identified_name} "
                 f"(distance={best_distance:.3f})"
             )
+            logger.info(
+                f"Face distances: { {self._known_names[i]: round(float(distances[i]), 3) for i in range(len(distances))} }")
 
             return identified_name, ""
 
@@ -630,6 +633,7 @@ def identify_face(rgb_frame: np.ndarray) -> Tuple[str, str]:
     if _recogniser is None:
         return "", ""
     return _recogniser.identify_face(rgb_frame)
+
 
 
 def reset_face():

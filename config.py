@@ -37,7 +37,7 @@ FACE_DB_PATH = BASE_DIR / "database" / "faces"
 
 # Minimum face detection confidence to trigger FACE_ID mode.
 # 0.3 = a reasonably visible face.
-FACE_CONFIDENCE_THRESHOLD = 0.3
+FACE_CONFIDENCE_THRESHOLD = 0.15
 
 # How many consecutive frames the same name must appear before announcing.
 FACE_STABILITY_FRAMES = 3
@@ -46,7 +46,7 @@ FACE_STABILITY_FRAMES = 3
 # 0.5 is the recommended default from the face_recognition library.
 # Lower = stricter (fewer false positives).
 # Higher = looser (better for glasses, hats, different lighting).
-FACE_RECOGNITION_TOLERANCE = 0.5
+FACE_RECOGNITION_TOLERANCE = 0.6
 # =============================================================================
 # 3. CAMERA SETTINGS
 # =============================================================================
