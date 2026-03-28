@@ -55,7 +55,7 @@ from audio_feedback import AudioFeedback, SpeechPriority
 import ocr
 from interaction_detection import InteractionDetector
 import banknote
-import face_recognition
+import echora_face as face_recognition
 
 
 # =============================================================================
@@ -154,6 +154,18 @@ class ControlUnit:
         import banknote as banknote_module
         banknote_module.init_banknote()
         logger.info("Banknote detector ready.")
+
+        # ── Step 2e: Initialise database ──────────────────────────────────────────
+        logger.info("Step 2e: Initialising database...")
+        from database import init_database
+        init_database()
+        logger.info("Database ready.")
+
+        # ── Step 2f: Initialise face recognition ──────────────────────────────────
+        logger.info("Step 2f: Initialising face recognition...")
+        from echora_face import init_face_recognition
+        init_face_recognition()
+        logger.info("Face recognition ready.")
 
         # Step 3: Audio
         logger.info("Step 3: Starting audio system...")
@@ -266,13 +278,12 @@ class ControlUnit:
             on_enter = lambda: self._audio.announce_mode_change(MODE.FACE_ID)
         )
         sm.register_callback(
-            mode    = MODE.FACE_ID,
-            on_exit = lambda: (
+            mode=MODE.FACE_ID,
+            on_exit=lambda: (
                 self._reset_face_state(),
-                __import__('face_recognition').reset_face()
+                __import__('echora_face').reset_face()
             )
         )
-
         # BANKNOTE
         sm.register_callback(
             mode     = MODE.BANKNOTE,
@@ -728,6 +739,13 @@ class ControlUnit:
             f"ECHORA stopped. Frames: {self._frame_count} | "
             f"Uptime: {uptime:.1f}s | Slow frames: {self._slow_frames}"
         )
+        # ── Close database ─────────────────────────────────────────────────────────
+        from database import get_db
+        db = get_db()
+        if db:
+            db.close()
+
+
         self._started = False
         logger.info("Shutdown complete.")
 
