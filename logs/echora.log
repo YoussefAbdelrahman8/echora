@@ -1010,3 +1010,362 @@ AttributeError: 'ControlUnit' object has no attribute '_handle_interaction'
 2026-03-28 08:51:12 — INFO — Camera released cleanly.
 2026-03-28 08:51:12 — INFO — ECHORA stopped. Frames: 66 | Uptime: 68.5s | Slow frames: 66
 2026-03-28 08:51:12 — INFO — Shutdown complete.
+2026-03-28 11:06:45 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 11:06:45 — INFO — ============================================================
+2026-03-28 11:06:45 — INFO — ECHORA Control Unit starting up...
+2026-03-28 11:06:45 — INFO — ============================================================
+2026-03-28 11:06:45 — INFO — Step 1/5: Starting camera...
+2026-03-28 11:06:45 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 11:06:45 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 11:06:46 — INFO — Starting OAK-D Lite device...
+2026-03-28 11:06:47 — INFO — Device started successfully.
+2026-03-28 11:06:47 — INFO — Kalman filter initialised.
+2026-03-28 11:06:47 — INFO — IMU reader thread started.
+2026-03-28 11:06:47 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 11:06:47 — INFO — Camera ready.
+2026-03-28 11:06:47 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 11:06:47 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 11:06:47 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 11:06:47 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 11:06:47 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 11:06:47 — INFO — YOLO model loaded successfully.
+2026-03-28 11:06:47 — INFO — Model classes: 80 total
+2026-03-28 11:06:47 — INFO — Obstacle detector ready.
+2026-03-28 11:06:47 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 11:06:47 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 11:06:47 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 11:06:47 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 11:06:47 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 11:06:47 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 11:06:47 — INFO — InteractionDetector ready.
+2026-03-28 11:06:47 — INFO — Step 2c: Initialising OCR...
+2026-03-28 11:06:47 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 11:06:47 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 11:06:47 — INFO — First run will download model files (~100MB)...
+2026-03-28 11:06:48 — INFO — EasyOCR loaded in 1313ms.
+2026-03-28 11:06:48 — INFO — OCRReader ready.
+2026-03-28 11:06:48 — INFO — Module-level OCR reader ready.
+2026-03-28 11:06:48 — INFO — OCR ready.
+2026-03-28 11:06:48 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 11:06:48 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 11:06:48 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-28 11:06:48 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-28 11:06:48 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 11:06:48 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 11:06:48 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 11:06:48 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 11:06:48 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 11:06:48 — INFO — Module-level banknote detector ready.
+2026-03-28 11:06:48 — INFO — Banknote detector ready.
+2026-03-28 11:06:48 — INFO — Step 3/5: Starting audio system...
+2026-03-28 11:06:48 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 11:06:48 — INFO — Initialising audio system...
+2026-03-28 11:06:48 — INFO — pygame mixer initialised.
+2026-03-28 11:06:48 — INFO — Generated danger tone (880Hz).
+2026-03-28 11:06:48 — INFO — Generated warning tone (440Hz).
+2026-03-28 11:06:48 — INFO — Generated chime tone (523Hz).
+2026-03-28 11:06:49 — INFO — TTS engine initialised.
+2026-03-28 11:06:49 — INFO — Selected TTS voice: Karen
+2026-03-28 11:06:49 — INFO — Speech worker thread running.
+2026-03-28 11:06:49 — INFO — Speech worker thread started.
+2026-03-28 11:06:49 — INFO — Audio system ready.
+2026-03-28 11:06:49 — INFO — Audio ready.
+2026-03-28 11:06:49 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 11:06:49 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 11:06:49 — INFO — State machine ready.
+2026-03-28 11:06:49 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 11:06:49 — INFO — Callbacks registered.
+2026-03-28 11:06:49 — INFO — ============================================================
+2026-03-28 11:06:49 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 11:06:49 — INFO — ============================================================
+2026-03-28 11:06:49 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 11:07:15 — INFO — Performance | Frame 30 | FPS: 1.3 | Avg: 785.3ms | Slow frames: 30 | Uptime: 31s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 11:07:23 — INFO — KalmanTracker reset. Cleared 3 tracks.
+2026-03-28 11:07:23 — INFO — Obstacle tracker reset.
+2026-03-28 11:07:23 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:07:23 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:07:25 — INFO — OCR trigger gone. Returning to NAVIGATION.
+2026-03-28 11:07:25 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:07:25 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:07:39 — INFO — Performance | Frame 60 | FPS: 1.3 | Avg: 762.0ms | Slow frames: 60 | Uptime: 54s | Mode: NAVIGATION | Tracks: 2
+2026-03-28 11:08:04 — INFO — Performance | Frame 90 | FPS: 1.3 | Avg: 761.4ms | Slow frames: 90 | Uptime: 79s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 11:08:15 — INFO — KalmanTracker reset. Cleared 4 tracks.
+2026-03-28 11:08:15 — INFO — Obstacle tracker reset.
+2026-03-28 11:08:15 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:08:15 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:08:17 — INFO — OCR trigger gone. Returning to NAVIGATION.
+2026-03-28 11:08:17 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:08:17 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:08:28 — INFO — Performance | Frame 120 | FPS: 1.3 | Avg: 788.1ms | Slow frames: 120 | Uptime: 104s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 11:08:38 — INFO — KalmanTracker reset. Cleared 3 tracks.
+2026-03-28 11:08:38 — INFO — Obstacle tracker reset.
+2026-03-28 11:08:38 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:08:38 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:08:40 — WARNING — Emergency override: person at 734mm is in DANGER zone.
+2026-03-28 11:08:40 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 11:08:40 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:08:40 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:08:41 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-28 11:08:41 — INFO — Obstacle tracker reset.
+2026-03-28 11:08:41 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:08:41 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:08:45 — INFO — OCR trigger gone. Returning to NAVIGATION.
+2026-03-28 11:08:45 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:08:45 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:08:46 — INFO — KalmanTracker reset. Cleared 2 tracks.
+2026-03-28 11:08:46 — INFO — Obstacle tracker reset.
+2026-03-28 11:08:46 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:08:46 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:08:51 — INFO — OCR trigger gone. Returning to NAVIGATION.
+2026-03-28 11:08:51 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:08:51 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:08:53 — INFO — Performance | Frame 150 | FPS: 1.3 | Avg: 799.5ms | Slow frames: 150 | Uptime: 129s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 11:08:54 — INFO — KalmanTracker reset. Cleared 2 tracks.
+2026-03-28 11:08:54 — INFO — Obstacle tracker reset.
+2026-03-28 11:08:54 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:08:54 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:08:57 — INFO — OCR trigger gone. Returning to NAVIGATION.
+2026-03-28 11:08:57 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:08:57 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:09:17 — INFO — Performance | Frame 180 | FPS: 1.3 | Avg: 787.1ms | Slow frames: 180 | Uptime: 153s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 11:09:41 — INFO — Performance | Frame 210 | FPS: 1.3 | Avg: 759.4ms | Slow frames: 210 | Uptime: 176s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 11:10:05 — INFO — Performance | Frame 240 | FPS: 1.3 | Avg: 763.7ms | Slow frames: 240 | Uptime: 201s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 11:10:42 — INFO — Performance | Frame 270 | FPS: 1.3 | Avg: 764.8ms | Slow frames: 270 | Uptime: 237s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 11:11:16 — INFO — Performance | Frame 300 | FPS: 1.3 | Avg: 760.9ms | Slow frames: 300 | Uptime: 272s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 11:11:41 — INFO — Performance | Frame 330 | FPS: 1.3 | Avg: 759.3ms | Slow frames: 330 | Uptime: 296s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 11:12:04 — INFO — Performance | Frame 360 | FPS: 1.3 | Avg: 758.5ms | Slow frames: 360 | Uptime: 319s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 11:12:27 — INFO — Performance | Frame 390 | FPS: 1.3 | Avg: 759.7ms | Slow frames: 390 | Uptime: 343s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 11:12:50 — INFO — Performance | Frame 420 | FPS: 1.3 | Avg: 758.9ms | Slow frames: 420 | Uptime: 366s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 11:13:14 — INFO — Performance | Frame 450 | FPS: 1.3 | Avg: 760.0ms | Slow frames: 450 | Uptime: 389s | Mode: NAVIGATION | Tracks: 0
+2026-03-28 11:13:35 — INFO — KalmanTracker reset. Cleared 0 tracks.
+2026-03-28 11:13:35 — INFO — Obstacle tracker reset.
+2026-03-28 11:13:35 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:13:35 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:13:37 — INFO — OCR trigger gone. Returning to NAVIGATION.
+2026-03-28 11:13:37 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:13:37 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:13:39 — INFO — KalmanTracker reset. Cleared 0 tracks.
+2026-03-28 11:13:39 — INFO — Obstacle tracker reset.
+2026-03-28 11:13:39 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:13:39 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:13:40 — INFO — Performance | Frame 480 | FPS: 1.2 | Avg: 817.1ms | Slow frames: 480 | Uptime: 416s | Mode: OCR | Tracks: 0
+2026-03-28 11:13:46 — INFO — OCR trigger gone. Returning to NAVIGATION.
+2026-03-28 11:13:46 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:13:46 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:13:53 — INFO — KalmanTracker reset. Cleared 0 tracks.
+2026-03-28 11:13:53 — INFO — Obstacle tracker reset.
+2026-03-28 11:13:53 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:13:53 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:13:55 — INFO — OCR trigger gone. Returning to NAVIGATION.
+2026-03-28 11:13:55 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:13:55 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:14:03 — INFO — KalmanTracker reset. Cleared 0 tracks.
+2026-03-28 11:14:03 — INFO — Obstacle tracker reset.
+2026-03-28 11:14:03 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:14:03 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:14:06 — INFO — OCR trigger gone. Returning to NAVIGATION.
+2026-03-28 11:14:06 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:14:06 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:14:07 — INFO — Performance | Frame 510 | FPS: 1.2 | Avg: 860.0ms | Slow frames: 510 | Uptime: 442s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 11:14:39 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 11:14:39 — INFO — ============================================================
+2026-03-28 11:14:39 — INFO — ECHORA Control Unit starting up...
+2026-03-28 11:14:39 — INFO — ============================================================
+2026-03-28 11:14:39 — INFO — Step 1/5: Starting camera...
+2026-03-28 11:14:39 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 11:14:39 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 11:14:41 — INFO — Starting OAK-D Lite device...
+2026-03-28 11:14:41 — INFO — Device started successfully.
+2026-03-28 11:14:41 — INFO — Kalman filter initialised.
+2026-03-28 11:14:41 — INFO — IMU reader thread started.
+2026-03-28 11:14:41 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 11:14:41 — INFO — Camera ready.
+2026-03-28 11:14:41 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 11:14:41 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 11:14:41 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 11:14:41 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 11:14:41 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 11:14:41 — INFO — YOLO model loaded successfully.
+2026-03-28 11:14:41 — INFO — Model classes: 80 total
+2026-03-28 11:14:41 — INFO — Obstacle detector ready.
+2026-03-28 11:14:41 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 11:14:41 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 11:14:41 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 11:14:41 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 11:14:41 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 11:14:41 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 11:14:41 — INFO — InteractionDetector ready.
+2026-03-28 11:14:41 — INFO — Step 2c: Initialising OCR...
+2026-03-28 11:14:41 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 11:14:41 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 11:14:41 — INFO — First run will download model files (~100MB)...
+2026-03-28 11:14:43 — INFO — EasyOCR loaded in 1339ms.
+2026-03-28 11:14:43 — INFO — OCRReader ready.
+2026-03-28 11:14:43 — INFO — Module-level OCR reader ready.
+2026-03-28 11:14:43 — INFO — OCR ready.
+2026-03-28 11:14:43 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 11:14:43 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 11:14:43 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-28 11:14:43 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-28 11:14:43 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 11:14:43 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 11:14:43 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 11:14:43 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 11:14:43 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 11:14:43 — INFO — Module-level banknote detector ready.
+2026-03-28 11:14:43 — INFO — Banknote detector ready.
+2026-03-28 11:14:43 — INFO — Step 3/5: Starting audio system...
+2026-03-28 11:14:43 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 11:14:43 — INFO — Initialising audio system...
+2026-03-28 11:14:43 — INFO — pygame mixer initialised.
+2026-03-28 11:14:43 — INFO — Generated danger tone (880Hz).
+2026-03-28 11:14:43 — INFO — Generated warning tone (440Hz).
+2026-03-28 11:14:43 — INFO — Generated chime tone (523Hz).
+2026-03-28 11:14:43 — INFO — TTS engine initialised.
+2026-03-28 11:14:44 — INFO — Selected TTS voice: Karen
+2026-03-28 11:14:44 — INFO — Speech worker thread running.
+2026-03-28 11:14:44 — INFO — Speech worker thread started.
+2026-03-28 11:14:44 — INFO — Audio system ready.
+2026-03-28 11:14:44 — INFO — Audio ready.
+2026-03-28 11:14:44 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 11:14:44 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 11:14:44 — INFO — State machine ready.
+2026-03-28 11:14:44 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 11:14:44 — INFO — Callbacks registered.
+2026-03-28 11:14:44 — INFO — ============================================================
+2026-03-28 11:14:44 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 11:14:44 — INFO — ============================================================
+2026-03-28 11:14:44 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 11:15:08 — INFO — Performance | Frame 30 | FPS: 1.3 | Avg: 782.2ms | Slow frames: 30 | Uptime: 29s | Mode: NAVIGATION | Tracks: 2
+2026-03-28 11:32:56 — INFO — ControlUnit created. Call startup() to begin.
+2026-03-28 11:32:56 — INFO — ============================================================
+2026-03-28 11:32:56 — INFO — ECHORA Control Unit starting up...
+2026-03-28 11:32:56 — INFO — ============================================================
+2026-03-28 11:32:56 — INFO — Step 1/5: Starting camera...
+2026-03-28 11:32:56 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-28 11:32:56 — INFO — Initialising depthai v3 pipeline...
+2026-03-28 11:32:58 — INFO — Starting OAK-D Lite device...
+2026-03-28 11:32:58 — INFO — Device started successfully.
+2026-03-28 11:32:58 — INFO — Kalman filter initialised.
+2026-03-28 11:32:58 — INFO — IMU reader thread started.
+2026-03-28 11:32:58 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-28 11:32:58 — INFO — Camera ready.
+2026-03-28 11:32:58 — INFO — Step 2/5: Loading obstacle detector...
+2026-03-28 11:32:58 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-28 11:32:58 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-28 11:32:58 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8n.pt
+2026-03-28 11:32:58 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-28 11:32:58 — INFO — YOLO model loaded successfully.
+2026-03-28 11:32:58 — INFO — Model classes: 80 total
+2026-03-28 11:32:58 — INFO — Obstacle detector ready.
+2026-03-28 11:32:58 — INFO — Step 2b: Loading interaction detector...
+2026-03-28 11:32:58 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-28 11:32:58 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-28 11:32:58 — INFO — Loading MediaPipe hand detection model...
+2026-03-28 11:32:58 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-28 11:32:58 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-28 11:32:58 — INFO — InteractionDetector ready.
+2026-03-28 11:32:58 — INFO — Step 2c: Initialising OCR...
+2026-03-28 11:32:58 — INFO — OCRReader created. Call load_model() to start.
+2026-03-28 11:32:58 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-28 11:32:58 — INFO — First run will download model files (~100MB)...
+2026-03-28 11:32:59 — INFO — EasyOCR loaded in 1322ms.
+2026-03-28 11:32:59 — INFO — OCRReader ready.
+2026-03-28 11:32:59 — INFO — Module-level OCR reader ready.
+2026-03-28 11:32:59 — INFO — OCR ready.
+2026-03-28 11:32:59 — INFO — Step 2d: Initialising banknote detector...
+2026-03-28 11:32:59 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-28 11:32:59 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-28 11:32:59 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-28 11:32:59 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-28 11:32:59 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 11:32:59 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 11:32:59 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-28 11:32:59 — INFO — BanknoteDetector ready (real detection).
+2026-03-28 11:32:59 — INFO — Module-level banknote detector ready.
+2026-03-28 11:32:59 — INFO — Banknote detector ready.
+2026-03-28 11:32:59 — INFO — Step 3/5: Starting audio system...
+2026-03-28 11:32:59 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-28 11:32:59 — INFO — Initialising audio system...
+2026-03-28 11:32:59 — INFO — pygame mixer initialised.
+2026-03-28 11:32:59 — INFO — Generated danger tone (880Hz).
+2026-03-28 11:32:59 — INFO — Generated warning tone (440Hz).
+2026-03-28 11:32:59 — INFO — Generated chime tone (523Hz).
+2026-03-28 11:33:00 — INFO — TTS engine initialised.
+2026-03-28 11:33:00 — INFO — Selected TTS voice: Karen
+2026-03-28 11:33:00 — INFO — Speech worker thread running.
+2026-03-28 11:33:00 — INFO — Speech worker thread started.
+2026-03-28 11:33:00 — INFO — Audio system ready.
+2026-03-28 11:33:00 — INFO — Audio ready.
+2026-03-28 11:33:00 — INFO — Step 4/5: Initialising state machine...
+2026-03-28 11:33:00 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-28 11:33:00 — INFO — State machine ready.
+2026-03-28 11:33:00 — INFO — Step 5/5: Registering mode callbacks...
+2026-03-28 11:33:00 — INFO — Callbacks registered.
+2026-03-28 11:33:00 — INFO — ============================================================
+2026-03-28 11:33:00 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-28 11:33:00 — INFO — ============================================================
+2026-03-28 11:33:00 — INFO — Main loop started. Press Q in the debug window to quit.
+2026-03-28 11:33:25 — INFO — Performance | Frame 30 | FPS: 1.3 | Avg: 790.0ms | Slow frames: 30 | Uptime: 29s | Mode: NAVIGATION | Tracks: 1
+2026-03-28 11:33:49 — INFO — Performance | Frame 60 | FPS: 1.3 | Avg: 769.5ms | Slow frames: 60 | Uptime: 53s | Mode: NAVIGATION | Tracks: 2
+2026-03-28 11:34:04 — INFO — KalmanTracker reset. Cleared 4 tracks.
+2026-03-28 11:34:04 — INFO — Obstacle tracker reset.
+2026-03-28 11:34:04 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:34:04 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:34:06 — WARNING — Emergency override: person at 1178mm is in DANGER zone.
+2026-03-28 11:34:06 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 11:34:06 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:34:06 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:34:07 — INFO — KalmanTracker reset. Cleared 4 tracks.
+2026-03-28 11:34:07 — INFO — Obstacle tracker reset.
+2026-03-28 11:34:07 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:34:07 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:34:09 — WARNING — Emergency override: person at 1173mm is in DANGER zone.
+2026-03-28 11:34:09 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 11:34:09 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:34:09 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:34:10 — INFO — KalmanTracker reset. Cleared 5 tracks.
+2026-03-28 11:34:10 — INFO — Obstacle tracker reset.
+2026-03-28 11:34:10 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:34:10 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:34:12 — WARNING — Emergency override: person at 768mm is in DANGER zone.
+2026-03-28 11:34:12 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 11:34:12 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:34:12 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:34:13 — INFO — KalmanTracker reset. Cleared 3 tracks.
+2026-03-28 11:34:13 — INFO — Obstacle tracker reset.
+2026-03-28 11:34:13 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:34:13 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:34:15 — WARNING — Emergency override: person at 1051mm is in DANGER zone.
+2026-03-28 11:34:15 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 11:34:15 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:34:15 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:34:16 — INFO — KalmanTracker reset. Cleared 3 tracks.
+2026-03-28 11:34:16 — INFO — Obstacle tracker reset.
+2026-03-28 11:34:16 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:34:16 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:34:16 — INFO — Performance | Frame 90 | FPS: 1.2 | Avg: 853.9ms | Slow frames: 90 | Uptime: 80s | Mode: OCR | Tracks: 0
+2026-03-28 11:34:18 — WARNING — Emergency override: person at 1380mm is in DANGER zone.
+2026-03-28 11:34:18 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 11:34:18 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:34:18 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:34:18 — INFO — KalmanTracker reset. Cleared 3 tracks.
+2026-03-28 11:34:18 — INFO — Obstacle tracker reset.
+2026-03-28 11:34:18 — INFO — Mode switch: NAVIGATION → OCR (transition from NAVIGATION)
+2026-03-28 11:34:18 — INFO — Active mode: NAVIGATION → OCR
+2026-03-28 11:34:20 — WARNING — Emergency override: person at 919mm is in DANGER zone.
+2026-03-28 11:34:20 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-28 11:34:20 — INFO — Mode switch: OCR → NAVIGATION (transition from OCR)
+2026-03-28 11:34:20 — INFO — Active mode: OCR → NAVIGATION
+2026-03-28 11:34:20 — INFO — Q key pressed — exiting main loop.
+2026-03-28 11:34:20 — INFO — Shutting down ECHORA...
+2026-03-28 11:34:22 — INFO — Releasing audio resources...
+2026-03-28 11:34:22 — INFO — Speech worker thread stopped.
+2026-03-28 11:34:23 — INFO — Audio released cleanly.
+2026-03-28 11:34:23 — INFO — HapticBridge disconnected.
+2026-03-28 11:34:23 — INFO — InteractionDetector released.
+2026-03-28 11:34:23 — INFO — Releasing camera resources...
+2026-03-28 11:34:23 — INFO — IMU reader thread stopped.
+2026-03-28 11:34:26 — INFO — Camera released cleanly.
+2026-03-28 11:34:26 — INFO — ECHORA stopped. Frames: 95 | Uptime: 90.3s | Slow frames: 95
+2026-03-28 11:34:26 — INFO — Shutdown complete.
