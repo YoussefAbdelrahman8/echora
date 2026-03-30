@@ -216,7 +216,7 @@ class ObstacleDetector:
         # At the end of load_model():
         logger.info("Warming up YOLO on CUDA...")
 
-        blank = np.zeros((288, 480, 3), dtype= np.uint8)
+        blank = np.zeros((YOLO_INPUT_HEIGHT, YOLO_INPUT_WIDTH, 3), dtype=np.uint8)
         for _ in range(3):
             self._yolo(blank, verbose=False, device=self._device, half=True)
         logger.info("YOLO warmup complete.")

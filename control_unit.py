@@ -785,23 +785,3 @@ class ControlUnit:
         logger.info("Shutdown complete.")
 
 
-# =============================================================================
-# ENTRY POINT
-# =============================================================================
-
-if __name__ == "__main__":
-
-    print("=" * 60)
-    print("  ECHORA — AI-Powered Sensory Substitution System")
-    print("  Press Q in the debug window to quit.")
-    print("=" * 60)
-
-    cu = ControlUnit()
-
-    try:
-        cu.startup()
-        cu.run()
-    except Exception as e:
-        logger.error(f"Fatal error: {e}", exc_info=True)
-    finally:
-        cu.shutdown()

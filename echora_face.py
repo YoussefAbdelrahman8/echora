@@ -491,9 +491,6 @@ class FaceRecognizer:
                 f"Face identified: {identified_name} "
                 f"(distance={best_distance:.3f})"
             )
-            logger.info(
-                f"Face distances: { {self._known_names[i]: round(float(distances[i]), 3) for i in range(len(distances))} }")
-
             return identified_name, ""
 
         except Exception as e:
