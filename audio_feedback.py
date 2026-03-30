@@ -153,7 +153,7 @@ class AudioFeedback:
             self._engine.setProperty('volume', self._volume)
 
             voices          = self._engine.getProperty('voices')
-            preferred_names = ['samantha', 'karen', 'victoria', 'alex']
+            preferred_names = ['samantha', 'karen', 'victoria', 'alex', 'arabic', 'naayf', 'hoda']
             selected_voice  = None
 
             for voice in voices:

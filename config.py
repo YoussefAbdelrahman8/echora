@@ -320,7 +320,7 @@ OCR_CONFIDENCE_THRESHOLD = 0.7
 
 # The language code for OCR. "en" = English.
 # Can be extended to support Arabic, French, etc. in the future.
-OCR_LANGUAGE = "en"
+OCR_LANGUAGE = ["en", "ar"]
 
 # Maximum number of characters to read aloud at once.
 # Avoids reading an entire page of text in one go.
