@@ -6491,3 +6491,1845 @@ AttributeError: 'StateMachine' object has no attribute '_emergency_override'
 2026-03-30 09:36:23 — INFO — Database closed.
 2026-03-30 09:36:23 — INFO — ECHORA stopped. Frames: 248 | Uptime: 66.3s | Slow frames: 33
 2026-03-30 09:36:23 — INFO — Shutdown complete.
+2026-03-30 13:32:30 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 13:32:30 — INFO — ============================================================
+2026-03-30 13:32:30 — INFO — ECHORA Control Unit starting up...
+2026-03-30 13:32:30 — INFO — ============================================================
+2026-03-30 13:32:30 — INFO — Step 1: Starting camera...
+2026-03-30 13:32:30 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 13:32:30 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 13:32:41 — ERROR — Fatal error: No available devices
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/main.py", line 311, in main
+    cu.startup()
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 165, in startup
+    self._camera.init_pipeline()
+  File "/Users/youssefabdelrahman/Coding/python/echora/camera.py", line 111, in init_pipeline
+    self.pipeline = dai.Pipeline()
+RuntimeError: No available devices
+2026-03-30 13:34:47 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 13:34:47 — INFO — ============================================================
+2026-03-30 13:34:47 — INFO — ECHORA Control Unit starting up...
+2026-03-30 13:34:47 — INFO — ============================================================
+2026-03-30 13:34:47 — INFO — Step 1: Starting camera...
+2026-03-30 13:34:47 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 13:34:47 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 13:34:49 — INFO — Starting OAK-D device...
+2026-03-30 13:34:49 — INFO — Device started successfully.
+2026-03-30 13:34:49 — INFO — Kalman filter initialised.
+2026-03-30 13:34:49 — INFO — IMU reader thread started.
+2026-03-30 13:34:49 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 13:34:49 — INFO — Camera ready.
+2026-03-30 13:34:49 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 13:34:49 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 13:34:49 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 13:34:49 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 13:34:49 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 13:34:49 — INFO — YOLO model loaded successfully.
+2026-03-30 13:34:49 — INFO — Model classes: 80 total
+2026-03-30 13:34:49 — INFO — Warming up YOLO on CUDA...
+2026-03-30 13:34:49 — INFO — YOLO warmup complete.
+2026-03-30 13:34:49 — INFO — Obstacle detector ready.
+2026-03-30 13:34:49 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 13:34:49 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 13:34:49 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 13:34:49 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 13:34:50 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 13:34:50 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 13:34:50 — INFO — InteractionDetector ready.
+2026-03-30 13:34:50 — INFO — Interaction detector ready.
+2026-03-30 13:34:50 — INFO — Step 2c: Initialising OCR...
+2026-03-30 13:34:50 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 13:34:50 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-30 13:34:50 — INFO — First run will download model files (~100MB)...
+2026-03-30 13:34:51 — INFO — EasyOCR loaded in 1377ms.
+2026-03-30 13:34:51 — INFO — OCRReader ready.
+2026-03-30 13:34:51 — INFO — Module-level OCR reader ready.
+2026-03-30 13:34:51 — INFO — OCR ready.
+2026-03-30 13:34:51 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 13:34:51 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 13:34:51 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 13:34:51 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 13:34:51 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 13:34:51 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:34:51 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:34:51 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:34:51 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 13:34:51 — INFO — Module-level banknote detector ready.
+2026-03-30 13:34:51 — INFO — Banknote detector ready.
+2026-03-30 13:34:51 — INFO — Step 2e: Initialising database...
+2026-03-30 13:34:51 — INFO — Database created. Call init_db() to open.
+2026-03-30 13:34:51 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 13:34:51 — INFO — Database opened successfully.
+2026-03-30 13:34:51 — INFO —   Registered persons: 3
+2026-03-30 13:34:51 — INFO — Module-level database ready.
+2026-03-30 13:34:51 — INFO — Database ready.
+2026-03-30 13:34:51 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 13:34:51 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 13:34:51 — INFO — Loading face recognition model...
+2026-03-30 13:34:51 — INFO — face_recognition library loaded successfully.
+2026-03-30 13:34:51 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 13:34:51 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 13:34:51 — INFO — Module-level face recogniser ready.
+2026-03-30 13:34:51 — INFO — Face recognition ready.
+2026-03-30 13:34:51 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 13:34:51 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 13:34:51 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 13:34:51 — INFO — Module-level haptic feedback ready.
+2026-03-30 13:34:51 — INFO — Haptic feedback ready.
+2026-03-30 13:34:51 — INFO — Step 3: Starting audio system...
+2026-03-30 13:34:51 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 13:34:51 — INFO — Initialising audio system...
+2026-03-30 13:34:51 — INFO — pygame mixer initialised.
+2026-03-30 13:34:51 — INFO — Generated danger tone (880Hz).
+2026-03-30 13:34:51 — INFO — Generated warning tone (440Hz).
+2026-03-30 13:34:51 — INFO — Generated chime tone (523Hz).
+2026-03-30 13:34:51 — INFO — TTS engine initialised.
+2026-03-30 13:34:52 — INFO — Selected TTS voice: Karen
+2026-03-30 13:34:52 — INFO — Speech worker thread running.
+2026-03-30 13:34:52 — INFO — Speech worker thread started.
+2026-03-30 13:34:52 — INFO — Speech watchdog started.
+2026-03-30 13:34:52 — INFO — Audio system ready.
+2026-03-30 13:34:52 — INFO — Audio ready.
+2026-03-30 13:34:52 — INFO — Step 4: Initialising state machine...
+2026-03-30 13:34:52 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 13:34:52 — INFO — State machine ready.
+2026-03-30 13:34:52 — INFO — Step 5: Registering callbacks...
+2026-03-30 13:34:52 — INFO — Callbacks registered.
+2026-03-30 13:34:52 — INFO — ============================================================
+2026-03-30 13:34:52 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 13:34:52 — INFO — ============================================================
+2026-03-30 13:34:52 — INFO — Main loop started.
+2026-03-30 13:34:52 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 13:34:55 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-30 13:34:55 — INFO — Obstacle tracker reset.
+2026-03-30 13:34:55 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:34:57 — INFO — Face lost. Returning to NAVIGATION.
+2026-03-30 13:34:57 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:34:57 — INFO — KalmanTracker reset. Cleared 2 tracks.
+2026-03-30 13:34:57 — INFO — Obstacle tracker reset.
+2026-03-30 13:34:57 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:34:58 — INFO — Performance | Frame 30 | FPS: 18.5 | Avg: 54.1ms | Slow: 8 | Uptime: 12s | MANUAL | Mode: NAVIGATION | Tracks: 1
+2026-03-30 13:35:05 — INFO — Performance | Frame 60 | FPS: 27.8 | Avg: 35.9ms | Slow: 11 | Uptime: 18s | MANUAL | Mode: NAVIGATION | Tracks: 1
+2026-03-30 13:35:06 — INFO — Face lost. Returning to NAVIGATION.
+2026-03-30 13:35:06 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:35:11 — INFO — Performance | Frame 90 | FPS: 25.7 | Avg: 38.9ms | Slow: 14 | Uptime: 24s | MANUAL | Mode: NAVIGATION | Tracks: 1
+2026-03-30 13:35:14 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-30 13:35:14 — INFO — Obstacle tracker reset.
+2026-03-30 13:35:14 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:35:17 — INFO — Performance | Frame 120 | FPS: 29.1 | Avg: 34.4ms | Slow: 18 | Uptime: 30s | MANUAL | Mode: NAVIGATION | Tracks: 1
+2026-03-30 13:35:17 — INFO — Face lost. Returning to NAVIGATION.
+2026-03-30 13:35:17 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:35:18 — INFO — Switched to AUTO mode.
+2026-03-30 13:35:19 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-30 13:35:19 — INFO — Obstacle tracker reset.
+2026-03-30 13:35:19 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:35:19 — INFO — Mode: NAVIGATION -> FACE_ID [AUTO]
+2026-03-30 13:35:23 — INFO — Performance | Frame 150 | FPS: 28.1 | Avg: 35.6ms | Slow: 19 | Uptime: 36s | AUTO | Mode: FACE_ID | Tracks: 1
+2026-03-30 13:35:23 — INFO — Switched to MANUAL mode. Locked on: FACE_ID. Press 1-5 to change.
+2026-03-30 13:35:24 — INFO — Face identified: Yossef (distance=0.510)
+2026-03-30 13:35:24 — INFO — Face announced: Yossef
+2026-03-30 13:35:29 — INFO — Performance | Frame 180 | FPS: 30.1 | Avg: 33.2ms | Slow: 19 | Uptime: 42s | MANUAL | Mode: FACE_ID | Tracks: 1
+2026-03-30 13:35:30 — INFO — Manual mode: FACE_ID -> OCR
+2026-03-30 13:35:31 — INFO — Mode: FACE_ID -> OCR [MANUAL]
+2026-03-30 13:35:36 — INFO — Face lost. Returning to NAVIGATION.
+2026-03-30 13:35:36 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:35:39 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-30 13:35:39 — INFO — Obstacle tracker reset.
+2026-03-30 13:35:39 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:35:40 — INFO — Performance | Frame 210 | FPS: 3.1 | Avg: 318.1ms | Slow: 42 | Uptime: 53s | MANUAL | Mode: OCR | Tracks: 1
+2026-03-30 13:35:44 — INFO — Manual mode: OCR -> NAVIGATION
+2026-03-30 13:35:44 — INFO — Mode: OCR -> NAVIGATION [MANUAL]
+2026-03-30 13:35:54 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 13:35:54 — INFO — ============================================================
+2026-03-30 13:35:54 — INFO — ECHORA Control Unit starting up...
+2026-03-30 13:35:54 — INFO — ============================================================
+2026-03-30 13:35:54 — INFO — Step 1: Starting camera...
+2026-03-30 13:35:54 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 13:35:54 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 13:35:56 — INFO — Starting OAK-D device...
+2026-03-30 13:35:56 — INFO — Device started successfully.
+2026-03-30 13:35:56 — INFO — Kalman filter initialised.
+2026-03-30 13:35:56 — INFO — IMU reader thread started.
+2026-03-30 13:35:56 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 13:35:56 — INFO — Camera ready.
+2026-03-30 13:35:56 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 13:35:56 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 13:35:56 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 13:35:56 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 13:35:56 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 13:35:56 — INFO — YOLO model loaded successfully.
+2026-03-30 13:35:56 — INFO — Model classes: 80 total
+2026-03-30 13:35:56 — INFO — Warming up YOLO on CUDA...
+2026-03-30 13:35:56 — INFO — YOLO warmup complete.
+2026-03-30 13:35:56 — INFO — Obstacle detector ready.
+2026-03-30 13:35:56 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 13:35:56 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 13:35:56 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 13:35:56 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 13:35:56 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 13:35:56 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 13:35:56 — INFO — InteractionDetector ready.
+2026-03-30 13:35:56 — INFO — Interaction detector ready.
+2026-03-30 13:35:56 — INFO — Step 2c: Initialising OCR...
+2026-03-30 13:35:56 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 13:35:56 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-30 13:35:56 — INFO — First run will download model files (~100MB)...
+2026-03-30 13:35:58 — INFO — EasyOCR loaded in 1363ms.
+2026-03-30 13:35:58 — INFO — OCRReader ready.
+2026-03-30 13:35:58 — INFO — Module-level OCR reader ready.
+2026-03-30 13:35:58 — INFO — OCR ready.
+2026-03-30 13:35:58 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 13:35:58 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 13:35:58 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 13:35:58 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 13:35:58 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 13:35:58 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:35:58 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:35:58 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:35:58 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 13:35:58 — INFO — Module-level banknote detector ready.
+2026-03-30 13:35:58 — INFO — Banknote detector ready.
+2026-03-30 13:35:58 — INFO — Step 2e: Initialising database...
+2026-03-30 13:35:58 — INFO — Database created. Call init_db() to open.
+2026-03-30 13:35:58 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 13:35:58 — INFO — Database opened successfully.
+2026-03-30 13:35:58 — INFO —   Registered persons: 3
+2026-03-30 13:35:58 — INFO — Module-level database ready.
+2026-03-30 13:35:58 — INFO — Database ready.
+2026-03-30 13:35:58 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 13:35:58 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 13:35:58 — INFO — Loading face recognition model...
+2026-03-30 13:35:58 — INFO — face_recognition library loaded successfully.
+2026-03-30 13:35:58 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 13:35:58 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 13:35:58 — INFO — Module-level face recogniser ready.
+2026-03-30 13:35:58 — INFO — Face recognition ready.
+2026-03-30 13:35:58 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 13:35:58 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 13:35:58 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 13:35:58 — INFO — Module-level haptic feedback ready.
+2026-03-30 13:35:58 — INFO — Haptic feedback ready.
+2026-03-30 13:35:58 — INFO — Step 3: Starting audio system...
+2026-03-30 13:35:58 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 13:35:58 — INFO — Initialising audio system...
+2026-03-30 13:35:58 — INFO — pygame mixer initialised.
+2026-03-30 13:35:58 — INFO — Generated danger tone (880Hz).
+2026-03-30 13:35:58 — INFO — Generated warning tone (440Hz).
+2026-03-30 13:35:58 — INFO — Generated chime tone (523Hz).
+2026-03-30 13:35:58 — INFO — TTS engine initialised.
+2026-03-30 13:35:58 — INFO — Selected TTS voice: Karen
+2026-03-30 13:35:58 — INFO — Speech worker thread running.
+2026-03-30 13:35:58 — INFO — Speech worker thread started.
+2026-03-30 13:35:58 — INFO — Speech watchdog started.
+2026-03-30 13:35:58 — INFO — Audio system ready.
+2026-03-30 13:35:58 — INFO — Audio ready.
+2026-03-30 13:35:58 — INFO — Step 4: Initialising state machine...
+2026-03-30 13:35:58 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 13:35:58 — INFO — State machine ready.
+2026-03-30 13:35:58 — INFO — Step 5: Registering callbacks...
+2026-03-30 13:35:58 — INFO — Callbacks registered.
+2026-03-30 13:35:59 — INFO — ============================================================
+2026-03-30 13:35:59 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 13:35:59 — INFO — ============================================================
+2026-03-30 13:35:59 — INFO — Main loop started.
+2026-03-30 13:35:59 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 13:35:59 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-30 13:35:59 — INFO — Obstacle tracker reset.
+2026-03-30 13:35:59 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:36:01 — INFO — Manual mode: NAVIGATION -> OCR
+2026-03-30 13:36:02 — INFO — Mode: NAVIGATION -> OCR [MANUAL]
+2026-03-30 13:36:09 — INFO — Performance | Frame 30 | FPS: 3.8 | Avg: 266.3ms | Slow: 19 | Uptime: 15s | MANUAL | Mode: OCR | Tracks: 1
+2026-03-30 13:36:13 — INFO — Face lost. Returning to NAVIGATION.
+2026-03-30 13:36:13 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:36:16 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-30 13:36:16 — INFO — Obstacle tracker reset.
+2026-03-30 13:36:16 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:36:20 — INFO — Face lost. Returning to NAVIGATION.
+2026-03-30 13:36:20 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:36:22 — INFO — Performance | Frame 60 | FPS: 2.5 | Avg: 405.9ms | Slow: 49 | Uptime: 28s | MANUAL | Mode: OCR | Tracks: 1
+2026-03-30 13:36:28 — INFO — Manual mode: OCR -> INTERACTION
+2026-03-30 13:36:28 — INFO — Mode: OCR -> INTERACTION [MANUAL]
+2026-03-30 13:36:28 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-30 13:36:28 — INFO — Obstacle tracker reset.
+2026-03-30 13:36:28 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:36:31 — INFO — Performance | Frame 90 | FPS: 4.4 | Avg: 226.2ms | Slow: 67 | Uptime: 37s | MANUAL | Mode: INTERACTION | Tracks: 1
+2026-03-30 13:36:32 — INFO — Manual mode: INTERACTION -> FACE_ID
+2026-03-30 13:36:32 — INFO — Mode: INTERACTION -> FACE_ID [MANUAL]
+2026-03-30 13:36:36 — INFO — Face identified: Yossef (distance=0.458)
+2026-03-30 13:36:36 — INFO — Face announced: Yossef
+2026-03-30 13:36:38 — INFO — Performance | Frame 120 | FPS: 27.8 | Avg: 36.0ms | Slow: 70 | Uptime: 44s | MANUAL | Mode: FACE_ID | Tracks: 1
+2026-03-30 13:36:42 — INFO — Manual mode: FACE_ID -> INTERACTION
+2026-03-30 13:36:42 — INFO — Mode: FACE_ID -> INTERACTION [MANUAL]
+2026-03-30 13:36:44 — INFO — Performance | Frame 150 | FPS: 29.7 | Avg: 33.6ms | Slow: 71 | Uptime: 50s | MANUAL | Mode: INTERACTION | Tracks: 1
+2026-03-30 13:36:49 — WARNING — Emergency override in FACE_ID: bottle at 430mm is DANGER.
+2026-03-30 13:36:49 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from FACE_ID.
+2026-03-30 13:36:49 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:36:50 — INFO — Performance | Frame 180 | FPS: 21.6 | Avg: 46.2ms | Slow: 78 | Uptime: 56s | MANUAL | Mode: INTERACTION | Tracks: 1
+2026-03-30 13:36:51 — INFO — KalmanTracker reset. Cleared 2 tracks.
+2026-03-30 13:36:51 — INFO — Obstacle tracker reset.
+2026-03-30 13:36:51 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:36:53 — INFO — Face lost. Returning to NAVIGATION.
+2026-03-30 13:36:53 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:36:55 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-30 13:36:55 — INFO — Obstacle tracker reset.
+2026-03-30 13:36:55 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:36:55 — INFO — Performance | Frame 210 | FPS: 22.3 | Avg: 44.8ms | Slow: 85 | Uptime: 62s | MANUAL | Mode: INTERACTION | Tracks: 1
+2026-03-30 13:36:57 — INFO — Face lost. Returning to NAVIGATION.
+2026-03-30 13:36:57 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:36:59 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-30 13:36:59 — INFO — Obstacle tracker reset.
+2026-03-30 13:36:59 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:36:59 — INFO — Manual mode: INTERACTION -> NAVIGATION
+2026-03-30 13:36:59 — INFO — Mode: INTERACTION -> NAVIGATION [MANUAL]
+2026-03-30 13:37:02 — INFO — Performance | Frame 240 | FPS: 25.4 | Avg: 39.3ms | Slow: 90 | Uptime: 68s | MANUAL | Mode: NAVIGATION | Tracks: 1
+2026-03-30 13:37:02 — INFO — Face lost. Returning to NAVIGATION.
+2026-03-30 13:37:02 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:37:05 — INFO — KalmanTracker reset. Cleared 1 tracks.
+2026-03-30 13:37:05 — INFO — Obstacle tracker reset.
+2026-03-30 13:37:05 — INFO — Mode switch: NAVIGATION -> FACE_ID (transition from NAVIGATION)
+2026-03-30 13:37:07 — INFO — Face lost. Returning to NAVIGATION.
+2026-03-30 13:37:07 — INFO — Mode switch: FACE_ID -> NAVIGATION (transition from FACE_ID)
+2026-03-30 13:37:08 — INFO — Performance | Frame 270 | FPS: 27.9 | Avg: 35.8ms | Slow: 92 | Uptime: 74s | MANUAL | Mode: NAVIGATION | Tracks: 1
+2026-03-30 13:37:15 — INFO — Performance | Frame 300 | FPS: 27.1 | Avg: 36.9ms | Slow: 96 | Uptime: 82s | MANUAL | Mode: NAVIGATION | Tracks: 0
+2026-03-30 13:37:23 — INFO — Performance | Frame 330 | FPS: 31.0 | Avg: 32.2ms | Slow: 97 | Uptime: 89s | MANUAL | Mode: NAVIGATION | Tracks: 1
+2026-03-30 13:37:26 — INFO — Manual mode: NAVIGATION -> OCR
+2026-03-30 13:37:27 — INFO — Mode: NAVIGATION -> OCR [MANUAL]
+2026-03-30 13:37:34 — INFO — Performance | Frame 360 | FPS: 4.0 | Avg: 248.7ms | Slow: 114 | Uptime: 100s | MANUAL | Mode: OCR | Tracks: 3
+2026-03-30 13:37:35 — INFO — KalmanTracker reset. Cleared 5 tracks.
+2026-03-30 13:37:35 — INFO — Obstacle tracker reset.
+2026-03-30 13:37:35 — INFO — Mode switch: NAVIGATION -> OCR (transition from NAVIGATION)
+2026-03-30 13:37:36 — WARNING — Emergency override: person at 557mm is in DANGER zone.
+2026-03-30 13:37:36 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-30 13:37:36 — INFO — Mode switch: OCR -> NAVIGATION (transition from OCR)
+2026-03-30 13:37:37 — INFO — KalmanTracker reset. Cleared 3 tracks.
+2026-03-30 13:37:37 — INFO — Obstacle tracker reset.
+2026-03-30 13:37:37 — INFO — Mode switch: NAVIGATION -> OCR (transition from NAVIGATION)
+2026-03-30 13:37:41 — WARNING — Emergency override: bed at 1323mm is in DANGER zone.
+2026-03-30 13:37:41 — WARNING — EMERGENCY OVERRIDE: DANGER obstacle detected. Forcing NAVIGATION from OCR.
+2026-03-30 13:37:41 — INFO — Mode switch: OCR -> NAVIGATION (transition from OCR)
+2026-03-30 13:37:42 — INFO — KalmanTracker reset. Cleared 6 tracks.
+2026-03-30 13:37:42 — INFO — Obstacle tracker reset.
+2026-03-30 13:37:42 — INFO — Mode switch: NAVIGATION -> OCR (transition from NAVIGATION)
+2026-03-30 13:37:48 — INFO — Performance | Frame 390 | FPS: 2.2 | Avg: 444.5ms | Slow: 144 | Uptime: 114s | MANUAL | Mode: OCR | Tracks: 1
+2026-03-30 13:37:48 — INFO — OCR trigger gone. Returning to NAVIGATION.
+2026-03-30 13:37:48 — INFO — Mode switch: OCR -> NAVIGATION (transition from OCR)
+2026-03-30 13:37:49 — INFO — Q pressed — quitting.
+2026-03-30 13:37:49 — INFO — Shutting down ECHORA...
+2026-03-30 13:37:51 — INFO — Releasing audio resources...
+2026-03-30 13:37:51 — INFO — Speech worker thread stopped.
+2026-03-30 13:37:51 — INFO — Audio released cleanly.
+2026-03-30 13:37:51 — INFO — HapticBridge disconnected.
+2026-03-30 13:37:51 — INFO — InteractionDetector released.
+2026-03-30 13:37:51 — INFO — Releasing camera resources...
+2026-03-30 13:37:51 — INFO — IMU reader thread stopped.
+2026-03-30 13:37:54 — INFO — Camera released cleanly.
+2026-03-30 13:37:54 — INFO — HapticFeedback disconnected. Total sends: 1, errors: 0
+2026-03-30 13:37:54 — INFO — Database closed.
+2026-03-30 13:37:54 — INFO — ECHORA stopped. Frames: 392 | Uptime: 120.3s | Slow frames: 146
+2026-03-30 13:37:54 — INFO — Shutdown complete.
+2026-03-30 13:45:14 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 13:45:14 — INFO — ============================================================
+2026-03-30 13:45:14 — INFO — ECHORA Control Unit starting up...
+2026-03-30 13:45:14 — INFO — ============================================================
+2026-03-30 13:45:14 — INFO — Step 1: Starting camera...
+2026-03-30 13:45:14 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 13:45:14 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 13:45:16 — INFO — Starting OAK-D device...
+2026-03-30 13:45:16 — INFO — Device started successfully.
+2026-03-30 13:45:16 — INFO — Kalman filter initialised.
+2026-03-30 13:45:16 — INFO — IMU reader thread started.
+2026-03-30 13:45:16 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 13:45:16 — INFO — Camera ready.
+2026-03-30 13:45:16 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 13:45:16 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 13:45:16 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 13:45:16 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 13:45:16 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 13:45:16 — INFO — YOLO model loaded successfully.
+2026-03-30 13:45:16 — INFO — Model classes: 80 total
+2026-03-30 13:45:16 — INFO — Warming up YOLO on CUDA...
+2026-03-30 13:45:17 — INFO — YOLO warmup complete.
+2026-03-30 13:45:17 — INFO — Obstacle detector ready.
+2026-03-30 13:45:17 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 13:45:17 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 13:45:17 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 13:45:17 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 13:45:17 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 13:45:17 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 13:45:17 — INFO — InteractionDetector ready.
+2026-03-30 13:45:17 — INFO — Interaction detector ready.
+2026-03-30 13:45:17 — INFO — Step 2c: Initialising OCR...
+2026-03-30 13:45:17 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 13:45:17 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-30 13:45:17 — INFO — First run will download model files (~100MB)...
+2026-03-30 13:45:18 — INFO — EasyOCR loaded in 1455ms.
+2026-03-30 13:45:18 — INFO — OCRReader ready.
+2026-03-30 13:45:18 — INFO — Module-level OCR reader ready.
+2026-03-30 13:45:18 — INFO — OCR ready.
+2026-03-30 13:45:18 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 13:45:18 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 13:45:18 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 13:45:18 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 13:45:18 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 13:45:18 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:45:18 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:45:18 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:45:18 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 13:45:18 — INFO — Module-level banknote detector ready.
+2026-03-30 13:45:18 — INFO — Banknote detector ready.
+2026-03-30 13:45:18 — INFO — Step 2e: Initialising database...
+2026-03-30 13:45:18 — INFO — Database created. Call init_db() to open.
+2026-03-30 13:45:18 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 13:45:18 — INFO — Database opened successfully.
+2026-03-30 13:45:18 — INFO —   Registered persons: 3
+2026-03-30 13:45:18 — INFO — Module-level database ready.
+2026-03-30 13:45:18 — INFO — Database ready.
+2026-03-30 13:45:18 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 13:45:18 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 13:45:18 — INFO — Loading face recognition model...
+2026-03-30 13:45:18 — INFO — face_recognition library loaded successfully.
+2026-03-30 13:45:18 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 13:45:18 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 13:45:18 — INFO — Module-level face recogniser ready.
+2026-03-30 13:45:18 — INFO — Face recognition ready.
+2026-03-30 13:45:18 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 13:45:18 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 13:45:18 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 13:45:18 — INFO — Module-level haptic feedback ready.
+2026-03-30 13:45:18 — INFO — Haptic feedback ready.
+2026-03-30 13:45:18 — INFO — Step 3: Starting audio system...
+2026-03-30 13:45:18 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 13:45:18 — INFO — Initialising audio system...
+2026-03-30 13:45:19 — INFO — pygame mixer initialised.
+2026-03-30 13:45:19 — INFO — Generated danger tone (880Hz).
+2026-03-30 13:45:19 — INFO — Generated warning tone (440Hz).
+2026-03-30 13:45:19 — INFO — Generated chime tone (523Hz).
+2026-03-30 13:45:19 — INFO — TTS engine initialised.
+2026-03-30 13:45:19 — INFO — Selected TTS voice: Karen
+2026-03-30 13:45:19 — INFO — Speech worker thread running.
+2026-03-30 13:45:19 — INFO — Speech worker thread started.
+2026-03-30 13:45:19 — INFO — Speech watchdog started.
+2026-03-30 13:45:19 — INFO — Audio system ready.
+2026-03-30 13:45:19 — INFO — Audio ready.
+2026-03-30 13:45:19 — INFO — Step 4: Initialising state machine...
+2026-03-30 13:45:19 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 13:45:19 — INFO — State machine ready.
+2026-03-30 13:45:19 — INFO — Step 5: Registering callbacks...
+2026-03-30 13:45:19 — INFO — Callbacks registered.
+2026-03-30 13:45:20 — INFO — ============================================================
+2026-03-30 13:45:20 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 13:45:20 — INFO — ============================================================
+2026-03-30 13:45:20 — INFO — Main loop started.
+2026-03-30 13:45:20 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 13:45:31 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 13:45:31 — INFO — ============================================================
+2026-03-30 13:45:31 — INFO — ECHORA Control Unit starting up...
+2026-03-30 13:45:31 — INFO — ============================================================
+2026-03-30 13:45:31 — INFO — Step 1: Starting camera...
+2026-03-30 13:45:31 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 13:45:31 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 13:45:32 — INFO — Starting OAK-D device...
+2026-03-30 13:45:33 — INFO — Device started successfully.
+2026-03-30 13:45:33 — INFO — Kalman filter initialised.
+2026-03-30 13:45:33 — INFO — IMU reader thread started.
+2026-03-30 13:45:33 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 13:45:33 — INFO — Camera ready.
+2026-03-30 13:45:33 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 13:45:33 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 13:45:33 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 13:45:33 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 13:45:33 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 13:45:33 — INFO — YOLO model loaded successfully.
+2026-03-30 13:45:33 — INFO — Model classes: 80 total
+2026-03-30 13:45:33 — INFO — Warming up YOLO on CUDA...
+2026-03-30 13:45:33 — INFO — YOLO warmup complete.
+2026-03-30 13:45:33 — INFO — Obstacle detector ready.
+2026-03-30 13:45:33 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 13:45:33 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 13:45:33 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 13:45:33 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 13:45:33 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 13:45:33 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 13:45:33 — INFO — InteractionDetector ready.
+2026-03-30 13:45:33 — INFO — Interaction detector ready.
+2026-03-30 13:45:33 — INFO — Step 2c: Initialising OCR...
+2026-03-30 13:45:33 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 13:45:33 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-30 13:45:33 — INFO — First run will download model files (~100MB)...
+2026-03-30 13:45:34 — INFO — EasyOCR loaded in 1367ms.
+2026-03-30 13:45:34 — INFO — OCRReader ready.
+2026-03-30 13:45:34 — INFO — Module-level OCR reader ready.
+2026-03-30 13:45:34 — INFO — OCR ready.
+2026-03-30 13:45:34 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 13:45:34 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 13:45:34 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 13:45:34 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 13:45:34 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 13:45:34 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:45:34 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:45:34 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:45:34 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 13:45:34 — INFO — Module-level banknote detector ready.
+2026-03-30 13:45:34 — INFO — Banknote detector ready.
+2026-03-30 13:45:34 — INFO — Step 2e: Initialising database...
+2026-03-30 13:45:34 — INFO — Database created. Call init_db() to open.
+2026-03-30 13:45:34 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 13:45:34 — INFO — Database opened successfully.
+2026-03-30 13:45:34 — INFO —   Registered persons: 3
+2026-03-30 13:45:34 — INFO — Module-level database ready.
+2026-03-30 13:45:34 — INFO — Database ready.
+2026-03-30 13:45:34 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 13:45:34 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 13:45:34 — INFO — Loading face recognition model...
+2026-03-30 13:45:34 — INFO — face_recognition library loaded successfully.
+2026-03-30 13:45:34 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 13:45:34 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 13:45:34 — INFO — Module-level face recogniser ready.
+2026-03-30 13:45:34 — INFO — Face recognition ready.
+2026-03-30 13:45:34 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 13:45:34 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 13:45:34 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 13:45:34 — INFO — Module-level haptic feedback ready.
+2026-03-30 13:45:34 — INFO — Haptic feedback ready.
+2026-03-30 13:45:34 — INFO — Step 3: Starting audio system...
+2026-03-30 13:45:34 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 13:45:34 — INFO — Initialising audio system...
+2026-03-30 13:45:34 — INFO — pygame mixer initialised.
+2026-03-30 13:45:34 — INFO — Generated danger tone (880Hz).
+2026-03-30 13:45:34 — INFO — Generated warning tone (440Hz).
+2026-03-30 13:45:34 — INFO — Generated chime tone (523Hz).
+2026-03-30 13:45:35 — INFO — TTS engine initialised.
+2026-03-30 13:45:35 — INFO — Selected TTS voice: Karen
+2026-03-30 13:45:35 — INFO — Speech worker thread running.
+2026-03-30 13:45:35 — INFO — Speech worker thread started.
+2026-03-30 13:45:35 — INFO — Speech watchdog started.
+2026-03-30 13:45:35 — INFO — Audio system ready.
+2026-03-30 13:45:35 — INFO — Audio ready.
+2026-03-30 13:45:35 — INFO — Step 4: Initialising state machine...
+2026-03-30 13:45:35 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 13:45:35 — INFO — State machine ready.
+2026-03-30 13:45:35 — INFO — Step 5: Registering callbacks...
+2026-03-30 13:45:35 — INFO — Callbacks registered.
+2026-03-30 13:45:36 — INFO — ============================================================
+2026-03-30 13:45:36 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 13:45:36 — INFO — ============================================================
+2026-03-30 13:45:36 — INFO — Main loop started.
+2026-03-30 13:45:36 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 13:45:39 — INFO — Manual mode: NAVIGATION -> OCR
+2026-03-30 13:45:45 — INFO — Performance | Frame 30 | FPS: 4.5 | Avg: 224.6ms | Slow: 16 | Uptime: 15s | MANUAL | Mode: MANUAL:OCR | Tracks: 1
+2026-03-30 13:45:58 — INFO — Performance | Frame 60 | FPS: 2.4 | Avg: 412.7ms | Slow: 46 | Uptime: 27s | MANUAL | Mode: MANUAL:OCR | Tracks: 1
+2026-03-30 13:46:31 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 13:46:31 — INFO — ============================================================
+2026-03-30 13:46:31 — INFO — ECHORA Control Unit starting up...
+2026-03-30 13:46:31 — INFO — ============================================================
+2026-03-30 13:46:31 — INFO — Step 1: Starting camera...
+2026-03-30 13:46:31 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 13:46:31 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 13:46:33 — INFO — Starting OAK-D device...
+2026-03-30 13:46:33 — INFO — Device started successfully.
+2026-03-30 13:46:33 — INFO — Kalman filter initialised.
+2026-03-30 13:46:33 — INFO — IMU reader thread started.
+2026-03-30 13:46:33 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 13:46:33 — INFO — Camera ready.
+2026-03-30 13:46:33 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 13:46:33 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 13:46:33 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 13:46:33 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 13:46:33 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 13:46:33 — INFO — YOLO model loaded successfully.
+2026-03-30 13:46:33 — INFO — Model classes: 80 total
+2026-03-30 13:46:33 — INFO — Warming up YOLO on CUDA...
+2026-03-30 13:46:34 — INFO — YOLO warmup complete.
+2026-03-30 13:46:34 — INFO — Obstacle detector ready.
+2026-03-30 13:46:34 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 13:46:34 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 13:46:34 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 13:46:34 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 13:46:34 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 13:46:34 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 13:46:34 — INFO — InteractionDetector ready.
+2026-03-30 13:46:34 — INFO — Interaction detector ready.
+2026-03-30 13:46:34 — INFO — Step 2c: Initialising OCR...
+2026-03-30 13:46:34 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 13:46:34 — INFO — Loading EasyOCR model (languages: ['en'])...
+2026-03-30 13:46:34 — INFO — First run will download model files (~100MB)...
+2026-03-30 13:46:35 — INFO — EasyOCR loaded in 1363ms.
+2026-03-30 13:46:35 — INFO — OCRReader ready.
+2026-03-30 13:46:35 — INFO — Module-level OCR reader ready.
+2026-03-30 13:46:35 — INFO — OCR ready.
+2026-03-30 13:46:35 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 13:46:35 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 13:46:35 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 13:46:35 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 13:46:35 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 13:46:35 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:46:35 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:46:35 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 13:46:35 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 13:46:35 — INFO — Module-level banknote detector ready.
+2026-03-30 13:46:35 — INFO — Banknote detector ready.
+2026-03-30 13:46:35 — INFO — Step 2e: Initialising database...
+2026-03-30 13:46:35 — INFO — Database created. Call init_db() to open.
+2026-03-30 13:46:35 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 13:46:35 — INFO — Database opened successfully.
+2026-03-30 13:46:35 — INFO —   Registered persons: 3
+2026-03-30 13:46:35 — INFO — Module-level database ready.
+2026-03-30 13:46:35 — INFO — Database ready.
+2026-03-30 13:46:35 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 13:46:35 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 13:46:35 — INFO — Loading face recognition model...
+2026-03-30 13:46:35 — INFO — face_recognition library loaded successfully.
+2026-03-30 13:46:35 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 13:46:35 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 13:46:35 — INFO — Module-level face recogniser ready.
+2026-03-30 13:46:35 — INFO — Face recognition ready.
+2026-03-30 13:46:35 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 13:46:35 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 13:46:35 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 13:46:35 — INFO — Module-level haptic feedback ready.
+2026-03-30 13:46:35 — INFO — Haptic feedback ready.
+2026-03-30 13:46:35 — INFO — Step 3: Starting audio system...
+2026-03-30 13:46:35 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 13:46:35 — INFO — Initialising audio system...
+2026-03-30 13:46:35 — INFO — pygame mixer initialised.
+2026-03-30 13:46:35 — INFO — Generated danger tone (880Hz).
+2026-03-30 13:46:35 — INFO — Generated warning tone (440Hz).
+2026-03-30 13:46:35 — INFO — Generated chime tone (523Hz).
+2026-03-30 13:46:36 — INFO — TTS engine initialised.
+2026-03-30 13:46:36 — INFO — Selected TTS voice: Karen
+2026-03-30 13:46:36 — INFO — Speech worker thread running.
+2026-03-30 13:46:36 — INFO — Speech worker thread started.
+2026-03-30 13:46:36 — INFO — Speech watchdog started.
+2026-03-30 13:46:36 — INFO — Audio system ready.
+2026-03-30 13:46:36 — INFO — Audio ready.
+2026-03-30 13:46:36 — INFO — Step 4: Initialising state machine...
+2026-03-30 13:46:36 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 13:46:36 — INFO — State machine ready.
+2026-03-30 13:46:36 — INFO — Step 5: Registering callbacks...
+2026-03-30 13:46:36 — INFO — Callbacks registered.
+2026-03-30 13:46:36 — INFO — ============================================================
+2026-03-30 13:46:36 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 13:46:36 — INFO — ============================================================
+2026-03-30 13:46:36 — INFO — Main loop started.
+2026-03-30 13:46:36 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 13:46:39 — INFO — Manual mode: NAVIGATION -> INTERACTION
+2026-03-30 13:46:40 — INFO — Manual mode: INTERACTION -> FACE_ID
+2026-03-30 13:46:42 — INFO — Performance | Frame 30 | FPS: 19.4 | Avg: 51.6ms | Slow: 6 | Uptime: 10s | MANUAL | Mode: MANUAL:FACE_ID | Tracks: 1
+2026-03-30 13:46:43 — INFO — Face identified: Yossef (distance=0.445)
+2026-03-30 13:46:44 — INFO — Face announced: Yossef
+2026-03-30 13:46:47 — INFO — Manual mode: FACE_ID -> BANKNOTE
+2026-03-30 13:46:49 — INFO — Performance | Frame 60 | FPS: 26.8 | Avg: 37.3ms | Slow: 8 | Uptime: 18s | MANUAL | Mode: MANUAL:BANKNOTE | Tracks: 1
+2026-03-30 13:46:50 — INFO — Manual mode: BANKNOTE -> OCR
+2026-03-30 13:47:01 — INFO — OCR result: 'Breadfast'
+2026-03-30 13:47:01 — INFO — OCR: 'Breadfast'
+2026-03-30 13:47:03 — INFO — Performance | Frame 90 | FPS: 2.4 | Avg: 424.7ms | Slow: 37 | Uptime: 32s | MANUAL | Mode: MANUAL:OCR | Tracks: 1
+2026-03-30 13:47:12 — INFO — OCR result: 'Cai'
+2026-03-30 13:47:12 — INFO — OCR: 'Cai'
+2026-03-30 13:47:16 — INFO — Performance | Frame 120 | FPS: 2.3 | Avg: 431.6ms | Slow: 67 | Uptime: 45s | MANUAL | Mode: MANUAL:OCR | Tracks: 1
+2026-03-30 13:47:18 — INFO — OCR result: 'CAI'
+2026-03-30 13:47:18 — INFO — OCR: 'CAI'
+2026-03-30 13:47:31 — INFO — Performance | Frame 150 | FPS: 2.1 | Avg: 465.9ms | Slow: 97 | Uptime: 59s | MANUAL | Mode: MANUAL:OCR | Tracks: 3
+2026-03-30 13:57:05 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 13:57:05 — INFO — ============================================================
+2026-03-30 13:57:05 — INFO — ECHORA Control Unit starting up...
+2026-03-30 13:57:05 — INFO — ============================================================
+2026-03-30 13:57:05 — INFO — Step 1: Starting camera...
+2026-03-30 13:57:05 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 13:57:05 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 13:57:07 — INFO — Starting OAK-D device...
+2026-03-30 13:57:07 — INFO — Device started successfully.
+2026-03-30 13:57:07 — INFO — Kalman filter initialised.
+2026-03-30 13:57:07 — INFO — IMU reader thread started.
+2026-03-30 13:57:07 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 13:57:07 — INFO — Camera ready.
+2026-03-30 13:57:07 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 13:57:07 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 13:57:07 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 13:57:07 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 13:57:07 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 13:57:07 — INFO — YOLO model loaded successfully.
+2026-03-30 13:57:07 — INFO — Model classes: 80 total
+2026-03-30 13:57:07 — INFO — Warming up YOLO on CUDA...
+2026-03-30 13:57:08 — INFO — YOLO warmup complete.
+2026-03-30 13:57:08 — INFO — Obstacle detector ready.
+2026-03-30 13:57:08 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 13:57:08 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 13:57:08 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 13:57:08 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 13:57:08 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 13:57:08 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 13:57:08 — INFO — InteractionDetector ready.
+2026-03-30 13:57:08 — INFO — Interaction detector ready.
+2026-03-30 13:57:08 — INFO — Step 2c: Initialising OCR...
+2026-03-30 13:57:08 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 13:57:08 — INFO — Loading EasyOCR model (languages: ['en', 'ar'])...
+2026-03-30 13:57:08 — INFO — First run will download model files (~100MB)...
+2026-03-30 13:57:08 — ERROR — EasyOCR failed to load: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+2026-03-30 13:57:08 — ERROR — Fatal error: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 1348, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1455, in connect
+    self.sock = self._context.wrap_socket(self.sock,
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ssl.py", line 513, in wrap_socket
+    return self.sslsocket_class._create(
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ssl.py", line 1071, in _create
+    self.do_handshake()
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ssl.py", line 1342, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/main.py", line 311, in main
+    cu.startup()
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 189, in startup
+    ocr_module.init_ocr()
+  File "/Users/youssefabdelrahman/Coding/python/echora/ocr.py", line 897, in init_ocr
+    _ocr_reader.load_model()
+  File "/Users/youssefabdelrahman/Coding/python/echora/ocr.py", line 189, in load_model
+    self._reader = easyocr.Reader(
+  File "/Users/youssefabdelrahman/Coding/python/echora/.venv/lib/python3.10/site-packages/easyocr/easyocr.py", line 178, in __init__
+    download_and_unzip(model['url'], model['filename'], self.model_storage_directory, verbose)
+  File "/Users/youssefabdelrahman/Coding/python/echora/.venv/lib/python3.10/site-packages/easyocr/utils.py", line 628, in download_and_unzip
+    urlretrieve(url, zip_path, reporthook=reporthook)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 241, in urlretrieve
+    with contextlib.closing(urlopen(url, data)) as fp:
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 1391, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+2026-03-30 13:57:17 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 13:57:17 — INFO — ============================================================
+2026-03-30 13:57:17 — INFO — ECHORA Control Unit starting up...
+2026-03-30 13:57:17 — INFO — ============================================================
+2026-03-30 13:57:17 — INFO — Step 1: Starting camera...
+2026-03-30 13:57:17 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 13:57:17 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 13:57:19 — INFO — Starting OAK-D device...
+2026-03-30 13:57:19 — INFO — Device started successfully.
+2026-03-30 13:57:19 — INFO — Kalman filter initialised.
+2026-03-30 13:57:19 — INFO — IMU reader thread started.
+2026-03-30 13:57:19 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 13:57:19 — INFO — Camera ready.
+2026-03-30 13:57:19 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 13:57:19 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 13:57:19 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 13:57:19 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 13:57:19 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 13:57:19 — INFO — YOLO model loaded successfully.
+2026-03-30 13:57:19 — INFO — Model classes: 80 total
+2026-03-30 13:57:19 — INFO — Warming up YOLO on CUDA...
+2026-03-30 13:57:19 — INFO — YOLO warmup complete.
+2026-03-30 13:57:19 — INFO — Obstacle detector ready.
+2026-03-30 13:57:19 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 13:57:19 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 13:57:19 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 13:57:19 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 13:57:19 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 13:57:19 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 13:57:19 — INFO — InteractionDetector ready.
+2026-03-30 13:57:19 — INFO — Interaction detector ready.
+2026-03-30 13:57:19 — INFO — Step 2c: Initialising OCR...
+2026-03-30 13:57:19 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 13:57:19 — INFO — Loading EasyOCR model (languages: ['en', 'ar'])...
+2026-03-30 13:57:19 — INFO — First run will download model files (~100MB)...
+2026-03-30 13:57:19 — ERROR — EasyOCR failed to load: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+2026-03-30 13:57:19 — ERROR — Fatal error: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 1348, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1455, in connect
+    self.sock = self._context.wrap_socket(self.sock,
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ssl.py", line 513, in wrap_socket
+    return self.sslsocket_class._create(
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ssl.py", line 1071, in _create
+    self.do_handshake()
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ssl.py", line 1342, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/main.py", line 311, in main
+    cu.startup()
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 189, in startup
+    ocr_module.init_ocr()
+  File "/Users/youssefabdelrahman/Coding/python/echora/ocr.py", line 897, in init_ocr
+    _ocr_reader.load_model()
+  File "/Users/youssefabdelrahman/Coding/python/echora/ocr.py", line 189, in load_model
+    self._reader = easyocr.Reader(
+  File "/Users/youssefabdelrahman/Coding/python/echora/.venv/lib/python3.10/site-packages/easyocr/easyocr.py", line 178, in __init__
+    download_and_unzip(model['url'], model['filename'], self.model_storage_directory, verbose)
+  File "/Users/youssefabdelrahman/Coding/python/echora/.venv/lib/python3.10/site-packages/easyocr/utils.py", line 628, in download_and_unzip
+    urlretrieve(url, zip_path, reporthook=reporthook)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 241, in urlretrieve
+    with contextlib.closing(urlopen(url, data)) as fp:
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 1391, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+2026-03-30 13:58:48 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 13:58:48 — INFO — ============================================================
+2026-03-30 13:58:48 — INFO — ECHORA Control Unit starting up...
+2026-03-30 13:58:48 — INFO — ============================================================
+2026-03-30 13:58:48 — INFO — Step 1: Starting camera...
+2026-03-30 13:58:48 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 13:58:48 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 13:58:50 — INFO — Starting OAK-D device...
+2026-03-30 13:58:50 — INFO — Device started successfully.
+2026-03-30 13:58:50 — INFO — Kalman filter initialised.
+2026-03-30 13:58:50 — INFO — IMU reader thread started.
+2026-03-30 13:58:50 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 13:58:50 — INFO — Camera ready.
+2026-03-30 13:58:50 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 13:58:50 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 13:58:50 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 13:58:50 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 13:58:50 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 13:58:50 — INFO — YOLO model loaded successfully.
+2026-03-30 13:58:50 — INFO — Model classes: 80 total
+2026-03-30 13:58:50 — INFO — Warming up YOLO on CUDA...
+2026-03-30 13:58:50 — INFO — YOLO warmup complete.
+2026-03-30 13:58:50 — INFO — Obstacle detector ready.
+2026-03-30 13:58:50 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 13:58:50 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 13:58:50 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 13:58:50 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 13:58:50 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 13:58:50 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 13:58:50 — INFO — InteractionDetector ready.
+2026-03-30 13:58:50 — INFO — Interaction detector ready.
+2026-03-30 13:58:50 — INFO — Step 2c: Initialising OCR...
+2026-03-30 13:58:50 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 13:58:50 — INFO — Loading EasyOCR model (languages: ['en', 'ar'])...
+2026-03-30 13:58:50 — INFO — First run will download model files (~100MB)...
+2026-03-30 13:58:51 — ERROR — EasyOCR failed to load: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+2026-03-30 13:58:51 — ERROR — Fatal error: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 1348, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1283, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1329, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1278, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1038, in _send_output
+    self.send(msg)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 976, in send
+    self.connect()
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/http/client.py", line 1455, in connect
+    self.sock = self._context.wrap_socket(self.sock,
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ssl.py", line 513, in wrap_socket
+    return self.sslsocket_class._create(
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ssl.py", line 1071, in _create
+    self.do_handshake()
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ssl.py", line 1342, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/youssefabdelrahman/Coding/python/echora/main.py", line 311, in main
+    cu.startup()
+  File "/Users/youssefabdelrahman/Coding/python/echora/control_unit.py", line 189, in startup
+    ocr_module.init_ocr()
+  File "/Users/youssefabdelrahman/Coding/python/echora/ocr.py", line 897, in init_ocr
+    _ocr_reader.load_model()
+  File "/Users/youssefabdelrahman/Coding/python/echora/ocr.py", line 189, in load_model
+    self._reader = easyocr.Reader(
+  File "/Users/youssefabdelrahman/Coding/python/echora/.venv/lib/python3.10/site-packages/easyocr/easyocr.py", line 178, in __init__
+    download_and_unzip(model['url'], model['filename'], self.model_storage_directory, verbose)
+  File "/Users/youssefabdelrahman/Coding/python/echora/.venv/lib/python3.10/site-packages/easyocr/utils.py", line 628, in download_and_unzip
+    urlretrieve(url, zip_path, reporthook=reporthook)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 241, in urlretrieve
+    with contextlib.closing(urlopen(url, data)) as fp:
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 1391, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/urllib/request.py", line 1351, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1007)>
+2026-03-30 13:59:53 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 13:59:53 — INFO — ============================================================
+2026-03-30 13:59:53 — INFO — ECHORA Control Unit starting up...
+2026-03-30 13:59:53 — INFO — ============================================================
+2026-03-30 13:59:53 — INFO — Step 1: Starting camera...
+2026-03-30 13:59:53 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 13:59:53 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 13:59:55 — INFO — Starting OAK-D device...
+2026-03-30 13:59:55 — INFO — Device started successfully.
+2026-03-30 13:59:55 — INFO — Kalman filter initialised.
+2026-03-30 13:59:55 — INFO — IMU reader thread started.
+2026-03-30 13:59:55 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 13:59:55 — INFO — Camera ready.
+2026-03-30 13:59:55 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 13:59:55 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 13:59:55 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 13:59:55 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 13:59:55 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 13:59:55 — INFO — YOLO model loaded successfully.
+2026-03-30 13:59:55 — INFO — Model classes: 80 total
+2026-03-30 13:59:55 — INFO — Warming up YOLO on CUDA...
+2026-03-30 13:59:55 — INFO — YOLO warmup complete.
+2026-03-30 13:59:55 — INFO — Obstacle detector ready.
+2026-03-30 13:59:55 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 13:59:55 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 13:59:55 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 13:59:55 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 13:59:55 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 13:59:55 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 13:59:55 — INFO — InteractionDetector ready.
+2026-03-30 13:59:55 — INFO — Interaction detector ready.
+2026-03-30 13:59:55 — INFO — Step 2c: Initialising OCR...
+2026-03-30 13:59:55 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 13:59:55 — INFO — Loading EasyOCR model (languages: ['en', 'ar'])...
+2026-03-30 13:59:55 — INFO — First run will download model files (~100MB)...
+2026-03-30 14:01:26 — INFO — EasyOCR loaded in 90782ms.
+2026-03-30 14:01:26 — INFO — OCRReader ready.
+2026-03-30 14:01:26 — INFO — Module-level OCR reader ready.
+2026-03-30 14:01:26 — INFO — OCR ready.
+2026-03-30 14:01:26 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 14:01:26 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 14:01:26 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 14:01:26 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 14:01:26 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 14:01:26 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:01:26 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:01:26 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:01:26 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 14:01:26 — INFO — Module-level banknote detector ready.
+2026-03-30 14:01:26 — INFO — Banknote detector ready.
+2026-03-30 14:01:26 — INFO — Step 2e: Initialising database...
+2026-03-30 14:01:26 — INFO — Database created. Call init_db() to open.
+2026-03-30 14:01:26 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 14:01:26 — INFO — Database opened successfully.
+2026-03-30 14:01:26 — INFO —   Registered persons: 3
+2026-03-30 14:01:26 — INFO — Module-level database ready.
+2026-03-30 14:01:26 — INFO — Database ready.
+2026-03-30 14:01:26 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 14:01:26 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 14:01:26 — INFO — Loading face recognition model...
+2026-03-30 14:01:26 — INFO — face_recognition library loaded successfully.
+2026-03-30 14:01:26 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 14:01:26 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 14:01:26 — INFO — Module-level face recogniser ready.
+2026-03-30 14:01:26 — INFO — Face recognition ready.
+2026-03-30 14:01:26 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 14:01:26 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 14:01:26 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 14:01:26 — INFO — Module-level haptic feedback ready.
+2026-03-30 14:01:26 — INFO — Haptic feedback ready.
+2026-03-30 14:01:26 — INFO — Step 3: Starting audio system...
+2026-03-30 14:01:26 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 14:01:26 — INFO — Initialising audio system...
+2026-03-30 14:01:26 — INFO — pygame mixer initialised.
+2026-03-30 14:01:26 — INFO — Generated danger tone (880Hz).
+2026-03-30 14:01:26 — INFO — Generated warning tone (440Hz).
+2026-03-30 14:01:26 — INFO — Generated chime tone (523Hz).
+2026-03-30 14:01:27 — INFO — TTS engine initialised.
+2026-03-30 14:01:27 — INFO — Selected TTS voice: Karen
+2026-03-30 14:01:27 — INFO — Speech worker thread running.
+2026-03-30 14:01:27 — INFO — Speech worker thread started.
+2026-03-30 14:01:27 — INFO — Speech watchdog started.
+2026-03-30 14:01:27 — INFO — Audio system ready.
+2026-03-30 14:01:27 — INFO — Audio ready.
+2026-03-30 14:01:27 — INFO — Step 4: Initialising state machine...
+2026-03-30 14:01:27 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 14:01:27 — INFO — State machine ready.
+2026-03-30 14:01:27 — INFO — Step 5: Registering callbacks...
+2026-03-30 14:01:27 — INFO — Callbacks registered.
+2026-03-30 14:01:27 — INFO — ============================================================
+2026-03-30 14:01:27 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 14:01:27 — INFO — ============================================================
+2026-03-30 14:01:27 — INFO — Main loop started.
+2026-03-30 14:01:27 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 14:01:30 — INFO — Manual mode: NAVIGATION -> OCR
+2026-03-30 14:01:35 — INFO — Performance | Frame 30 | FPS: 5.7 | Avg: 174.7ms | Slow: 21 | Uptime: 102s | MANUAL | Mode: MANUAL:OCR | Tracks: 1
+2026-03-30 14:01:49 — INFO — Performance | Frame 60 | FPS: 2.2 | Avg: 457.2ms | Slow: 51 | Uptime: 116s | MANUAL | Mode: MANUAL:OCR | Tracks: 0
+2026-03-30 14:02:19 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 14:02:19 — INFO — ============================================================
+2026-03-30 14:02:19 — INFO — ECHORA Control Unit starting up...
+2026-03-30 14:02:19 — INFO — ============================================================
+2026-03-30 14:02:19 — INFO — Step 1: Starting camera...
+2026-03-30 14:02:19 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 14:02:19 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 14:02:21 — INFO — Starting OAK-D device...
+2026-03-30 14:02:21 — INFO — Device started successfully.
+2026-03-30 14:02:21 — INFO — Kalman filter initialised.
+2026-03-30 14:02:21 — INFO — IMU reader thread started.
+2026-03-30 14:02:21 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 14:02:21 — INFO — Camera ready.
+2026-03-30 14:02:21 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 14:02:21 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 14:02:21 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 14:02:21 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 14:02:21 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 14:02:21 — INFO — YOLO model loaded successfully.
+2026-03-30 14:02:21 — INFO — Model classes: 80 total
+2026-03-30 14:02:21 — INFO — Warming up YOLO on CUDA...
+2026-03-30 14:02:21 — INFO — YOLO warmup complete.
+2026-03-30 14:02:21 — INFO — Obstacle detector ready.
+2026-03-30 14:02:21 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 14:02:21 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 14:02:21 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 14:02:21 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 14:02:21 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 14:02:21 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 14:02:21 — INFO — InteractionDetector ready.
+2026-03-30 14:02:21 — INFO — Interaction detector ready.
+2026-03-30 14:02:21 — INFO — Step 2c: Initialising OCR...
+2026-03-30 14:02:21 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 14:02:21 — INFO — Loading EasyOCR model (languages: ['en', 'ar'])...
+2026-03-30 14:02:21 — INFO — First run will download model files (~100MB)...
+2026-03-30 14:02:23 — INFO — EasyOCR loaded in 1781ms.
+2026-03-30 14:02:23 — INFO — OCRReader ready.
+2026-03-30 14:02:23 — INFO — Module-level OCR reader ready.
+2026-03-30 14:02:23 — INFO — OCR ready.
+2026-03-30 14:02:23 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 14:02:23 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 14:02:23 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 14:02:23 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 14:02:23 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 14:02:23 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:02:23 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:02:23 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:02:23 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 14:02:23 — INFO — Module-level banknote detector ready.
+2026-03-30 14:02:23 — INFO — Banknote detector ready.
+2026-03-30 14:02:23 — INFO — Step 2e: Initialising database...
+2026-03-30 14:02:23 — INFO — Database created. Call init_db() to open.
+2026-03-30 14:02:23 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 14:02:23 — INFO — Database opened successfully.
+2026-03-30 14:02:23 — INFO —   Registered persons: 3
+2026-03-30 14:02:23 — INFO — Module-level database ready.
+2026-03-30 14:02:23 — INFO — Database ready.
+2026-03-30 14:02:23 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 14:02:23 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 14:02:23 — INFO — Loading face recognition model...
+2026-03-30 14:02:23 — INFO — face_recognition library loaded successfully.
+2026-03-30 14:02:23 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 14:02:23 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 14:02:23 — INFO — Module-level face recogniser ready.
+2026-03-30 14:02:23 — INFO — Face recognition ready.
+2026-03-30 14:02:23 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 14:02:23 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 14:02:23 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 14:02:23 — INFO — Module-level haptic feedback ready.
+2026-03-30 14:02:23 — INFO — Haptic feedback ready.
+2026-03-30 14:02:23 — INFO — Step 3: Starting audio system...
+2026-03-30 14:02:23 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 14:02:23 — INFO — Initialising audio system...
+2026-03-30 14:02:23 — INFO — pygame mixer initialised.
+2026-03-30 14:02:23 — INFO — Generated danger tone (880Hz).
+2026-03-30 14:02:23 — INFO — Generated warning tone (440Hz).
+2026-03-30 14:02:23 — INFO — Generated chime tone (523Hz).
+2026-03-30 14:02:24 — INFO — TTS engine initialised.
+2026-03-30 14:02:24 — INFO — Selected TTS voice: Karen
+2026-03-30 14:02:24 — INFO — Speech worker thread running.
+2026-03-30 14:02:24 — INFO — Speech worker thread started.
+2026-03-30 14:02:24 — INFO — Speech watchdog started.
+2026-03-30 14:02:24 — INFO — Audio system ready.
+2026-03-30 14:02:24 — INFO — Audio ready.
+2026-03-30 14:02:24 — INFO — Step 4: Initialising state machine...
+2026-03-30 14:02:24 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 14:02:24 — INFO — State machine ready.
+2026-03-30 14:02:24 — INFO — Step 5: Registering callbacks...
+2026-03-30 14:02:24 — INFO — Callbacks registered.
+2026-03-30 14:02:24 — INFO — ============================================================
+2026-03-30 14:02:24 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 14:02:24 — INFO — ============================================================
+2026-03-30 14:02:24 — INFO — Main loop started.
+2026-03-30 14:02:24 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 14:02:37 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 14:02:37 — INFO — ============================================================
+2026-03-30 14:02:37 — INFO — ECHORA Control Unit starting up...
+2026-03-30 14:02:37 — INFO — ============================================================
+2026-03-30 14:02:37 — INFO — Step 1: Starting camera...
+2026-03-30 14:02:37 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 14:02:37 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 14:02:39 — INFO — Starting OAK-D device...
+2026-03-30 14:02:39 — INFO — Device started successfully.
+2026-03-30 14:02:39 — INFO — Kalman filter initialised.
+2026-03-30 14:02:39 — INFO — IMU reader thread started.
+2026-03-30 14:02:39 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 14:02:39 — INFO — Camera ready.
+2026-03-30 14:02:39 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 14:02:39 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 14:02:39 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 14:02:39 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 14:02:39 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 14:02:39 — INFO — YOLO model loaded successfully.
+2026-03-30 14:02:39 — INFO — Model classes: 80 total
+2026-03-30 14:02:39 — INFO — Warming up YOLO on CUDA...
+2026-03-30 14:02:39 — INFO — YOLO warmup complete.
+2026-03-30 14:02:39 — INFO — Obstacle detector ready.
+2026-03-30 14:02:39 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 14:02:39 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 14:02:39 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 14:02:39 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 14:02:39 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 14:02:39 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 14:02:39 — INFO — InteractionDetector ready.
+2026-03-30 14:02:39 — INFO — Interaction detector ready.
+2026-03-30 14:02:39 — INFO — Step 2c: Initialising OCR...
+2026-03-30 14:02:39 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 14:02:39 — INFO — Loading EasyOCR model (languages: ['en', 'ar'])...
+2026-03-30 14:02:39 — INFO — First run will download model files (~100MB)...
+2026-03-30 14:02:41 — INFO — EasyOCR loaded in 1780ms.
+2026-03-30 14:02:41 — INFO — OCRReader ready.
+2026-03-30 14:02:41 — INFO — Module-level OCR reader ready.
+2026-03-30 14:02:41 — INFO — OCR ready.
+2026-03-30 14:02:41 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 14:02:41 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 14:02:41 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 14:02:41 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 14:02:41 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 14:02:41 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:02:41 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:02:41 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:02:41 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 14:02:41 — INFO — Module-level banknote detector ready.
+2026-03-30 14:02:41 — INFO — Banknote detector ready.
+2026-03-30 14:02:41 — INFO — Step 2e: Initialising database...
+2026-03-30 14:02:41 — INFO — Database created. Call init_db() to open.
+2026-03-30 14:02:41 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 14:02:41 — INFO — Database opened successfully.
+2026-03-30 14:02:41 — INFO —   Registered persons: 3
+2026-03-30 14:02:41 — INFO — Module-level database ready.
+2026-03-30 14:02:41 — INFO — Database ready.
+2026-03-30 14:02:41 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 14:02:41 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 14:02:41 — INFO — Loading face recognition model...
+2026-03-30 14:02:41 — INFO — face_recognition library loaded successfully.
+2026-03-30 14:02:41 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 14:02:41 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 14:02:41 — INFO — Module-level face recogniser ready.
+2026-03-30 14:02:41 — INFO — Face recognition ready.
+2026-03-30 14:02:41 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 14:02:41 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 14:02:41 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 14:02:41 — INFO — Module-level haptic feedback ready.
+2026-03-30 14:02:41 — INFO — Haptic feedback ready.
+2026-03-30 14:02:41 — INFO — Step 3: Starting audio system...
+2026-03-30 14:02:41 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 14:02:41 — INFO — Initialising audio system...
+2026-03-30 14:02:41 — INFO — pygame mixer initialised.
+2026-03-30 14:02:41 — INFO — Generated danger tone (880Hz).
+2026-03-30 14:02:41 — INFO — Generated warning tone (440Hz).
+2026-03-30 14:02:41 — INFO — Generated chime tone (523Hz).
+2026-03-30 14:02:42 — INFO — TTS engine initialised.
+2026-03-30 14:02:42 — INFO — Selected TTS voice: Karen
+2026-03-30 14:02:42 — INFO — Speech worker thread running.
+2026-03-30 14:02:42 — INFO — Speech worker thread started.
+2026-03-30 14:02:42 — INFO — Speech watchdog started.
+2026-03-30 14:02:42 — INFO — Audio system ready.
+2026-03-30 14:02:42 — INFO — Audio ready.
+2026-03-30 14:02:42 — INFO — Step 4: Initialising state machine...
+2026-03-30 14:02:42 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 14:02:42 — INFO — State machine ready.
+2026-03-30 14:02:42 — INFO — Step 5: Registering callbacks...
+2026-03-30 14:02:42 — INFO — Callbacks registered.
+2026-03-30 14:02:42 — INFO — ============================================================
+2026-03-30 14:02:42 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 14:02:42 — INFO — ============================================================
+2026-03-30 14:02:42 — INFO — Main loop started.
+2026-03-30 14:02:42 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 14:02:45 — INFO — Manual mode: NAVIGATION -> OCR
+2026-03-30 14:02:51 — INFO — Performance | Frame 30 | FPS: 4.7 | Avg: 212.1ms | Slow: 20 | Uptime: 14s | MANUAL | Mode: MANUAL:OCR | Tracks: 1
+2026-03-30 14:02:56 — INFO — OCR result: 'PEPSI'
+2026-03-30 14:02:56 — INFO — OCR: 'PEPSI'
+2026-03-30 14:03:02 — INFO — Performance | Frame 60 | FPS: 2.8 | Avg: 358.7ms | Slow: 50 | Uptime: 25s | MANUAL | Mode: MANUAL:OCR | Tracks: 1
+2026-03-30 14:03:11 — INFO — Performance | Frame 90 | FPS: 3.7 | Avg: 267.1ms | Slow: 80 | Uptime: 34s | MANUAL | Mode: MANUAL:OCR | Tracks: 1
+2026-03-30 14:03:20 — INFO — Performance | Frame 120 | FPS: 3.4 | Avg: 291.9ms | Slow: 110 | Uptime: 43s | MANUAL | Mode: MANUAL:OCR | Tracks: 2
+2026-03-30 14:03:30 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 14:03:30 — INFO — ============================================================
+2026-03-30 14:03:30 — INFO — ECHORA Control Unit starting up...
+2026-03-30 14:03:30 — INFO — ============================================================
+2026-03-30 14:03:30 — INFO — Step 1: Starting camera...
+2026-03-30 14:03:30 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 14:03:30 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 14:03:32 — INFO — Starting OAK-D device...
+2026-03-30 14:03:32 — INFO — Device started successfully.
+2026-03-30 14:03:32 — INFO — Kalman filter initialised.
+2026-03-30 14:03:32 — INFO — IMU reader thread started.
+2026-03-30 14:03:32 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 14:03:32 — INFO — Camera ready.
+2026-03-30 14:03:32 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 14:03:32 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 14:03:32 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 14:03:32 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 14:03:32 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 14:03:32 — INFO — YOLO model loaded successfully.
+2026-03-30 14:03:32 — INFO — Model classes: 80 total
+2026-03-30 14:03:32 — INFO — Warming up YOLO on CUDA...
+2026-03-30 14:03:32 — INFO — YOLO warmup complete.
+2026-03-30 14:03:32 — INFO — Obstacle detector ready.
+2026-03-30 14:03:32 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 14:03:32 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 14:03:32 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 14:03:32 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 14:03:33 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 14:03:33 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 14:03:33 — INFO — InteractionDetector ready.
+2026-03-30 14:03:33 — INFO — Interaction detector ready.
+2026-03-30 14:03:33 — INFO — Step 2c: Initialising OCR...
+2026-03-30 14:03:33 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 14:03:33 — INFO — Loading EasyOCR model (languages: ['en', 'ar'])...
+2026-03-30 14:03:33 — INFO — First run will download model files (~100MB)...
+2026-03-30 14:03:34 — INFO — EasyOCR loaded in 1802ms.
+2026-03-30 14:03:34 — INFO — OCRReader ready.
+2026-03-30 14:03:34 — INFO — Module-level OCR reader ready.
+2026-03-30 14:03:34 — INFO — OCR ready.
+2026-03-30 14:03:34 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 14:03:34 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 14:03:34 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 14:03:34 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 14:03:34 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 14:03:34 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:03:34 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:03:34 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:03:34 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 14:03:34 — INFO — Module-level banknote detector ready.
+2026-03-30 14:03:34 — INFO — Banknote detector ready.
+2026-03-30 14:03:34 — INFO — Step 2e: Initialising database...
+2026-03-30 14:03:34 — INFO — Database created. Call init_db() to open.
+2026-03-30 14:03:34 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 14:03:34 — INFO — Database opened successfully.
+2026-03-30 14:03:34 — INFO —   Registered persons: 3
+2026-03-30 14:03:34 — INFO — Module-level database ready.
+2026-03-30 14:03:34 — INFO — Database ready.
+2026-03-30 14:03:34 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 14:03:34 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 14:03:34 — INFO — Loading face recognition model...
+2026-03-30 14:03:34 — INFO — face_recognition library loaded successfully.
+2026-03-30 14:03:34 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 14:03:34 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 14:03:34 — INFO — Module-level face recogniser ready.
+2026-03-30 14:03:34 — INFO — Face recognition ready.
+2026-03-30 14:03:34 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 14:03:34 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 14:03:34 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 14:03:34 — INFO — Module-level haptic feedback ready.
+2026-03-30 14:03:34 — INFO — Haptic feedback ready.
+2026-03-30 14:03:34 — INFO — Step 3: Starting audio system...
+2026-03-30 14:03:34 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 14:03:34 — INFO — Initialising audio system...
+2026-03-30 14:03:34 — INFO — pygame mixer initialised.
+2026-03-30 14:03:34 — INFO — Generated danger tone (880Hz).
+2026-03-30 14:03:34 — INFO — Generated warning tone (440Hz).
+2026-03-30 14:03:34 — INFO — Generated chime tone (523Hz).
+2026-03-30 14:03:35 — INFO — TTS engine initialised.
+2026-03-30 14:03:35 — INFO — Selected TTS voice: Karen
+2026-03-30 14:03:35 — INFO — Speech worker thread running.
+2026-03-30 14:03:35 — INFO — Speech worker thread started.
+2026-03-30 14:03:35 — INFO — Speech watchdog started.
+2026-03-30 14:03:35 — INFO — Audio system ready.
+2026-03-30 14:03:35 — INFO — Audio ready.
+2026-03-30 14:03:35 — INFO — Step 4: Initialising state machine...
+2026-03-30 14:03:35 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 14:03:35 — INFO — State machine ready.
+2026-03-30 14:03:35 — INFO — Step 5: Registering callbacks...
+2026-03-30 14:03:35 — INFO — Callbacks registered.
+2026-03-30 14:03:35 — INFO — ============================================================
+2026-03-30 14:03:35 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 14:03:35 — INFO — ============================================================
+2026-03-30 14:03:35 — INFO — Main loop started.
+2026-03-30 14:03:35 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 14:03:37 — INFO — Manual mode: NAVIGATION -> OCR
+2026-03-30 14:03:43 — INFO — Performance | Frame 30 | FPS: 4.3 | Avg: 233.5ms | Slow: 26 | Uptime: 13s | MANUAL | Mode: MANUAL:OCR | Tracks: 0
+2026-03-30 14:03:52 — INFO — Performance | Frame 60 | FPS: 3.8 | Avg: 260.1ms | Slow: 56 | Uptime: 22s | MANUAL | Mode: MANUAL:OCR | Tracks: 1
+2026-03-30 14:08:16 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 14:08:16 — INFO — ============================================================
+2026-03-30 14:08:16 — INFO — ECHORA Control Unit starting up...
+2026-03-30 14:08:16 — INFO — ============================================================
+2026-03-30 14:08:16 — INFO — Step 1: Starting camera...
+2026-03-30 14:08:16 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 14:08:16 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 14:08:18 — INFO — Starting OAK-D device...
+2026-03-30 14:08:18 — INFO — Device started successfully.
+2026-03-30 14:08:18 — INFO — Kalman filter initialised.
+2026-03-30 14:08:18 — INFO — IMU reader thread started.
+2026-03-30 14:08:18 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 14:08:18 — INFO — Camera ready.
+2026-03-30 14:08:18 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 14:08:18 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 14:08:18 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 14:08:18 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 14:08:18 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 14:08:18 — INFO — YOLO model loaded successfully.
+2026-03-30 14:08:18 — INFO — Model classes: 80 total
+2026-03-30 14:08:18 — INFO — Warming up YOLO on CUDA...
+2026-03-30 14:08:19 — INFO — YOLO warmup complete.
+2026-03-30 14:08:19 — INFO — Obstacle detector ready.
+2026-03-30 14:08:19 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 14:08:19 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 14:08:19 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 14:08:19 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 14:08:19 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 14:08:19 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 14:08:19 — INFO — InteractionDetector ready.
+2026-03-30 14:08:19 — INFO — Interaction detector ready.
+2026-03-30 14:08:19 — INFO — Step 2c: Initialising OCR...
+2026-03-30 14:08:19 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 14:08:19 — INFO — Loading EasyOCR (languages: ['en', 'ar'])...
+2026-03-30 14:08:19 — INFO — OCR will use CPU (MPS not supported by EasyOCR).
+2026-03-30 14:08:21 — INFO — EasyOCR loaded in 1786ms. GPU=False
+2026-03-30 14:08:21 — INFO — OCRReader ready.
+2026-03-30 14:08:21 — INFO — Module-level OCR reader ready.
+2026-03-30 14:08:21 — INFO — OCR ready.
+2026-03-30 14:08:21 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 14:08:21 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 14:08:21 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 14:08:21 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 14:08:21 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 14:08:21 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:08:21 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:08:21 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:08:21 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 14:08:21 — INFO — Module-level banknote detector ready.
+2026-03-30 14:08:21 — INFO — Banknote detector ready.
+2026-03-30 14:08:21 — INFO — Step 2e: Initialising database...
+2026-03-30 14:08:21 — INFO — Database created. Call init_db() to open.
+2026-03-30 14:08:21 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 14:08:21 — INFO — Database opened successfully.
+2026-03-30 14:08:21 — INFO —   Registered persons: 3
+2026-03-30 14:08:21 — INFO — Module-level database ready.
+2026-03-30 14:08:21 — INFO — Database ready.
+2026-03-30 14:08:21 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 14:08:21 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 14:08:21 — INFO — Loading face recognition model...
+2026-03-30 14:08:21 — INFO — face_recognition library loaded successfully.
+2026-03-30 14:08:21 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 14:08:21 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 14:08:21 — INFO — Module-level face recogniser ready.
+2026-03-30 14:08:21 — INFO — Face recognition ready.
+2026-03-30 14:08:21 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 14:08:21 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 14:08:21 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 14:08:21 — INFO — Module-level haptic feedback ready.
+2026-03-30 14:08:21 — INFO — Haptic feedback ready.
+2026-03-30 14:08:21 — INFO — Step 3: Starting audio system...
+2026-03-30 14:08:21 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 14:08:21 — INFO — Initialising audio system...
+2026-03-30 14:08:21 — INFO — pygame mixer initialised.
+2026-03-30 14:08:21 — INFO — Generated danger tone (880Hz).
+2026-03-30 14:08:21 — INFO — Generated warning tone (440Hz).
+2026-03-30 14:08:21 — INFO — Generated chime tone (523Hz).
+2026-03-30 14:08:21 — INFO — TTS engine initialised.
+2026-03-30 14:08:21 — INFO — Selected TTS voice: Karen
+2026-03-30 14:08:21 — INFO — Speech worker thread running.
+2026-03-30 14:08:21 — INFO — Speech worker thread started.
+2026-03-30 14:08:21 — INFO — Speech watchdog started.
+2026-03-30 14:08:21 — INFO — Audio system ready.
+2026-03-30 14:08:21 — INFO — Audio ready.
+2026-03-30 14:08:21 — INFO — Step 4: Initialising state machine...
+2026-03-30 14:08:21 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 14:08:21 — INFO — State machine ready.
+2026-03-30 14:08:21 — INFO — Step 5: Registering callbacks...
+2026-03-30 14:08:21 — INFO — Callbacks registered.
+2026-03-30 14:08:22 — INFO — ============================================================
+2026-03-30 14:08:22 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 14:08:22 — INFO — ============================================================
+2026-03-30 14:08:22 — INFO — Main loop started.
+2026-03-30 14:08:22 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 14:08:24 — INFO — Manual mode: NAVIGATION -> OCR
+2026-03-30 14:08:32 — INFO — Performance | Frame 30 | FPS: 3.5 | Avg: 285.8ms | Slow: 21 | Uptime: 16s | MANUAL | Mode: MANUAL:OCR | Tracks: 1
+2026-03-30 14:08:33 — INFO — OCR: 'PEPS'
+2026-03-30 14:08:33 — INFO — OCR: 'PEPS'
+2026-03-30 14:08:47 — INFO — Performance | Frame 60 | FPS: 2.2 | Avg: 459.2ms | Slow: 51 | Uptime: 30s | MANUAL | Mode: MANUAL:OCR | Tracks: 0
+2026-03-30 14:09:08 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 14:09:08 — INFO — ============================================================
+2026-03-30 14:09:08 — INFO — ECHORA Control Unit starting up...
+2026-03-30 14:09:08 — INFO — ============================================================
+2026-03-30 14:09:08 — INFO — Step 1: Starting camera...
+2026-03-30 14:09:08 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 14:09:08 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 14:09:10 — INFO — Starting OAK-D device...
+2026-03-30 14:09:10 — INFO — Device started successfully.
+2026-03-30 14:09:10 — INFO — Kalman filter initialised.
+2026-03-30 14:09:10 — INFO — IMU reader thread started.
+2026-03-30 14:09:10 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 14:09:10 — INFO — Camera ready.
+2026-03-30 14:09:10 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 14:09:10 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 14:09:10 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 14:09:10 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 14:09:10 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 14:09:10 — INFO — YOLO model loaded successfully.
+2026-03-30 14:09:10 — INFO — Model classes: 80 total
+2026-03-30 14:09:10 — INFO — Warming up YOLO on CUDA...
+2026-03-30 14:09:11 — INFO — YOLO warmup complete.
+2026-03-30 14:09:11 — INFO — Obstacle detector ready.
+2026-03-30 14:09:11 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 14:09:11 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 14:09:11 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 14:09:11 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 14:09:11 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 14:09:11 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 14:09:11 — INFO — InteractionDetector ready.
+2026-03-30 14:09:11 — INFO — Interaction detector ready.
+2026-03-30 14:09:11 — INFO — Step 2c: Initialising OCR...
+2026-03-30 14:09:11 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 14:09:11 — INFO — Loading EasyOCR (languages: ['en', 'ar'])...
+2026-03-30 14:09:11 — INFO — OCR will use CPU (MPS not supported by EasyOCR).
+2026-03-30 14:09:13 — INFO — EasyOCR loaded in 1804ms. GPU=False
+2026-03-30 14:09:13 — INFO — OCRReader ready.
+2026-03-30 14:09:13 — INFO — Module-level OCR reader ready.
+2026-03-30 14:09:13 — INFO — OCR ready.
+2026-03-30 14:09:13 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 14:09:13 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 14:09:13 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 14:09:13 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 14:09:13 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 14:09:13 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:09:13 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:09:13 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:09:13 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 14:09:13 — INFO — Module-level banknote detector ready.
+2026-03-30 14:09:13 — INFO — Banknote detector ready.
+2026-03-30 14:09:13 — INFO — Step 2e: Initialising database...
+2026-03-30 14:09:13 — INFO — Database created. Call init_db() to open.
+2026-03-30 14:09:13 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 14:09:13 — INFO — Database opened successfully.
+2026-03-30 14:09:13 — INFO —   Registered persons: 3
+2026-03-30 14:09:13 — INFO — Module-level database ready.
+2026-03-30 14:09:13 — INFO — Database ready.
+2026-03-30 14:09:13 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 14:09:13 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 14:09:13 — INFO — Loading face recognition model...
+2026-03-30 14:09:13 — INFO — face_recognition library loaded successfully.
+2026-03-30 14:09:13 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 14:09:13 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 14:09:13 — INFO — Module-level face recogniser ready.
+2026-03-30 14:09:13 — INFO — Face recognition ready.
+2026-03-30 14:09:13 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 14:09:13 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 14:09:13 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 14:09:13 — INFO — Module-level haptic feedback ready.
+2026-03-30 14:09:13 — INFO — Haptic feedback ready.
+2026-03-30 14:09:13 — INFO — Step 3: Starting audio system...
+2026-03-30 14:09:13 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 14:09:13 — INFO — Initialising audio system...
+2026-03-30 14:09:13 — INFO — pygame mixer initialised.
+2026-03-30 14:09:13 — INFO — Generated danger tone (880Hz).
+2026-03-30 14:09:13 — INFO — Generated warning tone (440Hz).
+2026-03-30 14:09:13 — INFO — Generated chime tone (523Hz).
+2026-03-30 14:09:13 — INFO — TTS engine initialised.
+2026-03-30 14:09:13 — INFO — Selected TTS voice: Karen
+2026-03-30 14:09:13 — INFO — Speech worker thread running.
+2026-03-30 14:09:13 — INFO — Speech worker thread started.
+2026-03-30 14:09:13 — INFO — Speech watchdog started.
+2026-03-30 14:09:13 — INFO — Audio system ready.
+2026-03-30 14:09:13 — INFO — Audio ready.
+2026-03-30 14:09:13 — INFO — Step 4: Initialising state machine...
+2026-03-30 14:09:13 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 14:09:13 — INFO — State machine ready.
+2026-03-30 14:09:13 — INFO — Step 5: Registering callbacks...
+2026-03-30 14:09:13 — INFO — Callbacks registered.
+2026-03-30 14:09:14 — INFO — ============================================================
+2026-03-30 14:09:14 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 14:09:14 — INFO — ============================================================
+2026-03-30 14:09:14 — INFO — Main loop started.
+2026-03-30 14:09:14 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 14:09:16 — INFO — Manual mode: NAVIGATION -> OCR
+2026-03-30 14:09:25 — INFO — OCR: 'مام سمن ىرنىك مف ماد ال'
+2026-03-30 14:09:25 — INFO — OCR: 'مام سمن ىرنىك مف ماد ال'
+2026-03-30 14:09:44 — INFO — Performance | Frame 30 | FPS: 1.1 | Avg: 937.7ms | Slow: 19 | Uptime: 36s | MANUAL | Mode: MANUAL:OCR | Tracks: 0
+2026-03-30 14:10:06 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 14:10:06 — INFO — ============================================================
+2026-03-30 14:10:06 — INFO — ECHORA Control Unit starting up...
+2026-03-30 14:10:06 — INFO — ============================================================
+2026-03-30 14:10:06 — INFO — Step 1: Starting camera...
+2026-03-30 14:10:06 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 14:10:06 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 14:10:08 — INFO — Starting OAK-D device...
+2026-03-30 14:10:08 — INFO — Device started successfully.
+2026-03-30 14:10:08 — INFO — Kalman filter initialised.
+2026-03-30 14:10:08 — INFO — IMU reader thread started.
+2026-03-30 14:10:08 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 14:10:08 — INFO — Camera ready.
+2026-03-30 14:10:08 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 14:10:08 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 14:10:08 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 14:10:08 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 14:10:08 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 14:10:08 — INFO — YOLO model loaded successfully.
+2026-03-30 14:10:08 — INFO — Model classes: 80 total
+2026-03-30 14:10:08 — INFO — Warming up YOLO on CUDA...
+2026-03-30 14:10:09 — INFO — YOLO warmup complete.
+2026-03-30 14:10:09 — INFO — Obstacle detector ready.
+2026-03-30 14:10:09 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 14:10:09 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 14:10:09 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 14:10:09 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 14:10:09 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 14:10:09 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 14:10:09 — INFO — InteractionDetector ready.
+2026-03-30 14:10:09 — INFO — Interaction detector ready.
+2026-03-30 14:10:09 — INFO — Step 2c: Initialising OCR...
+2026-03-30 14:10:09 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 14:10:09 — INFO — Loading EasyOCR (languages: ['en', 'ar'])...
+2026-03-30 14:10:09 — INFO — OCR will use CPU (MPS not supported by EasyOCR).
+2026-03-30 14:10:10 — INFO — EasyOCR loaded in 1806ms. GPU=False
+2026-03-30 14:10:10 — INFO — OCRReader ready.
+2026-03-30 14:10:10 — INFO — Module-level OCR reader ready.
+2026-03-30 14:10:10 — INFO — OCR ready.
+2026-03-30 14:10:10 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 14:10:10 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 14:10:10 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 14:10:10 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 14:10:10 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 14:10:10 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:10:10 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:10:10 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:10:10 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 14:10:10 — INFO — Module-level banknote detector ready.
+2026-03-30 14:10:10 — INFO — Banknote detector ready.
+2026-03-30 14:10:10 — INFO — Step 2e: Initialising database...
+2026-03-30 14:10:10 — INFO — Database created. Call init_db() to open.
+2026-03-30 14:10:10 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 14:10:10 — INFO — Database opened successfully.
+2026-03-30 14:10:10 — INFO —   Registered persons: 3
+2026-03-30 14:10:10 — INFO — Module-level database ready.
+2026-03-30 14:10:10 — INFO — Database ready.
+2026-03-30 14:10:10 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 14:10:10 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 14:10:10 — INFO — Loading face recognition model...
+2026-03-30 14:10:10 — INFO — face_recognition library loaded successfully.
+2026-03-30 14:10:10 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 14:10:10 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 14:10:10 — INFO — Module-level face recogniser ready.
+2026-03-30 14:10:10 — INFO — Face recognition ready.
+2026-03-30 14:10:10 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 14:10:10 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 14:10:10 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 14:10:10 — INFO — Module-level haptic feedback ready.
+2026-03-30 14:10:10 — INFO — Haptic feedback ready.
+2026-03-30 14:10:10 — INFO — Step 3: Starting audio system...
+2026-03-30 14:10:10 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 14:10:10 — INFO — Initialising audio system...
+2026-03-30 14:10:10 — INFO — pygame mixer initialised.
+2026-03-30 14:10:10 — INFO — Generated danger tone (880Hz).
+2026-03-30 14:10:10 — INFO — Generated warning tone (440Hz).
+2026-03-30 14:10:10 — INFO — Generated chime tone (523Hz).
+2026-03-30 14:10:11 — INFO — TTS engine initialised.
+2026-03-30 14:10:11 — INFO — Selected TTS voice: Karen
+2026-03-30 14:10:11 — INFO — Speech worker thread running.
+2026-03-30 14:10:11 — INFO — Speech worker thread started.
+2026-03-30 14:10:11 — INFO — Speech watchdog started.
+2026-03-30 14:10:11 — INFO — Audio system ready.
+2026-03-30 14:10:11 — INFO — Audio ready.
+2026-03-30 14:10:11 — INFO — Step 4: Initialising state machine...
+2026-03-30 14:10:11 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 14:10:11 — INFO — State machine ready.
+2026-03-30 14:10:11 — INFO — Step 5: Registering callbacks...
+2026-03-30 14:10:11 — INFO — Callbacks registered.
+2026-03-30 14:10:12 — INFO — ============================================================
+2026-03-30 14:10:12 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 14:10:12 — INFO — ============================================================
+2026-03-30 14:10:12 — INFO — Main loop started.
+2026-03-30 14:10:12 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 14:10:14 — INFO — Manual mode: NAVIGATION -> INTERACTION
+2026-03-30 14:10:17 — INFO — Performance | Frame 30 | FPS: 18.7 | Avg: 53.4ms | Slow: 8 | Uptime: 11s | MANUAL | Mode: MANUAL:INTERACTION | Tracks: 1
+2026-03-30 14:10:24 — INFO — Performance | Frame 60 | FPS: 20.6 | Avg: 48.6ms | Slow: 18 | Uptime: 18s | MANUAL | Mode: MANUAL:INTERACTION | Tracks: 1
+2026-03-30 14:10:30 — INFO — Performance | Frame 90 | FPS: 20.5 | Avg: 48.9ms | Slow: 32 | Uptime: 24s | MANUAL | Mode: MANUAL:INTERACTION | Tracks: 3
+2026-03-30 14:10:35 — INFO — Performance | Frame 120 | FPS: 18.1 | Avg: 55.3ms | Slow: 46 | Uptime: 29s | MANUAL | Mode: MANUAL:INTERACTION | Tracks: 3
+2026-03-30 14:10:49 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 14:10:49 — INFO — ============================================================
+2026-03-30 14:10:49 — INFO — ECHORA Control Unit starting up...
+2026-03-30 14:10:49 — INFO — ============================================================
+2026-03-30 14:10:49 — INFO — Step 1: Starting camera...
+2026-03-30 14:10:49 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 14:10:49 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 14:10:50 — INFO — Starting OAK-D device...
+2026-03-30 14:10:51 — INFO — Device started successfully.
+2026-03-30 14:10:51 — INFO — Kalman filter initialised.
+2026-03-30 14:10:51 — INFO — IMU reader thread started.
+2026-03-30 14:10:51 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 14:10:51 — INFO — Camera ready.
+2026-03-30 14:10:51 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 14:10:51 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 14:10:51 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 14:10:51 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 14:10:51 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 14:10:51 — INFO — YOLO model loaded successfully.
+2026-03-30 14:10:51 — INFO — Model classes: 80 total
+2026-03-30 14:10:51 — INFO — Warming up YOLO on CUDA...
+2026-03-30 14:10:51 — INFO — YOLO warmup complete.
+2026-03-30 14:10:51 — INFO — Obstacle detector ready.
+2026-03-30 14:10:51 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 14:10:51 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 14:10:51 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 14:10:51 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 14:10:51 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 14:10:51 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 14:10:51 — INFO — InteractionDetector ready.
+2026-03-30 14:10:51 — INFO — Interaction detector ready.
+2026-03-30 14:10:51 — INFO — Step 2c: Initialising OCR...
+2026-03-30 14:10:51 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 14:10:51 — INFO — Loading EasyOCR (languages: ['en', 'ar'])...
+2026-03-30 14:10:51 — INFO — OCR will use CPU (MPS not supported by EasyOCR).
+2026-03-30 14:10:53 — INFO — EasyOCR loaded in 1796ms. GPU=False
+2026-03-30 14:10:53 — INFO — OCRReader ready.
+2026-03-30 14:10:53 — INFO — Module-level OCR reader ready.
+2026-03-30 14:10:53 — INFO — OCR ready.
+2026-03-30 14:10:53 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 14:10:53 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 14:10:53 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 14:10:53 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 14:10:53 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 14:10:53 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:10:53 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:10:53 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:10:53 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 14:10:53 — INFO — Module-level banknote detector ready.
+2026-03-30 14:10:53 — INFO — Banknote detector ready.
+2026-03-30 14:10:53 — INFO — Step 2e: Initialising database...
+2026-03-30 14:10:53 — INFO — Database created. Call init_db() to open.
+2026-03-30 14:10:53 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 14:10:53 — INFO — Database opened successfully.
+2026-03-30 14:10:53 — INFO —   Registered persons: 3
+2026-03-30 14:10:53 — INFO — Module-level database ready.
+2026-03-30 14:10:53 — INFO — Database ready.
+2026-03-30 14:10:53 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 14:10:53 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 14:10:53 — INFO — Loading face recognition model...
+2026-03-30 14:10:53 — INFO — face_recognition library loaded successfully.
+2026-03-30 14:10:53 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 14:10:53 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 14:10:53 — INFO — Module-level face recogniser ready.
+2026-03-30 14:10:53 — INFO — Face recognition ready.
+2026-03-30 14:10:53 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 14:10:53 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 14:10:53 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 14:10:53 — INFO — Module-level haptic feedback ready.
+2026-03-30 14:10:53 — INFO — Haptic feedback ready.
+2026-03-30 14:10:53 — INFO — Step 3: Starting audio system...
+2026-03-30 14:10:53 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 14:10:53 — INFO — Initialising audio system...
+2026-03-30 14:10:53 — INFO — pygame mixer initialised.
+2026-03-30 14:10:53 — INFO — Generated danger tone (880Hz).
+2026-03-30 14:10:53 — INFO — Generated warning tone (440Hz).
+2026-03-30 14:10:53 — INFO — Generated chime tone (523Hz).
+2026-03-30 14:10:53 — INFO — TTS engine initialised.
+2026-03-30 14:10:54 — INFO — Selected TTS voice: Karen
+2026-03-30 14:10:54 — INFO — Speech worker thread running.
+2026-03-30 14:10:54 — INFO — Speech worker thread started.
+2026-03-30 14:10:54 — INFO — Speech watchdog started.
+2026-03-30 14:10:54 — INFO — Audio system ready.
+2026-03-30 14:10:54 — INFO — Audio ready.
+2026-03-30 14:10:54 — INFO — Step 4: Initialising state machine...
+2026-03-30 14:10:54 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 14:10:54 — INFO — State machine ready.
+2026-03-30 14:10:54 — INFO — Step 5: Registering callbacks...
+2026-03-30 14:10:54 — INFO — Callbacks registered.
+2026-03-30 14:10:54 — INFO — ============================================================
+2026-03-30 14:10:54 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 14:10:54 — INFO — ============================================================
+2026-03-30 14:10:54 — INFO — Main loop started.
+2026-03-30 14:10:54 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 14:10:56 — INFO — Manual mode: NAVIGATION -> INTERACTION
+2026-03-30 14:10:59 — INFO — Performance | Frame 30 | FPS: 17.6 | Avg: 56.9ms | Slow: 8 | Uptime: 11s | MANUAL | Mode: MANUAL:INTERACTION | Tracks: 2
+2026-03-30 14:11:04 — INFO — Performance | Frame 60 | FPS: 20.2 | Avg: 49.4ms | Slow: 18 | Uptime: 16s | MANUAL | Mode: MANUAL:INTERACTION | Tracks: 3
+2026-03-30 14:11:10 — INFO — Performance | Frame 90 | FPS: 20.3 | Avg: 49.2ms | Slow: 27 | Uptime: 21s | MANUAL | Mode: MANUAL:INTERACTION | Tracks: 3
+2026-03-30 14:11:15 — INFO — Performance | Frame 120 | FPS: 22.7 | Avg: 44.0ms | Slow: 33 | Uptime: 26s | MANUAL | Mode: MANUAL:INTERACTION | Tracks: 3
+2026-03-30 14:11:20 — INFO — Performance | Frame 150 | FPS: 20.3 | Avg: 49.2ms | Slow: 44 | Uptime: 31s | MANUAL | Mode: MANUAL:INTERACTION | Tracks: 2
+2026-03-30 14:12:45 — INFO — ControlUnit created. Starting in MANUAL mode.
+2026-03-30 14:12:45 — INFO — ============================================================
+2026-03-30 14:12:45 — INFO — ECHORA Control Unit starting up...
+2026-03-30 14:12:45 — INFO — ============================================================
+2026-03-30 14:12:45 — INFO — Step 1: Starting camera...
+2026-03-30 14:12:45 — INFO — EchoraCamera created. Call init_pipeline() to start.
+2026-03-30 14:12:45 — INFO — Initialising depthai v3 pipeline...
+2026-03-30 14:12:47 — INFO — Starting OAK-D device...
+2026-03-30 14:12:47 — INFO — Device started successfully.
+2026-03-30 14:12:47 — INFO — Kalman filter initialised.
+2026-03-30 14:12:47 — INFO — IMU reader thread started.
+2026-03-30 14:12:47 — INFO — Pipeline fully initialised. Ready to stream.
+2026-03-30 14:12:47 — INFO — Camera ready.
+2026-03-30 14:12:47 — INFO — Step 2: Loading obstacle detector...
+2026-03-30 14:12:47 — INFO — KalmanTracker initialised (frame_width=1280px).
+2026-03-30 14:12:47 — INFO — ObstacleDetector created. Call load_model() to start.
+2026-03-30 14:12:47 — INFO — Loading YOLO model from: /Users/youssefabdelrahman/Coding/python/echora/models/yolov8s.pt
+2026-03-30 14:12:47 — INFO — YOLO will run on Apple MPS GPU.
+2026-03-30 14:12:47 — INFO — YOLO model loaded successfully.
+2026-03-30 14:12:47 — INFO — Model classes: 80 total
+2026-03-30 14:12:47 — INFO — Warming up YOLO on CUDA...
+2026-03-30 14:12:47 — INFO — YOLO warmup complete.
+2026-03-30 14:12:47 — INFO — Obstacle detector ready.
+2026-03-30 14:12:47 — INFO — Step 2b: Loading interaction detector...
+2026-03-30 14:12:47 — INFO — HapticBridge created (stub mode). Fill in send() when ESP32 protocol is finalised.
+2026-03-30 14:12:47 — INFO — InteractionDetector created. Call load_model() to start.
+2026-03-30 14:12:47 — INFO — Loading MediaPipe hand detection model...
+2026-03-30 14:12:47 — INFO — MediaPipe hand detection loaded successfully.
+2026-03-30 14:12:47 — INFO — HapticBridge.connect() called (stub — no hardware).
+2026-03-30 14:12:47 — INFO — InteractionDetector ready.
+2026-03-30 14:12:47 — INFO — Interaction detector ready.
+2026-03-30 14:12:47 — INFO — Step 2c: Initialising OCR...
+2026-03-30 14:12:47 — INFO — OCRReader created. Call load_model() to start.
+2026-03-30 14:12:47 — INFO — Loading EasyOCR (languages: ['en', 'ar'])...
+2026-03-30 14:12:47 — INFO — OCR will use CPU (MPS not supported by EasyOCR).
+2026-03-30 14:12:49 — INFO — EasyOCR loaded in 1771ms. GPU=False
+2026-03-30 14:12:49 — INFO — OCRReader ready.
+2026-03-30 14:12:49 — INFO — Module-level OCR reader ready.
+2026-03-30 14:12:49 — INFO — OCR ready.
+2026-03-30 14:12:49 — INFO — Step 2d: Initialising banknote detector...
+2026-03-30 14:12:49 — INFO — BanknoteDetector created. Call load_model() to start.
+2026-03-30 14:12:49 — INFO — Banknote detector will use Apple MPS GPU.
+2026-03-30 14:12:49 — INFO — Loading banknote model from: /Users/youssefabdelrahman/Coding/python/echora/models/banknote_egp.pt
+2026-03-30 14:12:49 — INFO — Banknote model loaded. Classes: {0: '0', 1: '1', 2: '8'}
+2026-03-30 14:12:49 — WARNING — Unmapped banknote class: '0'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:12:49 — WARNING — Unmapped banknote class: '1'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:12:49 — WARNING — Unmapped banknote class: '8'. Add it to DENOMINATION_MAP in banknote.py.
+2026-03-30 14:12:49 — INFO — BanknoteDetector ready (real detection).
+2026-03-30 14:12:49 — INFO — Module-level banknote detector ready.
+2026-03-30 14:12:49 — INFO — Banknote detector ready.
+2026-03-30 14:12:49 — INFO — Step 2e: Initialising database...
+2026-03-30 14:12:49 — INFO — Database created. Call init_db() to open.
+2026-03-30 14:12:49 — INFO — Opening database at: /Users/youssefabdelrahman/Coding/python/echora/database/faces/echora.db
+2026-03-30 14:12:49 — INFO — Database opened successfully.
+2026-03-30 14:12:49 — INFO —   Registered persons: 3
+2026-03-30 14:12:49 — INFO — Module-level database ready.
+2026-03-30 14:12:49 — INFO — Database ready.
+2026-03-30 14:12:49 — INFO — Step 2f: Initialising face recognition...
+2026-03-30 14:12:49 — INFO — FaceRecognizer created. Call load_model() to start.
+2026-03-30 14:12:49 — INFO — Loading face recognition model...
+2026-03-30 14:12:49 — INFO — face_recognition library loaded successfully.
+2026-03-30 14:12:49 — INFO — Loaded 3 face embeddings from database.
+2026-03-30 14:12:49 — INFO — FaceRecognizer ready. Known faces: Emad, Emad1, Yossef
+2026-03-30 14:12:49 — INFO — Module-level face recogniser ready.
+2026-03-30 14:12:49 — INFO — Face recognition ready.
+2026-03-30 14:12:49 — INFO — Step 2g: Initialising haptic feedback...
+2026-03-30 14:12:49 — INFO — HapticFeedback created. Protocol: STUB. Call connect() to start.
+2026-03-30 14:12:49 — INFO — HapticFeedback: STUB mode. Patterns will be logged but not transmitted. Set HAPTIC_PROTOCOL when hardware is ready.
+2026-03-30 14:12:49 — INFO — Module-level haptic feedback ready.
+2026-03-30 14:12:49 — INFO — Haptic feedback ready.
+2026-03-30 14:12:49 — INFO — Step 3: Starting audio system...
+2026-03-30 14:12:49 — INFO — AudioFeedback created. Call init_audio() to start.
+2026-03-30 14:12:49 — INFO — Initialising audio system...
+2026-03-30 14:12:49 — INFO — pygame mixer initialised.
+2026-03-30 14:12:49 — INFO — Generated danger tone (880Hz).
+2026-03-30 14:12:49 — INFO — Generated warning tone (440Hz).
+2026-03-30 14:12:49 — INFO — Generated chime tone (523Hz).
+2026-03-30 14:12:49 — INFO — TTS engine initialised.
+2026-03-30 14:12:50 — INFO — Selected TTS voice: Karen
+2026-03-30 14:12:50 — INFO — Speech worker thread running.
+2026-03-30 14:12:50 — INFO — Speech worker thread started.
+2026-03-30 14:12:50 — INFO — Speech watchdog started.
+2026-03-30 14:12:50 — INFO — Audio system ready.
+2026-03-30 14:12:50 — INFO — Audio ready.
+2026-03-30 14:12:50 — INFO — Step 4: Initialising state machine...
+2026-03-30 14:12:50 — INFO — StateMachine initialised. Starting in NAVIGATION mode.
+2026-03-30 14:12:50 — INFO — State machine ready.
+2026-03-30 14:12:50 — INFO — Step 5: Registering callbacks...
+2026-03-30 14:12:50 — INFO — Callbacks registered.
+2026-03-30 14:12:50 — INFO — ============================================================
+2026-03-30 14:12:50 — INFO — ECHORA startup complete. Entering main loop.
+2026-03-30 14:12:50 — INFO — ============================================================
+2026-03-30 14:12:50 — INFO — Main loop started.
+2026-03-30 14:12:50 — INFO — TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit
+2026-03-30 14:12:56 — INFO — Performance | Frame 30 | FPS: 19.0 | Avg: 52.7ms | Slow: 7 | Uptime: 11s | MANUAL | Mode: MANUAL:NAVIGATION | Tracks: 1
+2026-03-30 14:13:01 — INFO — Performance | Frame 60 | FPS: 27.5 | Avg: 36.4ms | Slow: 10 | Uptime: 16s | MANUAL | Mode: MANUAL:NAVIGATION | Tracks: 1
+2026-03-30 14:13:08 — INFO — Performance | Frame 90 | FPS: 29.7 | Avg: 33.6ms | Slow: 12 | Uptime: 24s | MANUAL | Mode: MANUAL:NAVIGATION | Tracks: 0
+2026-03-30 14:13:14 — INFO — Performance | Frame 120 | FPS: 30.0 | Avg: 33.3ms | Slow: 14 | Uptime: 30s | MANUAL | Mode: MANUAL:NAVIGATION | Tracks: 1
+2026-03-30 14:13:17 — INFO — Manual mode: NAVIGATION -> FACE_ID
+2026-03-30 14:13:22 — INFO — Performance | Frame 150 | FPS: 30.4 | Avg: 32.9ms | Slow: 15 | Uptime: 37s | MANUAL | Mode: MANUAL:FACE_ID | Tracks: 1
+2026-03-30 14:13:24 — INFO — Face identified: Yossef (distance=0.471)
+2026-03-30 14:13:24 — INFO — Face announced: Yossef
+2026-03-30 14:13:28 — INFO — Performance | Frame 180 | FPS: 31.1 | Avg: 32.1ms | Slow: 15 | Uptime: 43s | MANUAL | Mode: MANUAL:FACE_ID | Tracks: 1
+2026-03-30 14:13:31 — INFO — Manual mode: FACE_ID -> BANKNOTE
+2026-03-30 14:13:34 — INFO — Performance | Frame 210 | FPS: 25.0 | Avg: 39.9ms | Slow: 20 | Uptime: 49s | MANUAL | Mode: MANUAL:BANKNOTE | Tracks: 1
+2026-03-30 14:13:40 — INFO — Performance | Frame 240 | FPS: 23.5 | Avg: 42.6ms | Slow: 27 | Uptime: 55s | MANUAL | Mode: MANUAL:BANKNOTE | Tracks: 1
+2026-03-30 14:13:44 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:44 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:44 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:44 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:45 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:45 — INFO — Performance | Frame 270 | FPS: 21.4 | Avg: 46.7ms | Slow: 36 | Uptime: 61s | MANUAL | Mode: MANUAL:BANKNOTE | Tracks: 1
+2026-03-30 14:13:45 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:46 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:46 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:46 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:46 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:46 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:46 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:46 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:47 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:47 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:47 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:47 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:47 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:47 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:47 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:48 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:48 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:48 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:48 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:48 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:48 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:49 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:49 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:49 — WARNING — Unknown banknote class: '8'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:50 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:50 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:50 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:50 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:50 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:50 — INFO — Performance | Frame 300 | FPS: 22.1 | Avg: 45.2ms | Slow: 42 | Uptime: 65s | MANUAL | Mode: MANUAL:BANKNOTE | Tracks: 2
+2026-03-30 14:13:50 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:50 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:50 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:51 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:51 — WARNING — Unknown banknote class: '0'. Add it to DENOMINATION_MAP.
+2026-03-30 14:13:56 — INFO — Performance | Frame 330 | FPS: 22.0 | Avg: 45.5ms | Slow: 52 | Uptime: 71s | MANUAL | Mode: MANUAL:BANKNOTE | Tracks: 1
