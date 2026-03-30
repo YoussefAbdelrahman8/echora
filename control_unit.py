@@ -164,6 +164,12 @@ class ControlUnit:
         init_face_recognition()
         logger.info("Face recognition ready.")
 
+        # ── Step 2g: Initialise haptic feedback ───────────────────────────────────
+        logger.info("Step 2g: Initialising haptic feedback...")
+        from haptic_feedback import init_haptic
+        init_haptic()
+        logger.info("Haptic feedback ready.")
+
         # Step 3: Audio
         logger.info("Step 3: Starting audio system...")
         self._audio = AudioFeedback()
@@ -758,6 +764,12 @@ class ControlUnit:
 
         if self._camera:
             self._camera.release()
+
+        # ── Release haptic ─────────────────────────────────────────────────────────
+        from haptic_feedback import get_haptic
+        h = get_haptic()
+        if h:
+            h.disconnect()
 
         from database import get_db
         db = get_db()
