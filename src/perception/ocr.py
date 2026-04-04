@@ -6,15 +6,7 @@ import torch
 from collections import deque
 from typing import List, Dict, Optional
 
-from src.core.config import (
-    OCR_CONFIDENCE_THRESHOLD,
-    OCR_MIN_TEXT_HEIGHT_PX,
-    OCR_MAX_CHARS,
-    OCR_TRIGGER_DIST_MM,
-    OCR_LANGUAGE,
-    DEPTH_MIN_MM,
-    DEPTH_MAX_MM,
-)
+from src.core.config import settings
 from src.core.utils import logger, get_timestamp_ms, depth_in_region
 
 MIN_WORD_CONFIDENCE = 0.3
@@ -51,12 +43,12 @@ class OCRReader:
         self._avg_ocr_ms: float = 0.0
 
     def load_model(self):
-        logger.info(f"Loading EasyOCR (languages: {OCR_LANGUAGE})...")
+        logger.info(f"Loading EasyOCR (languages: {settings.OCR_LANGUAGE})...")
         start = time.time()
         use_gpu = _get_ocr_gpu()
 
         try:
-            self._reader = easyocr.Reader(OCR_LANGUAGE, gpu=use_gpu, verbose=False)
+            self._reader = easyocr.Reader(settings.OCR_LANGUAGE, gpu=use_gpu, verbose=False)
             elapsed = round((time.time() - start) * 1000)
             logger.info(f"EasyOCR loaded in {elapsed}ms. GPU={use_gpu}")
         except Exception as e:
@@ -112,7 +104,7 @@ class OCRReader:
                     if x2 <= x1 or y2 <= y1:
                         continue
 
-                    if (y2 - y1) < OCR_MIN_TEXT_HEIGHT_PX:
+                    if (y2 - y1) < settings.OCR_MIN_TEXT_HEIGHT_PX:
                         continue
 
                 except (IndexError, TypeError, ValueError):

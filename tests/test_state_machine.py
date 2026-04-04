@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from src.core.state_machine import StateMachine
-from src.core.config import MODE
+from src.core.config import settings, MODE
 from src.core.utils import get_timestamp_ms
 
 if __name__ == "__main__":

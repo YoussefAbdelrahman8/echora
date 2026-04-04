@@ -6,12 +6,12 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from src.hardware.camera import EchoraCamera
-from src.perception.ocr import OCRReader, OCR_LANGUAGE, _get_ocr_gpu
-from src.core.config import OCR_TRIGGER_DIST_MM
+from src.perception.ocr import OCRReader, settings.OCR_LANGUAGE, _get_ocr_gpu
+from src.core.config import settings
 
 if __name__ == "__main__":
     print("=== ECHORA ocr.py self-test (Arabic + English) ===\n")
-    print(f"Languages configured: {OCR_LANGUAGE}")
+    print(f"Languages configured: {settings.OCR_LANGUAGE}")
     print(f"GPU: {_get_ocr_gpu()}\n")
 
     cam = EchoraCamera()
@@ -41,7 +41,7 @@ if __name__ == "__main__":
                 text_dist = reader.get_text_distance(rgb, depth)
 
             text = ""
-            if 0 < text_dist < OCR_TRIGGER_DIST_MM:
+            if 0 < text_dist < settings.OCR_TRIGGER_DIST_MM:
                 text = reader.read_text(rgb)
 
             if frame_count % 10 == 0:

@@ -11,17 +11,21 @@ if sys.platform == "win32":
         ctypes.windll.kernel32.GetCurrentProcess(), 0x00000080
     )
 
-from src.core.config import MODE, MAX_FRAME_TIME_MS, LOG_LEVEL
+from src.core.config import settings, MODE
 from src.core.utils import logger, get_timestamp_ms, draw_overlay, mm_to_spoken
 from src.hardware.camera import EchoraCamera
 from src.perception.obstacle_detection import ObstacleDetector
 from src.core.state_machine import StateMachine
 from src.hardware.audio_feedback import AudioFeedback, SpeechPriority
 
-import src.perception.ocr
+from src.perception import ocr
 from src.perception.interaction_detection import InteractionDetector
-import src.perception.banknote
-import src.perception.echora_face as face_recognition
+from src.perception import banknote
+from src.perception import echora_face as face_recognition
+
+from src.storage.database import init_database
+from src.perception.echora_face import init_face_recognition
+from src.hardware.haptic_feedback import init_haptic
 
 SHOW_DEBUG_WINDOW = True
 PERF_LOG_EVERY_N_FRAMES = 30
@@ -89,13 +93,8 @@ class ControlUnit:
         ocr.init_ocr()
         banknote.init_banknote()
         
-        from database import init_database
         init_database()
-        
-        from echora_face import init_face_recognition
         init_face_recognition()
-        
-        from haptic_feedback import init_haptic
         init_haptic()
         
         self._audio = AudioFeedback()
@@ -203,7 +202,7 @@ class ControlUnit:
 
                 self._frame_times.append(frame_duration)
                 self._frame_times = self._frame_times[-30:]
-                if frame_duration > MAX_FRAME_TIME_MS:
+                if frame_duration > settings.MAX_FRAME_TIME_MS:
                     self._slow_frames += 1
 
                 if SHOW_DEBUG_WINDOW and debug_frame is not None:
@@ -430,9 +429,9 @@ class ControlUnit:
         if self._interaction_detector: self._interaction_detector.release()
         if self._camera: self._camera.release()
         
-        from haptic_feedback import get_haptic
+        from src.hardware.haptic_feedback import get_haptic
         if h := get_haptic(): h.disconnect()
-        from database import get_db
+        from src.storage.database import get_db
         if db := get_db(): db.close()
 
         logger.info(f"ECHORA stopped. Frames: {self._frame_count} | Uptime: {time.time() - self._start_time:.1f}s | Slow:{self._slow_frames}")

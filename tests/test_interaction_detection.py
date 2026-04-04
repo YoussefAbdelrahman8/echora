@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from src.hardware.camera import EchoraCamera
-from src.core.config import HAPTIC_ROWS, HAPTIC_COLS
+from src.core.config import settings
 from src.perception.interaction_detection import ElectrodeGridBuilder, HapticBridge, InteractionDetector
 
 if __name__ == "__main__":
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     print("Test 3: HapticBridge stub")
     bridge = HapticBridge()
     bridge.connect()
-    test_grid = np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+    test_grid = np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
     test_grid[2, 3] = 1.0
     bridge.send(test_grid)
     bridge.send_all_on(0.5)

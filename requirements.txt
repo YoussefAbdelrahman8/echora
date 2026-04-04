@@ -10,3 +10,6 @@ pyttsx3
 torch
 ultralytics
 pytest
+pydantic-settings
+pydantic-settings
+SQLAlchemy>=2.0.0

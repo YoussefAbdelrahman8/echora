@@ -7,22 +7,7 @@ import torch
 from typing import List, Dict, Optional
 import ollama
 
-from src.core.config import (
-    COLLISION_CORRIDOR_DEG,
-    CAMERA_RGB_WIDTH,
-    DETECTION_CONFIDENCE_THRESHOLD,
-    RELEVANT_CLASSES,
-    DEPTH_BBOX_SCALE,
-    DEPTH_MIN_MM,
-    DEPTH_MAX_MM,
-    DANGER_DIST_MM,
-    WARNING_DIST_MM,
-    YOLO_MODEL_PATH,
-    VLM_RUN_EVERY,
-    OBSTACLE_RUN_EVERY,
-    YOLO_INPUT_WIDTH,
-    YOLO_INPUT_HEIGHT,
-)
+from src.core.config import settings, MODE
 from src.core.utils import (
     logger,
     bbox_center,
@@ -48,9 +33,9 @@ class ObstacleDetector:
 
     def __init__(self):
         self._yolo: Optional[YOLO] = None
-        self._tracker = KalmanTracker(frame_width=CAMERA_RGB_WIDTH)
-        self._det_limiter = RateLimiter(run_every=OBSTACLE_RUN_EVERY)
-        self._vlm_limiter = RateLimiter(run_every=VLM_RUN_EVERY)
+        self._tracker = KalmanTracker(frame_width=settings.CAMERA_RGB_WIDTH)
+        self._det_limiter = RateLimiter(run_every=settings.OBSTACLE_RUN_EVERY)
+        self._vlm_limiter = RateLimiter(run_every=settings.VLM_RUN_EVERY)
         self.latest_vlm_description: str = ""
         self._vlm_running: bool = False
         self._vlm_lock = threading.Lock()
@@ -59,10 +44,10 @@ class ObstacleDetector:
         self._device: str = "cpu"
 
     def load_model(self):
-        if not YOLO_MODEL_PATH.exists():
-            raise FileNotFoundError(f"YOLO model not found at: {YOLO_MODEL_PATH}")
+        if not settings.YOLO_MODEL_PATH.exists():
+            raise FileNotFoundError(f"YOLO model not found at: {settings.YOLO_MODEL_PATH}")
 
-        self._yolo = YOLO(str(YOLO_MODEL_PATH))
+        self._yolo = YOLO(str(settings.YOLO_MODEL_PATH))
 
         if torch.backends.mps.is_available():
             self._device = "mps"
@@ -74,7 +59,7 @@ class ObstacleDetector:
             self._device = "cpu"
             logger.info("YOLO will run on CPU.")
 
-        blank = np.zeros((YOLO_INPUT_HEIGHT, YOLO_INPUT_WIDTH, 3), dtype=np.uint8)
+        blank = np.zeros((settings.YOLO_INPUT_HEIGHT, settings.YOLO_INPUT_WIDTH, 3), dtype=np.uint8)
         for _ in range(3):
             self._yolo(blank, verbose=False, device=self._device, half=(self._device == "cuda"))
         logger.info("YOLO warmup complete.")
@@ -137,17 +122,15 @@ class ObstacleDetector:
             return []
 
         try:
-            yolo_frame = cv2.resize(rgb_frame, (YOLO_INPUT_WIDTH, YOLO_INPUT_HEIGHT))
             results = self._yolo(
-                yolo_frame,
+                rgb_frame,
                 verbose=False,
-                conf=DETECTION_CONFIDENCE_THRESHOLD,
+                conf=settings.DETECTION_CONFIDENCE_THRESHOLD,
                 device=self._device,
                 half=(self._device == "cuda"),
+                imgsz=settings.YOLO_INPUT_WIDTH,
             )
 
-            scale_x = rgb_frame.shape[1] / YOLO_INPUT_WIDTH
-            scale_y = rgb_frame.shape[0] / YOLO_INPUT_HEIGHT
             result = results[0]
 
             if result.boxes is None or len(result.boxes) == 0:
@@ -156,10 +139,10 @@ class ObstacleDetector:
             detections = []
             for box in result.boxes:
                 xyxy = box.xyxy.cpu().numpy()[0]
-                x1 = int(xyxy[0] * scale_x)
-                y1 = int(xyxy[1] * scale_y)
-                x2 = int(xyxy[2] * scale_x)
-                y2 = int(xyxy[3] * scale_y)
+                x1 = int(xyxy[0])
+                y1 = int(xyxy[1])
+                x2 = int(xyxy[2])
+                y2 = int(xyxy[3])
                 
                 class_idx = int(box.cls.item())
                 label = self._yolo.names[class_idx]
@@ -176,8 +159,8 @@ class ObstacleDetector:
 
     def _get_depth_for_detection(self, depth_map: np.ndarray, x1: int, y1: int, x2: int, y2: int) -> float:
         w, h = x2 - x1, y2 - y1
-        margin_x = int(w * (1 - DEPTH_BBOX_SCALE) / 2)
-        margin_y = int(h * (1 - DEPTH_BBOX_SCALE) / 2)
+        margin_x = int(w * (1 - settings.DEPTH_BBOX_SCALE) / 2)
+        margin_y = int(h * (1 - settings.DEPTH_BBOX_SCALE) / 2)
 
         sample_x1 = max(0, x1 + margin_x)
         sample_y1 = max(0, y1 + margin_y)
@@ -189,15 +172,15 @@ class ObstacleDetector:
     def _filter_detections(self, detections: List[Dict]) -> List[Dict]:
         filtered = []
         for det in detections:
-            if det["label"] not in RELEVANT_CLASSES:
+            if det["label"] not in settings.RELEVANT_CLASSES:
                 continue
 
-            if det["distance_mm"] <= DEPTH_MIN_MM or det["distance_mm"] > DEPTH_MAX_MM:
+            if det["distance_mm"] <= settings.DEPTH_MIN_MM or det["distance_mm"] > settings.DEPTH_MAX_MM:
                 continue
 
             if (det["urgency"] == "WARNING"
-                    and abs(det.get("angle_deg", 0)) <= COLLISION_CORRIDOR_DEG
-                    and det["distance_mm"] < DANGER_DIST_MM * 1.2):
+                    and abs(det.get("angle_deg", 0)) <= settings.COLLISION_CORRIDOR_DEG
+                    and det["distance_mm"] < settings.DANGER_DIST_MM * 1.2):
                 det["urgency"] = "DANGER"
 
             filtered.append(det)

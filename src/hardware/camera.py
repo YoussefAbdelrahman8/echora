@@ -6,16 +6,7 @@ import threading
 import datetime
 from typing import Optional, Dict, Any, List
 
-from src.core.config import (
-    CAMERA_RGB_WIDTH,
-    CAMERA_RGB_HEIGHT,
-    CAMERA_DEPTH_WIDTH,
-    CAMERA_DEPTH_HEIGHT,
-    DEPTH_MAX_MM,
-    KALMAN_PROCESS_NOISE,
-    KALMAN_MEASUREMENT_NOISE,
-    KALMAN_MAX_MISSED_FRAMES,
-)
+from src.core.config import settings
 from src.core.utils import logger, get_timestamp_ms
 
 class EchoraCamera:
@@ -44,16 +35,16 @@ class EchoraCamera:
         cam_left  = self.pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_B)
         cam_right = self.pipeline.create(dai.node.Camera).build(dai.CameraBoardSocket.CAM_C)
 
-        rgb_out = cam_rgb.requestOutput((CAMERA_RGB_WIDTH, CAMERA_RGB_HEIGHT), dai.ImgFrame.Type.BGR888p)
-        left_out = cam_left.requestOutput((CAMERA_DEPTH_WIDTH, CAMERA_DEPTH_HEIGHT), dai.ImgFrame.Type.GRAY8)
-        right_out = cam_right.requestOutput((CAMERA_DEPTH_WIDTH, CAMERA_DEPTH_HEIGHT), dai.ImgFrame.Type.GRAY8)
+        rgb_out = cam_rgb.requestOutput((settings.CAMERA_RGB_WIDTH, settings.CAMERA_RGB_HEIGHT), dai.ImgFrame.Type.BGR888p)
+        left_out = cam_left.requestOutput((settings.CAMERA_DEPTH_WIDTH, settings.CAMERA_DEPTH_HEIGHT), dai.ImgFrame.Type.GRAY8)
+        right_out = cam_right.requestOutput((settings.CAMERA_DEPTH_WIDTH, settings.CAMERA_DEPTH_HEIGHT), dai.ImgFrame.Type.GRAY8)
 
         stereo = self.pipeline.create(dai.node.StereoDepth)
         stereo.setRectification(True)
         stereo.setLeftRightCheck(True)
         stereo.setExtendedDisparity(True)
         stereo.setDepthAlign(dai.CameraBoardSocket.CAM_A)
-        stereo.setOutputSize(CAMERA_DEPTH_WIDTH, CAMERA_DEPTH_HEIGHT)
+        stereo.setOutputSize(settings.CAMERA_DEPTH_WIDTH, settings.CAMERA_DEPTH_HEIGHT)
         left_out.link(stereo.left)
         right_out.link(stereo.right)
 
@@ -95,8 +86,8 @@ class EchoraCamera:
             [1, 0, 0, 0], [0, 1, 0, 0],
         ], dtype=np.float32)
 
-        self.kalman.processNoiseCov = np.eye(4, dtype=np.float32) * KALMAN_PROCESS_NOISE
-        self.kalman.measurementNoiseCov = np.eye(2, dtype=np.float32) * KALMAN_MEASUREMENT_NOISE
+        self.kalman.processNoiseCov = np.eye(4, dtype=np.float32) * settings.KALMAN_PROCESS_NOISE
+        self.kalman.measurementNoiseCov = np.eye(2, dtype=np.float32) * settings.KALMAN_MEASUREMENT_NOISE
         self.kalman.errorCovPost = np.eye(4, dtype=np.float32)
         logger.info("Kalman filter initialised.")
 
@@ -151,7 +142,7 @@ class EchoraCamera:
 
             rgb = msg_group["rgb"].getCvFrame()
             depth = msg_group["depth"].getFrame()
-            depth = np.clip(depth, 0, DEPTH_MAX_MM).astype(np.uint16)
+            depth = np.clip(depth, 0, settings.DEPTH_MAX_MM).astype(np.uint16)
 
             with self._imu_lock:
                 imu = self._latest_imu.copy()
@@ -180,12 +171,12 @@ class EchoraCamera:
 
         to_drop = [
             obj_id for obj_id, count in self.missed_frames.items()
-            if count > KALMAN_MAX_MISSED_FRAMES
+            if count > settings.KALMAN_MAX_MISSED_FRAMES
         ]
 
         for obj_id in to_drop:
             del self.missed_frames[obj_id]
-            logger.debug(f"Dropped {obj_id} — missed {KALMAN_MAX_MISSED_FRAMES} frames.")
+            logger.debug(f"Dropped {obj_id} — missed {settings.KALMAN_MAX_MISSED_FRAMES} frames.")
 
         return to_drop
 
