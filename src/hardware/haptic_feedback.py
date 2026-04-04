@@ -1,27 +1,3 @@
-# =============================================================================
-# haptic_feedback.py — ECHORA Haptic Wristband Communication
-# =============================================================================
-# Manages communication between ECHORA and the ESP32-S3 wristband.
-#
-# The wristband has a 5×6 grid of 30 electrotactile electrodes.
-# Each electrode can be activated independently at varying intensities.
-#
-# Current status: STUB MODE
-#   - All patterns are logged but not transmitted to hardware
-#   - When ESP32 firmware and protocol are finalised, fill in
-#     the send() method with the chosen transport (BLE/Serial/WiFi)
-#   - Nothing else in the system needs to change
-#
-# Integration points:
-#   - interaction_detection.py calls HapticBridge.send() directly
-#   - control_unit.py can call haptic.send_pattern() for custom patterns
-#   - This module is the ONLY place that touches hardware communication
-# =============================================================================
-
-
-# =============================================================================
-# IMPORTS
-# =============================================================================
 
 import numpy as np
 import time
@@ -30,48 +6,23 @@ import json
 from typing import Optional, List
 from pathlib import Path
 
-from config import (
+from src.core.config import (
     HAPTIC_ROWS,
     HAPTIC_COLS,
 )
-from utils import logger
-
-
-# =============================================================================
-# HAPTIC PROTOCOL CONSTANTS
-# =============================================================================
-# When you decide on a protocol, set HAPTIC_PROTOCOL here and fill in
-# the corresponding connection method below.
-#
-# Options:
-#   "STUB"   — log only, no hardware (current default)
-#   "SERIAL" — USB serial cable (simplest, good for development)
-#   "BLE"    — Bluetooth Low Energy (wireless, good for wearable)
-#   "WIFI"   — WiFi UDP (longest range, needs WiFi infrastructure)
+from src.core.utils import logger
 
 HAPTIC_PROTOCOL = "STUB"
 
-# Serial settings (used when HAPTIC_PROTOCOL = "SERIAL")
 SERIAL_PORT     = "COM3"       # Windows: "COM3", "COM4" etc.
-                               # Linux/Mac: "/dev/ttyUSB0", "/dev/ttyACM0"
 SERIAL_BAUDRATE = 115200       # must match ESP32 firmware setting
 
-# BLE settings (used when HAPTIC_PROTOCOL = "BLE")
 BLE_DEVICE_NAME           = "ECHORA-Wristband"
 BLE_SERVICE_UUID          = "12345678-1234-1234-1234-123456789abc"
 BLE_CHARACTERISTIC_UUID   = "87654321-4321-4321-4321-cba987654321"
 
-# WiFi settings (used when HAPTIC_PROTOCOL = "WIFI")
 WIFI_ESP32_IP   = "192.168.1.100"   # IP address of ESP32 on local network
 WIFI_ESP32_PORT = 5005              # UDP port to send patterns to
-
-
-# =============================================================================
-# HAPTIC PATTERNS
-# =============================================================================
-# Pre-built electrode grids for common feedback scenarios.
-# Each pattern is a 5×6 numpy array with values 0.0-1.0.
-# 0.0 = electrode off, 1.0 = full intensity.
 
 def pattern_all_on(intensity: float = 1.0) -> np.ndarray:
     """All 30 electrodes on — used for SUCCESS feedback."""
@@ -123,15 +74,9 @@ def pattern_danger_pulse() -> np.ndarray:
     grid = np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
     for r in range(HAPTIC_ROWS):
         for c in range(HAPTIC_COLS):
-            # Activate every other electrode in a checkerboard pattern.
             if (r + c) % 2 == 0:
                 grid[r, c] = 1.0
     return grid
-
-
-# =============================================================================
-# HAPTIC FEEDBACK CLASS
-# =============================================================================
 
 class HapticFeedback:
     """
@@ -154,15 +99,12 @@ class HapticFeedback:
         haptic = HapticFeedback()
         haptic.connect()
 
-        # Send a raw electrode grid:
         grid = np.zeros((5, 6), dtype=np.float32)
         grid[2, 3] = 1.0   # activate one electrode
         haptic.send(grid)
 
-        # Use a preset pattern:
         haptic.send(pattern_right(intensity=0.8))
 
-        # Pulse success feedback:
         haptic.pulse_success()
 
         haptic.disconnect()
@@ -171,35 +113,21 @@ class HapticFeedback:
     def __init__(self):
         """Creates the HapticFeedback object. Does NOT connect yet."""
 
-        # Whether connected to real hardware.
         self._connected: bool = False
 
-        # The hardware connection object — type depends on protocol.
-        # Serial: serial.Serial instance
-        # BLE:    bleak BleakClient instance
-        # WiFi:   socket.socket instance
         self._connection = None
 
-        # Threading lock — prevents two threads sending simultaneously.
-        # Simultaneous sends can corrupt the data stream.
         self._lock = threading.Lock()
 
-        # Statistics
         self._send_count:  int = 0
         self._error_count: int = 0
 
-        # Last grid sent — for diagnostics and debug overlay.
         self._last_grid: np.ndarray = pattern_all_off()
 
         logger.info(
             f"HapticFeedback created. Protocol: {HAPTIC_PROTOCOL}. "
             f"Call connect() to start."
         )
-
-
-    # =========================================================================
-    # CONNECTION
-    # =========================================================================
 
     def connect(self) -> bool:
         """
@@ -230,7 +158,6 @@ class HapticFeedback:
         else:
             logger.error(f"Unknown protocol: {HAPTIC_PROTOCOL}")
             return False
-
 
     def _connect_serial(self) -> bool:
         """
@@ -269,7 +196,6 @@ class HapticFeedback:
             logger.error(f"Serial connection failed: {e}")
             return False
 
-
     def _connect_ble(self) -> bool:
         """
         Connects via Bluetooth Low Energy.
@@ -285,8 +211,6 @@ class HapticFeedback:
         """
 
         try:
-            # BLE connection is async — this is a simplified placeholder.
-            # For full BLE implementation, use asyncio + bleak properly.
             logger.warning(
                 "BLE connection not yet implemented. "
                 "See _connect_ble() TODO in haptic_feedback.py"
@@ -296,7 +220,6 @@ class HapticFeedback:
         except Exception as e:
             logger.error(f"BLE connection failed: {e}")
             return False
-
 
     def _connect_wifi(self) -> bool:
         """
@@ -325,11 +248,6 @@ class HapticFeedback:
             logger.error(f"WiFi UDP setup failed: {e}")
             return False
 
-
-    # =========================================================================
-    # SENDING PATTERNS
-    # =========================================================================
-
     def send(self, grid: np.ndarray) -> bool:
         """
         Sends a 5×6 electrode activation grid to the wristband.
@@ -348,12 +266,9 @@ class HapticFeedback:
         if not self._connected:
             return False
 
-        # Cache for diagnostics.
         self._last_grid = grid.copy()
         self._send_count += 1
 
-        # Flatten the 5×6 grid to a 30-element 1D array.
-        # This is what the ESP32 firmware will receive.
         flat = grid.flatten()
 
         with self._lock:
@@ -372,7 +287,6 @@ class HapticFeedback:
 
         return False
 
-
     def _send_stub(self, flat: np.ndarray) -> bool:
         """
         Stub implementation — logs the pattern without transmitting.
@@ -383,7 +297,6 @@ class HapticFeedback:
 
         n_active = int(np.sum(flat > 0))
 
-        # Log every 10 sends — frequent sends would flood the console.
         if self._send_count % 10 == 0:
             active_indices = [i for i, v in enumerate(flat) if v > 0]
             logger.debug(
@@ -392,7 +305,6 @@ class HapticFeedback:
             )
 
         return True
-
 
     def _send_serial(self, flat: np.ndarray) -> bool:
         """
@@ -411,10 +323,8 @@ class HapticFeedback:
             return False
 
         try:
-            # Convert 0.0-1.0 floats to 0-255 integers.
             bytes_data = bytes([int(v * 255) for v in flat])
 
-            # Frame: start byte + 30 electrode bytes + end byte.
             frame = bytes([0xFF]) + bytes_data + bytes([0xFE])
 
             self._connection.write(frame)
@@ -424,7 +334,6 @@ class HapticFeedback:
             logger.error(f"Serial send failed: {e}")
             self._error_count += 1
             return False
-
 
     def _send_ble(self, flat: np.ndarray) -> bool:
         """
@@ -436,7 +345,6 @@ class HapticFeedback:
 
         logger.warning("BLE send not yet implemented.")
         return False
-
 
     def _send_wifi(self, flat: np.ndarray) -> bool:
         """
@@ -455,7 +363,6 @@ class HapticFeedback:
             return False
 
         try:
-            # Convert 0.0-1.0 floats to 0-255 integers.
             payload = bytes([int(v * 255) for v in flat])
 
             self._connection.sendto(
@@ -468,11 +375,6 @@ class HapticFeedback:
             logger.error(f"WiFi UDP send failed: {e}")
             self._error_count += 1
             return False
-
-
-    # =========================================================================
-    # CONVENIENCE METHODS
-    # =========================================================================
 
     def send_all_off(self) -> bool:
         """Turns all 30 electrodes off."""
@@ -535,11 +437,6 @@ class HapticFeedback:
         grid    = builder.build_guidance_grid(dx, dy, intensity)
         self.send(grid)
 
-
-    # =========================================================================
-    # DIAGNOSTICS
-    # =========================================================================
-
     def get_stats(self) -> dict:
         """Returns diagnostic statistics."""
         return {
@@ -578,15 +475,9 @@ class HapticFeedback:
             lines.append(row_str)
         return "\n".join(lines)
 
-
-    # =========================================================================
-    # DISCONNECT
-    # =========================================================================
-
     def disconnect(self):
         """Cleanly closes the hardware connection."""
 
-        # Turn all electrodes off before disconnecting.
         if self._connected:
             self.send_all_off()
             time.sleep(0.05)
@@ -605,13 +496,7 @@ class HapticFeedback:
             f"errors: {self._error_count}"
         )
 
-
-# =============================================================================
-# MODULE-LEVEL SINGLETON
-# =============================================================================
-
 _haptic: Optional[HapticFeedback] = None
-
 
 def init_haptic() -> HapticFeedback:
     """
@@ -630,76 +515,7 @@ def init_haptic() -> HapticFeedback:
     logger.info("Module-level haptic feedback ready.")
     return _haptic
 
-
 def get_haptic() -> Optional[HapticFeedback]:
     """Returns the shared HapticFeedback instance."""
     return _haptic
 
-
-# =============================================================================
-# SELF-TEST
-# =============================================================================
-
-if __name__ == "__main__":
-
-    print("=== ECHORA haptic_feedback.py self-test ===\n")
-
-    haptic = HapticFeedback()
-    haptic.connect()
-
-    # ── Test 1: All preset patterns ───────────────────────────────────────────
-    print("Test 1: Preset patterns")
-
-    patterns = {
-        "all_off":      pattern_all_off(),
-        "all_on":       pattern_all_on(),
-        "left":         pattern_left(),
-        "right":        pattern_right(),
-        "up":           pattern_up(),
-        "down":         pattern_down(),
-        "center":       pattern_center(),
-        "danger_pulse": pattern_danger_pulse(),
-    }
-
-    for name, grid in patterns.items():
-        haptic.send(grid)
-        n_active = int(np.sum(grid > 0))
-        print(f"  {name:15s} — {n_active}/30 electrodes active")
-        print(haptic.visualise_grid(grid))
-        print()
-
-    print("  PASSED\n")
-
-    # ── Test 2: Directional guidance ──────────────────────────────────────────
-    print("Test 2: Directional guidance vectors")
-
-    directions = [
-        ("Right",      100,    0),
-        ("Left",      -100,    0),
-        ("Up",            0, -100),
-        ("Down",          0,  100),
-        ("Up-Right",    80,  -80),
-        ("Down-Left",  -80,   80),
-    ]
-
-    for label, dx, dy in directions:
-        haptic.send_direction(dx, dy, intensity=1.0)
-        print(f"  {label:12s} dx={dx:+4d} dy={dy:+4d}")
-
-    print("  PASSED\n")
-
-    # ── Test 3: Success pulse ─────────────────────────────────────────────────
-    print("Test 3: Success pulse (3 pulses)")
-    haptic.pulse_success(pulses=3, interval=0.1)
-    time.sleep(1.0)
-    print("  PASSED\n")
-
-    # ── Test 4: Stats ─────────────────────────────────────────────────────────
-    print("Test 4: Stats")
-    stats = haptic.get_stats()
-    for key, val in stats.items():
-        print(f"  {key}: {val}")
-    print("  PASSED\n")
-
-    haptic.disconnect()
-    print("=== All tests passed ===")
