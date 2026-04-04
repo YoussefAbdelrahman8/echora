@@ -5,12 +5,7 @@ import time
 from collections import deque
 from typing import Optional, Dict, List
 
-from src.core.config import (
-    BANKNOTE_MODEL_PATH,
-    BANKNOTE_CONFIDENCE_THRESHOLD,
-    BANKNOTE_STABILITY_FRAMES,
-    BANKNOTE_MAX_DIST_MM,
-)
+from src.core.config import settings, MODE
 from src.core.utils import logger, get_timestamp_ms, depth_in_region
 
 DENOMINATION_MAP = {
@@ -43,7 +38,7 @@ class BanknoteDetector:
         self._stub_mode: bool = False
         self._device: str = "cpu"
         
-        self._denomination_history: deque = deque(maxlen=BANKNOTE_STABILITY_FRAMES)
+        self._denomination_history: deque = deque(maxlen=settings.BANKNOTE_STABILITY_FRAMES)
         self._last_spoken: str = ""
         
         self._detect_count: int = 0
@@ -51,8 +46,8 @@ class BanknoteDetector:
         self._avg_infer_ms: float = 0.0
 
     def load_model(self):
-        if not BANKNOTE_MODEL_PATH.exists():
-            logger.warning(f"Banknote model not found at: {BANKNOTE_MODEL_PATH}. Running in STUB MODE.")
+        if not settings.BANKNOTE_MODEL_PATH.exists():
+            logger.warning(f"Banknote model not found at: {settings.BANKNOTE_MODEL_PATH}. Running in STUB MODE.")
             self._stub_mode = True
             self._ready = True
             return
@@ -68,7 +63,7 @@ class BanknoteDetector:
         logger.info(f"Loading banknote model on {self._device}...")
         
         try:
-            self._model = YOLO(str(BANKNOTE_MODEL_PATH))
+            self._model = YOLO(str(settings.BANKNOTE_MODEL_PATH))
             for class_name in self._model.names.values():
                 if class_name not in DENOMINATION_MAP:
                     logger.warning(f"Unmapped banknote class: '{class_name}'. Add it to DENOMINATION_MAP.")
@@ -86,7 +81,7 @@ class BanknoteDetector:
 
         try:
             results = self._model(
-                rgb_frame, verbose=False, conf=BANKNOTE_CONFIDENCE_THRESHOLD,
+                rgb_frame, verbose=False, conf=settings.BANKNOTE_CONFIDENCE_THRESHOLD,
                 imgsz=320, device=self._device, half=(self._device == "cuda")
             )
             result = results[0]
@@ -107,7 +102,7 @@ class BanknoteDetector:
 
         try:
             results = self._model(
-                rgb_frame, verbose=False, conf=BANKNOTE_CONFIDENCE_THRESHOLD,
+                rgb_frame, verbose=False, conf=settings.BANKNOTE_CONFIDENCE_THRESHOLD,
                 imgsz=640, device=self._device, half=(self._device == "cuda")
             )
             result = results[0]
@@ -152,7 +147,7 @@ class BanknoteDetector:
 
         try:
             results = self._model(
-                rgb_frame, verbose=False, conf=BANKNOTE_CONFIDENCE_THRESHOLD,
+                rgb_frame, verbose=False, conf=settings.BANKNOTE_CONFIDENCE_THRESHOLD,
                 imgsz=320, device=self._device, half=(self._device == "cuda")
             )
             result = results[0]
@@ -169,14 +164,14 @@ class BanknoteDetector:
             if dist_mm <= 0:
                 return True
 
-            return dist_mm <= BANKNOTE_MAX_DIST_MM
+            return dist_mm <= settings.BANKNOTE_MAX_DIST_MM
 
         except Exception as e:
             logger.error(f"Banknote range check error: {e}")
             return False
 
     def _is_stable(self) -> bool:
-        if len(self._denomination_history) < BANKNOTE_STABILITY_FRAMES:
+        if len(self._denomination_history) < settings.BANKNOTE_STABILITY_FRAMES:
             return False
 
         unique = set(self._denomination_history)
@@ -189,7 +184,7 @@ class BanknoteDetector:
 
         try:
             results = self._model(
-                frame, verbose=False, conf=BANKNOTE_CONFIDENCE_THRESHOLD,
+                frame, verbose=False, conf=settings.BANKNOTE_CONFIDENCE_THRESHOLD,
                 imgsz=640, device=self._device, half=(self._device=="cuda")
             )
             result = results[0]
@@ -211,7 +206,7 @@ class BanknoteDetector:
                 label = f"{denomination} ({confidence:.0%})"
                 cv2.putText(frame, label, (x1, y1 - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 215, 255), 2)
 
-            stability_str = f"Stable: {len(self._denomination_history)}/{BANKNOTE_STABILITY_FRAMES}"
+            stability_str = f"Stable: {len(self._denomination_history)}/{settings.BANKNOTE_STABILITY_FRAMES}"
             cv2.putText(frame, stability_str, (10, frame.shape[0] - 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 215, 255), 1)
 
         except Exception as e:

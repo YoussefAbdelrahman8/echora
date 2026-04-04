@@ -6,10 +6,7 @@ import json
 from typing import Optional, List
 from pathlib import Path
 
-from src.core.config import (
-    HAPTIC_ROWS,
-    HAPTIC_COLS,
-)
+from src.core.config import settings
 from src.core.utils import logger
 
 HAPTIC_PROTOCOL = "STUB"
@@ -18,51 +15,51 @@ SERIAL_PORT     = "COM3"       # Windows: "COM3", "COM4" etc.
 SERIAL_BAUDRATE = 115200       # must match ESP32 firmware setting
 
 BLE_DEVICE_NAME           = "ECHORA-Wristband"
-BLE_SERVICE_UUID          = "12345678-1234-1234-1234-123456789abc"
-BLE_CHARACTERISTIC_UUID   = "87654321-4321-4321-4321-cba987654321"
+settings.BLE_SERVICE_UUID          = "12345678-1234-1234-1234-123456789abc"
+settings.BLE_CHARACTERISTIC_UUID   = "87654321-4321-4321-4321-cba987654321"
 
 WIFI_ESP32_IP   = "192.168.1.100"   # IP address of ESP32 on local network
 WIFI_ESP32_PORT = 5005              # UDP port to send patterns to
 
 def pattern_all_on(intensity: float = 1.0) -> np.ndarray:
     """All 30 electrodes on — used for SUCCESS feedback."""
-    return np.full((HAPTIC_ROWS, HAPTIC_COLS), intensity, dtype=np.float32)
+    return np.full((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), intensity, dtype=np.float32)
 
 def pattern_all_off() -> np.ndarray:
     """All 30 electrodes off — used to clear the wristband."""
-    return np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+    return np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
 
 def pattern_left(intensity: float = 1.0) -> np.ndarray:
     """Left columns active — guide hand LEFT."""
-    grid = np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+    grid = np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
     grid[:, 0] = intensity
     grid[:, 1] = intensity
     return grid
 
 def pattern_right(intensity: float = 1.0) -> np.ndarray:
     """Right columns active — guide hand RIGHT."""
-    grid = np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+    grid = np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
     grid[:, 4] = intensity
     grid[:, 5] = intensity
     return grid
 
 def pattern_up(intensity: float = 1.0) -> np.ndarray:
     """Top rows active — guide hand UP."""
-    grid = np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+    grid = np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
     grid[0, :] = intensity
     grid[1, :] = intensity
     return grid
 
 def pattern_down(intensity: float = 1.0) -> np.ndarray:
     """Bottom rows active — guide hand DOWN."""
-    grid = np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+    grid = np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
     grid[3, :] = intensity
     grid[4, :] = intensity
     return grid
 
 def pattern_center(intensity: float = 1.0) -> np.ndarray:
     """Center row active — object is straight ahead."""
-    grid = np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+    grid = np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
     grid[2, :] = intensity
     return grid
 
@@ -71,9 +68,9 @@ def pattern_danger_pulse() -> np.ndarray:
     Alternating checkerboard — urgent DANGER alert.
     Maximum tactile contrast for immediate attention.
     """
-    grid = np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
-    for r in range(HAPTIC_ROWS):
-        for c in range(HAPTIC_COLS):
+    grid = np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
+    for r in range(settings.HAPTIC_ROWS):
+        for c in range(settings.HAPTIC_COLS):
             if (r + c) % 2 == 0:
                 grid[r, c] = 1.0
     return grid
@@ -203,8 +200,8 @@ class HapticFeedback:
         TODO: Install bleak first:
             pip install bleak
 
-        Then set BLE_DEVICE_NAME, BLE_SERVICE_UUID, and
-        BLE_CHARACTERISTIC_UUID to match your ESP32 firmware.
+        Then set BLE_DEVICE_NAME, settings.BLE_SERVICE_UUID, and
+        settings.BLE_CHARACTERISTIC_UUID to match your ESP32 firmware.
 
         Note: BLE in Python requires asyncio. This stub uses a
         synchronous wrapper — you may need to adapt for async.
@@ -255,7 +252,7 @@ class HapticFeedback:
         This is the main function — everything else calls this.
 
         Arguments:
-            grid: numpy array shape (HAPTIC_ROWS, HAPTIC_COLS)
+            grid: numpy array shape (settings.HAPTIC_ROWS, settings.HAPTIC_COLS)
                   Values: 0.0 = electrode off, 1.0 = full intensity.
                   Values between 0.0 and 1.0 = partial intensity.
 
@@ -462,9 +459,9 @@ class HapticFeedback:
         """
 
         lines = []
-        for r in range(HAPTIC_ROWS):
+        for r in range(settings.HAPTIC_ROWS):
             row_str = f"Row {r}: "
-            for c in range(HAPTIC_COLS):
+            for c in range(settings.HAPTIC_COLS):
                 val = grid[r, c]
                 if val > 0.7:
                     row_str += "[X]"   # strong activation

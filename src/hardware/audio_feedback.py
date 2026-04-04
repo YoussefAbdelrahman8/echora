@@ -10,16 +10,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional, Dict
 
-from src.core.config import (
-    TTS_RATE,
-    TTS_VOLUME,
-    ALERT_VOLUME,
-    CAMERA_HFOV_DEG,
-    SOUND_DANGER_PATH,
-    SOUND_WARNING_PATH,
-    SOUND_CHIME_PATH,
-    ALERT_COOLDOWN_SEC,
-)
+from src.core.config import settings
 from src.core.utils import logger, mm_to_spoken, get_timestamp_ms, AlertCooldown
 
 class SpeechPriority:
@@ -56,7 +47,7 @@ class AudioFeedback:
         self._sound_warning: Optional[pygame.mixer.Sound] = None
         self._sound_chime:   Optional[pygame.mixer.Sound] = None
 
-        self._volume: float = TTS_VOLUME
+        self._volume: float = settings.TTS_VOLUME
 
         self._is_speaking:  bool             = False
         self._speaking_lock = threading.Lock()
@@ -88,31 +79,37 @@ class AudioFeedback:
 
         self._load_sounds()
 
-        try:
-            self._engine = pyttsx3.init()
-            logger.info("TTS engine initialised.")
-        except Exception as e:
-            logger.error(f"TTS engine init failed: {e}")
+        import os
+        is_docker = os.path.exists('/.dockerenv') or os.environ.get('SDL_AUDIODRIVER') == 'dummy'
+        if is_docker:
+            logger.warning("Running inside Docker/headless dummy mode. Audio hardware disabled.")
             self._engine = None
+        else:
+            try:
+                self._engine = pyttsx3.init()
+                logger.info("TTS engine initialised.")
+            except Exception as e:
+                logger.error(f"TTS engine init failed: {e}")
+                self._engine = None
 
-        if self._engine:
-            self._engine.setProperty('rate',   TTS_RATE)
-            self._engine.setProperty('volume', self._volume)
+            if self._engine:
+                self._engine.setProperty('rate',   settings.TTS_RATE)
+                self._engine.setProperty('volume', self._volume)
 
-            voices          = self._engine.getProperty('voices')
-            preferred_names = ['samantha', 'karen', 'victoria', 'alex', 'arabic', 'naayf', 'hoda']
-            selected_voice  = None
+                voices          = self._engine.getProperty('voices')
+                preferred_names = ['samantha', 'karen', 'victoria', 'alex', 'arabic', 'naayf', 'hoda']
+                selected_voice  = None
 
-            for voice in voices:
-                if any(n in voice.name.lower() for n in preferred_names):
-                    selected_voice = voice.id
-                    logger.info(f"Selected TTS voice: {voice.name}")
-                    break
+                for voice in voices:
+                    if any(n in voice.name.lower() for n in preferred_names):
+                        selected_voice = voice.id
+                        logger.info(f"Selected TTS voice: {voice.name}")
+                        break
 
-            if selected_voice:
-                self._engine.setProperty('voice', selected_voice)
-            else:
-                logger.info("Using default TTS voice.")
+                if selected_voice:
+                    self._engine.setProperty('voice', selected_voice)
+                else:
+                    logger.info("Using default TTS voice.")
 
         self._running = True
 
@@ -151,7 +148,7 @@ class AudioFeedback:
                     pass
 
             self._engine = pyttsx3.init()
-            self._engine.setProperty('rate',   TTS_RATE)
+            self._engine.setProperty('rate',   settings.TTS_RATE)
             self._engine.setProperty('volume', self._volume)
 
             voices          = self._engine.getProperty('voices')
@@ -174,23 +171,23 @@ class AudioFeedback:
 
     def _load_sounds(self):
 
-        if SOUND_DANGER_PATH.exists():
-            self._sound_danger = pygame.mixer.Sound(str(SOUND_DANGER_PATH))
-            logger.info(f"Loaded danger sound: {SOUND_DANGER_PATH.name}")
+        if settings.SOUND_DANGER_PATH.exists():
+            self._sound_danger = pygame.mixer.Sound(str(settings.SOUND_DANGER_PATH))
+            logger.info(f"Loaded danger sound: {settings.SOUND_DANGER_PATH.name}")
         else:
             self._sound_danger = self._generate_tone(880, 0.3, 0.9)
             logger.info("Generated danger tone (880Hz).")
 
-        if SOUND_WARNING_PATH.exists():
-            self._sound_warning = pygame.mixer.Sound(str(SOUND_WARNING_PATH))
-            logger.info(f"Loaded warning sound: {SOUND_WARNING_PATH.name}")
+        if settings.SOUND_WARNING_PATH.exists():
+            self._sound_warning = pygame.mixer.Sound(str(settings.SOUND_WARNING_PATH))
+            logger.info(f"Loaded warning sound: {settings.SOUND_WARNING_PATH.name}")
         else:
             self._sound_warning = self._generate_tone(440, 0.4, 0.7)
             logger.info("Generated warning tone (440Hz).")
 
-        if SOUND_CHIME_PATH.exists():
-            self._sound_chime = pygame.mixer.Sound(str(SOUND_CHIME_PATH))
-            logger.info(f"Loaded chime sound: {SOUND_CHIME_PATH.name}")
+        if settings.SOUND_CHIME_PATH.exists():
+            self._sound_chime = pygame.mixer.Sound(str(settings.SOUND_CHIME_PATH))
+            logger.info(f"Loaded chime sound: {settings.SOUND_CHIME_PATH.name}")
         else:
             self._sound_chime = self._generate_tone(523, 0.2, 0.5)
             logger.info("Generated chime tone (523Hz).")
@@ -202,6 +199,11 @@ class AudioFeedback:
         volume:    float = 0.8
     ) -> Optional[pygame.mixer.Sound]:
 
+        import pygame
+        if not pygame.mixer.get_init():
+            logger.debug("Mixer not init; skipping tone generation.")
+            return None
+            
         try:
             sample_rate = 22050
             n_samples   = int(sample_rate * duration)
@@ -219,6 +221,7 @@ class AudioFeedback:
             ).astype(np.int16)
 
             stereo_wave = np.ascontiguousarray(np.column_stack([wave, wave]))
+            import pygame.sndarray
             return pygame.sndarray.make_sound(stereo_wave)
 
         except Exception as e:
@@ -335,7 +338,7 @@ class AudioFeedback:
                 logger.info("Speech thread restarted.")
 
     def _angle_to_pan(self, angle_deg: float) -> float:
-        half_fov = CAMERA_HFOV_DEG / 2.0
+        half_fov = settings.CAMERA_HFOV_DEG / 2.0
         pan      = angle_deg / half_fov
         return float(np.clip(pan, -1.0, 1.0))
 
@@ -365,8 +368,8 @@ class AudioFeedback:
 
         pan       = self._angle_to_pan(angle_deg)
         angle_rad = (pan + 1) / 2 * (np.pi / 2)
-        left_vol  = float(np.cos(angle_rad)) * ALERT_VOLUME
-        right_vol = float(np.sin(angle_rad)) * ALERT_VOLUME
+        left_vol  = float(np.cos(angle_rad)) * settings.ALERT_VOLUME
+        right_vol = float(np.sin(angle_rad)) * settings.ALERT_VOLUME
 
         channel = pygame.mixer.find_channel(True)
         if channel:

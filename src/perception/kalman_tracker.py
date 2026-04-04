@@ -3,11 +3,7 @@ import cv2
 import time
 from typing import List, Dict, Optional, Tuple
 
-from src.core.config import (
-    KALMAN_PROCESS_NOISE,
-    KALMAN_MEASUREMENT_NOISE,
-    KALMAN_MAX_MISSED_FRAMES,
-)
+from src.core.config import settings
 from src.core.utils import logger, bbox_center, angle_from_x, classify_urgency, get_timestamp_ms
 
 class TrackState:
@@ -52,8 +48,8 @@ class Track:
             [1, 0, 0, 0], [0, 1, 0, 0],
         ], dtype=np.float32)
 
-        kf.processNoiseCov = np.eye(4, dtype=np.float32) * KALMAN_PROCESS_NOISE
-        kf.measurementNoiseCov = np.eye(2, dtype=np.float32) * KALMAN_MEASUREMENT_NOISE
+        kf.processNoiseCov = np.eye(4, dtype=np.float32) * settings.KALMAN_PROCESS_NOISE
+        kf.measurementNoiseCov = np.eye(2, dtype=np.float32) * settings.KALMAN_MEASUREMENT_NOISE
         kf.errorCovPost = np.array([
             [1, 0, 0,  0], [0, 1, 0,  0],
             [0, 0, 10, 0], [0, 0, 0, 10],
@@ -104,7 +100,7 @@ class Track:
             self.state = TrackState.LOST
             logger.debug(f"Track lost: {self.track_id} ({self.label}), missed={self.missed}")
 
-        if self.missed > KALMAN_MAX_MISSED_FRAMES:
+        if self.missed > settings.KALMAN_MAX_MISSED_FRAMES:
             self.state = TrackState.DELETED
             logger.debug(f"Track deleted: {self.track_id} ({self.label})")
 

@@ -5,11 +5,7 @@ import time
 from collections import deque
 from typing import Optional, Dict, List, Tuple
 
-from src.core.config import (
-    FACE_CONFIDENCE_THRESHOLD,
-    FACE_STABILITY_FRAMES,
-    FACE_RECOGNITION_TOLERANCE,
-)
+from src.core.config import settings
 from src.core.utils import logger, get_timestamp_ms
 from src.storage.database import get_db
 
@@ -22,7 +18,7 @@ class FaceRecognizer:
         self._known_embeddings: List[np.ndarray] = []
         self._ready: bool = False
 
-        self._name_history: deque = deque(maxlen=FACE_STABILITY_FRAMES)
+        self._name_history: deque = deque(maxlen=settings.FACE_STABILITY_FRAMES)
         self._last_spoken: str = ""
 
         self._detect_count: int = 0
@@ -162,7 +158,7 @@ class FaceRecognizer:
                 self._name_history.append("")
                 return "", ""
 
-            matches = fr.compare_faces(self._known_embeddings, query_embedding, tolerance=FACE_RECOGNITION_TOLERANCE)
+            matches = fr.compare_faces(self._known_embeddings, query_embedding, tolerance=settings.FACE_RECOGNITION_TOLERANCE)
             distances = fr.face_distance(self._known_embeddings, query_embedding)
 
             best_idx = int(np.argmin(distances))
@@ -170,7 +166,7 @@ class FaceRecognizer:
             best_match = matches[best_idx]
 
             if not best_match:
-                logger.debug(f"No match found. Best distance: {best_distance:.3f} (threshold: {FACE_RECOGNITION_TOLERANCE})")
+                logger.debug(f"No match found. Best distance: {best_distance:.3f} (threshold: {settings.FACE_RECOGNITION_TOLERANCE})")
                 self._name_history.append("")
                 return "", ""
 
@@ -198,7 +194,7 @@ class FaceRecognizer:
             return "", ""
 
     def _is_stable(self) -> bool:
-        if len(self._name_history) < FACE_STABILITY_FRAMES:
+        if len(self._name_history) < settings.FACE_STABILITY_FRAMES:
             return False
         unique = set(self._name_history)
         return len(unique) == 1 and list(unique)[0] != ""
@@ -220,7 +216,7 @@ class FaceRecognizer:
 
             cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (180, 0, 255), 2)
             cv2.putText(
-                frame, f"Stability: {len(self._name_history)}/{FACE_STABILITY_FRAMES}",
+                frame, f"Stability: {len(self._name_history)}/{settings.FACE_STABILITY_FRAMES}",
                 (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (180, 0, 255), 1
             )
 

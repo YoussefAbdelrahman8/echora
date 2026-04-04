@@ -224,8 +224,8 @@ def main():
         print("  Display:   ON")
 
     if args.tolerance is not None:
-        import src.core.config as config
-        config.FACE_RECOGNITION_TOLERANCE = args.tolerance
+        from src.core.config import settings
+        settings.FACE_RECOGNITION_TOLERANCE = args.tolerance
         print(f"  Tolerance: {args.tolerance}")
 
     if args.debug:

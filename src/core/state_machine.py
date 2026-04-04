@@ -2,34 +2,16 @@ import time
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Callable
 
-from src.core.config import (
-    MODE,
-    DANGER_DIST_MM,
-    WARNING_DIST_MM,
-    OCR_TRIGGER_DIST_MM,
-    INTERACTION_TRIGGER_DIST_MM,
-    FACE_CONFIDENCE_THRESHOLD,
-    MAX_MOTION_FOR_STILL_MODES,
-    IMU_MOTION_THRESHOLD,
-)
+from src.core.config import settings, MODE
 from src.core.utils import logger, get_timestamp_ms
 
-NAVIGATION_MIN_DWELL_SEC = 0.5
-OCR_MIN_DWELL_SEC = 2.0
-INTERACTION_MIN_DWELL_SEC = 3.0
-FACE_ID_MIN_DWELL_SEC = 1.5
-BANKNOTE_MIN_DWELL_SEC = 1.5
-
 MODE_DWELL_TIMES = {
-    MODE.NAVIGATION:  NAVIGATION_MIN_DWELL_SEC,
-    MODE.OCR:         OCR_MIN_DWELL_SEC,
-    MODE.INTERACTION: INTERACTION_MIN_DWELL_SEC,
-    MODE.FACE_ID:     FACE_ID_MIN_DWELL_SEC,
-    MODE.BANKNOTE:    BANKNOTE_MIN_DWELL_SEC,
+    MODE.NAVIGATION:  settings.NAVIGATION_MIN_DWELL_SEC,
+    MODE.OCR:         settings.OCR_MIN_DWELL_SEC,
+    MODE.INTERACTION: settings.INTERACTION_MIN_DWELL_SEC,
+    MODE.FACE_ID:     settings.FACE_ID_MIN_DWELL_SEC,
+    MODE.BANKNOTE:    settings.BANKNOTE_MIN_DWELL_SEC,
 }
-
-FACE_ID_MIN_CONSECUTIVE_FRAMES = 3
-BANKNOTE_MIN_CONSECUTIVE_FRAMES = 3
 
 @dataclass
 class ModeTransition:
@@ -74,22 +56,22 @@ class StateMachine:
 
         self._motion_level = self._get_imu_motion_level(bundle)
 
-        if 0 < ocr_text_distance < OCR_TRIGGER_DIST_MM and self._motion_level < MAX_MOTION_FOR_STILL_MODES:
+        if 0 < ocr_text_distance < settings.OCR_TRIGGER_DIST_MM and self._motion_level < settings.MAX_MOTION_FOR_STILL_MODES:
             self._ocr_frames += 1
         else:
             self._ocr_frames = 0
 
-        if 0 < interactable_distance < INTERACTION_TRIGGER_DIST_MM:
+        if 0 < interactable_distance < settings.INTERACTION_TRIGGER_DIST_MM:
             self._interaction_frames += 1
         else:
             self._interaction_frames = 0
 
-        if face_confidence >= FACE_CONFIDENCE_THRESHOLD:
+        if face_confidence >= settings.FACE_CONFIDENCE_THRESHOLD:
             self._face_frames += 1
         else:
             self._face_frames = 0
 
-        if banknote_visible and self._motion_level < MAX_MOTION_FOR_STILL_MODES:
+        if banknote_visible and self._motion_level < settings.MAX_MOTION_FOR_STILL_MODES:
             self._banknote_frames += 1
         else:
             self._banknote_frames = 0
@@ -136,7 +118,7 @@ class StateMachine:
         return self._current_mode
 
     def _should_enter_ocr(self) -> bool:
-        if self._ocr_frames < 2 or self._ocr_trigger_distance <= 0 or self._motion_level > MAX_MOTION_FOR_STILL_MODES:
+        if self._ocr_frames < 2 or self._ocr_trigger_distance <= 0 or self._motion_level > settings.MAX_MOTION_FOR_STILL_MODES:
             return False
         logger.debug(f"OCR entry condition met: text at {self._ocr_trigger_distance:.0f}mm, motion={self._motion_level:.2f}m/s²")
         return True
@@ -151,13 +133,13 @@ class StateMachine:
         return True
 
     def _should_enter_face_id(self) -> bool:
-        if self._face_frames < FACE_ID_MIN_CONSECUTIVE_FRAMES or self._face_confidence < FACE_CONFIDENCE_THRESHOLD:
+        if self._face_frames < settings.FACE_ID_MIN_CONSECUTIVE_FRAMES or self._face_confidence < settings.FACE_CONFIDENCE_THRESHOLD:
             return False
         logger.debug(f"Face ID entry condition met: confidence={self._face_confidence:.2f}, frames={self._face_frames}")
         return True
 
     def _should_enter_banknote(self) -> bool:
-        if self._banknote_frames < BANKNOTE_MIN_CONSECUTIVE_FRAMES or self._motion_level > MAX_MOTION_FOR_STILL_MODES:
+        if self._banknote_frames < settings.BANKNOTE_MIN_CONSECUTIVE_FRAMES or self._motion_level > settings.MAX_MOTION_FOR_STILL_MODES:
             return False
         logger.debug(f"Banknote entry condition met: frames={self._banknote_frames}, motion={self._motion_level:.2f}m/s²")
         return True

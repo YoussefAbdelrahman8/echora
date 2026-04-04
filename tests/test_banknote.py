@@ -6,7 +6,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from src.hardware.camera import EchoraCamera
 from src.perception.banknote import BanknoteDetector, DENOMINATION_MAP
-from src.core.config import BANKNOTE_MODEL_PATH
+from src.core.config import settings, MODE
 
 if __name__ == "__main__":
     print("=== ECHORA banknote.py self-test ===\n")
@@ -21,7 +21,7 @@ if __name__ == "__main__":
         if detector._stub_mode:
             print(
                 "Running in STUB MODE — model file not found.\n"
-                f"Expected: {BANKNOTE_MODEL_PATH}\n"
+                f"Expected: {settings.BANKNOTE_MODEL_PATH}\n"
                 "Drop banknote_egp.pt into models/ folder and restart."
             )
         else:

@@ -4,17 +4,10 @@ import time
 import logging
 from typing import Dict, Tuple, Optional, List
 
-from src.core.config import (
-    DANGER_DIST_MM,
-    WARNING_DIST_MM,
-    CAMERA_HFOV_DEG,
-    ALERT_COOLDOWN_SEC,
-    LOG_LEVEL,
-    LOG_PATH,
-)
+from src.core.config import settings
 
 logger = logging.getLogger("ECHORA")
-logger.setLevel(getattr(logging, LOG_LEVEL))
+logger.setLevel(getattr(logging, settings.LOG_LEVEL))
 
 stream_handler = logging.StreamHandler()
 formatter = logging.Formatter(
@@ -25,7 +18,7 @@ stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
 try:
-    file_handler = logging.FileHandler(LOG_PATH, mode="a")
+    file_handler = logging.FileHandler(settings.LOG_PATH, mode="a")
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 except Exception:
@@ -39,7 +32,7 @@ def bbox_center(x1: int, y1: int, x2: int, y2: int) -> Tuple[int, int]:
 def angle_from_x(cx: int, frame_width: int) -> float:
     normalised = cx / frame_width
     shifted = normalised - 0.5
-    angle = shifted * CAMERA_HFOV_DEG
+    angle = shifted * settings.CAMERA_HFOV_DEG
     return round(angle, 1)
 
 
@@ -82,8 +75,8 @@ def mm_to_spoken(distance_mm: float) -> str:
 
 def classify_urgency(distance_mm: float) -> str:
     if distance_mm <= 0: return "UNKNOWN"
-    if distance_mm < DANGER_DIST_MM: return "DANGER"
-    if distance_mm < WARNING_DIST_MM: return "WARNING"
+    if distance_mm < settings.DANGER_DIST_MM: return "DANGER"
+    if distance_mm < settings.WARNING_DIST_MM: return "WARNING"
     return "SAFE"
 
 
@@ -140,7 +133,7 @@ class AlertCooldown:
 
     def can_alert(self, label: str) -> bool:
         now = time.time()
-        if now - self._last_alerted.get(label, 0) >= ALERT_COOLDOWN_SEC:
+        if now - self._last_alerted.get(label, 0) >= settings.ALERT_COOLDOWN_SEC:
             self._last_alerted[label] = now
             return True
         return False

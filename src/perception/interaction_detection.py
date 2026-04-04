@@ -3,18 +3,10 @@ import numpy as np
 import cv2
 from typing import List, Dict, Optional, Tuple
 
-from src.core.config import (
-    DOMINANT_HAND,
-    HAPTIC_ROWS,
-    HAPTIC_COLS,
-    GUIDANCE_TO_EDGE_DIST_MM,
-    EDGE_TO_SUCCESS_DIST_MM,
-    CANNY_THRESHOLD_LOW,
-    CANNY_THRESHOLD_HIGH,
-    MIN_INTERACTABLE_AREA_PX,
-    INTERACTABLE_CLASSES,
-)
+from src.core.config import settings
 from src.core.utils import logger, bbox_center, depth_in_region, bbox_area, get_timestamp_ms
+
+# TODO: To be updated as per the hardware setup
 
 class InteractionPhase:
     IDLE     = "IDLE"
@@ -39,10 +31,10 @@ class HapticBridge:
         logger.debug(f"HapticBridge.send(): {n_active}/30 active electrodes")
 
     def send_all_off(self):
-        self.send(np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32))
+        self.send(np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32))
 
     def send_all_on(self, intensity: float = 1.0):
-        self.send(np.full((HAPTIC_ROWS, HAPTIC_COLS), intensity, dtype=np.float32))
+        self.send(np.full((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), intensity, dtype=np.float32))
 
     def disconnect(self):
         self._connected = False
@@ -50,7 +42,7 @@ class HapticBridge:
 class ElectrodeGridBuilder:
     """Builds 5x6 electrode activation grids."""
 
-    def __init__(self, rows: int = HAPTIC_ROWS, cols: int = HAPTIC_COLS):
+    def __init__(self, rows: int = settings.HAPTIC_ROWS, cols: int = settings.HAPTIC_COLS):
         self.rows = rows
         self.cols = cols
         self.center_row = rows // 2
@@ -109,7 +101,7 @@ class InteractionDetector:
         self._phase = InteractionPhase.IDLE
         self._pulse_count = 0
         self._frame_count = 0
-        self._last_grid = np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+        self._last_grid = np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
         self._target_object = None
         self._ready = False
 
@@ -117,7 +109,7 @@ class InteractionDetector:
         self._phase = InteractionPhase.IDLE
         self._target_object = None
         self._pulse_count = 0
-        self._last_grid = np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+        self._last_grid = np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
         self._haptic.send_all_off()
 
     def scan_for_interactables(self, detections: List[Dict], depth_map: np.ndarray) -> float:
@@ -171,9 +163,9 @@ class InteractionDetector:
             obj_depth_mm = self._target_object.get("distance_mm", 0)
             depth_diff_mm = abs(finger_depth_mm - obj_depth_mm)
 
-            if depth_diff_mm <= EDGE_TO_SUCCESS_DIST_MM:
+            if depth_diff_mm <= settings.EDGE_TO_SUCCESS_DIST_MM:
                 self._phase = InteractionPhase.SUCCESS
-            elif depth_diff_mm <= GUIDANCE_TO_EDGE_DIST_MM:
+            elif depth_diff_mm <= settings.GUIDANCE_TO_EDGE_DIST_MM:
                 self._phase = InteractionPhase.EDGE
             else:
                 self._phase = InteractionPhase.GUIDANCE
@@ -208,7 +200,7 @@ class InteractionDetector:
 
         for landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
             label = handedness.classification[0].label
-            if label == DOMINANT_HAND:
+            if label == settings.DOMINANT_HAND:
                 dominant_hand_landmarks = landmarks
                 dominant_handedness = label
                 break
@@ -229,11 +221,11 @@ class InteractionDetector:
     def _filter_interactables(self, detections: List[Dict], depth_map: np.ndarray) -> List[Dict]:
         interactables = []
         for det in detections:
-            if det.get("label") not in INTERACTABLE_CLASSES:
+            if det.get("label") not in settings.INTERACTABLE_CLASSES:
                 continue
 
             x1, y1, x2, y2 = det["bbox"]
-            if bbox_area(x1, y1, x2, y2) < MIN_INTERACTABLE_AREA_PX:
+            if bbox_area(x1, y1, x2, y2) < settings.MIN_INTERACTABLE_AREA_PX:
                 continue
 
             if "distance_mm" not in det or det["distance_mm"] <= 0:
@@ -246,14 +238,14 @@ class InteractionDetector:
 
     def _build_electrode_grid(self, rgb_frame: np.ndarray, depth_map: np.ndarray, hand: Optional[Dict]) -> np.ndarray:
         if self._phase == InteractionPhase.IDLE:
-            return np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+            return np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
 
         if self._phase == InteractionPhase.SUCCESS:
             self._pulse_count += 1
             return self._grid_builder.build_success_grid(self._pulse_count)
 
         if hand is None or self._target_object is None:
-            return np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+            return np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
 
         finger_tip = hand["index_tip"]
         obj_center = self._target_object["center"]
@@ -268,7 +260,7 @@ class InteractionDetector:
         if self._phase == InteractionPhase.EDGE:
             return self._build_edge_rendering(rgb_frame, depth_map, hand)
 
-        return np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+        return np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
 
     def _build_edge_rendering(self, rgb_frame: np.ndarray, depth_map: np.ndarray, hand: Dict) -> np.ndarray:
         h, w = rgb_frame.shape[:2]
@@ -282,12 +274,12 @@ class InteractionDetector:
         cx2, cy2 = min(w, fx + half), min(h, fy + half)
         
         if cx2 <= cx1 or cy2 <= cy1:
-            return np.zeros((HAPTIC_ROWS, HAPTIC_COLS), dtype=np.float32)
+            return np.zeros((settings.HAPTIC_ROWS, settings.HAPTIC_COLS), dtype=np.float32)
 
         crop = rgb_frame[int(cy1):int(cy2), int(cx1):int(cx2)]
         gray = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-        edges = cv2.Canny(blurred, CANNY_THRESHOLD_LOW, CANNY_THRESHOLD_HIGH)
+        edges = cv2.Canny(blurred, settings.CANNY_THRESHOLD_LOW, settings.CANNY_THRESHOLD_HIGH)
         return self._grid_builder.build_edge_grid(edges)
 
     def draw_debug_overlay(self, frame: np.ndarray, result: Dict) -> np.ndarray:
@@ -321,11 +313,11 @@ class InteractionDetector:
         grid = result.get("electrode_grid")
         if grid is not None:
             cell_sz, padding = 12, 4
-            start_x = w - (HAPTIC_COLS * (cell_sz + padding)) - 10
-            start_y = h - (HAPTIC_ROWS * (cell_sz + padding)) - 10
+            start_x = w - (settings.HAPTIC_COLS * (cell_sz + padding)) - 10
+            start_y = h - (settings.HAPTIC_ROWS * (cell_sz + padding)) - 10
 
-            for row in range(HAPTIC_ROWS):
-                for col in range(HAPTIC_COLS):
+            for row in range(settings.HAPTIC_ROWS):
+                for col in range(settings.HAPTIC_COLS):
                     val = float(grid[row, col])
                     x, y = start_x + col * (cell_sz + padding), start_y + row * (cell_sz + padding)
                     colour = (0, int(val * 200), 0) if val > 0 else (30, 30, 30)
