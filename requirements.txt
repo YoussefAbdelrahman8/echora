@@ -1,0 +1,12 @@
+opencv-python-headless
+depthai
+easyocr
+face_recognition
+mediapipe
+numpy
+ollama
+pygame
+pyttsx3
+torch
+ultralytics
+pytest

@@ -1,18 +1,4 @@
-# =============================================================================
-# main.py — ECHORA Entry Point
-# =============================================================================
-#   python main.py                  Auto mode (production)
-#   python main.py --manual         Start in manual testing mode
-#   python main.py --no-display     Headless wearable mode
-#   python main.py --debug          Verbose logging
-#   python main.py --log-file       Save logs to file
-#   python main.py --no-audio       Mute all speech
-# =============================================================================
 
-
-# =============================================================================
-# WINDOWS PROCESS PRIORITY
-# =============================================================================
 import sys
 if sys.platform == "win32":
     import ctypes
@@ -21,22 +7,12 @@ if sys.platform == "win32":
         0x00000080
     )
 
-
-# =============================================================================
-# IMPORTS
-# =============================================================================
-
 import argparse
 import logging
 import time
 import traceback
 from pathlib import Path
 from datetime import datetime
-
-
-# =============================================================================
-# ARGUMENT PARSING
-# =============================================================================
 
 def parse_args():
 
@@ -95,11 +71,6 @@ Examples:
 
     return parser.parse_args()
 
-
-# =============================================================================
-# LOGGING SETUP
-# =============================================================================
-
 def setup_logging(debug: bool = False, log_file: bool = False):
 
     level         = logging.DEBUG if debug else logging.INFO
@@ -139,11 +110,6 @@ def setup_logging(debug: bool = False, log_file: bool = False):
 
     return echora_logger
 
-
-# =============================================================================
-# STARTUP BANNER
-# =============================================================================
-
 def print_banner(manual_mode: bool):
 
     print()
@@ -179,11 +145,6 @@ def print_banner(manual_mode: bool):
 
     print("=" * 62)
     print()
-
-
-# =============================================================================
-# SESSION REPORT
-# =============================================================================
 
 def write_session_report(cu, start_time: float, exit_reason: str):
 
@@ -229,7 +190,7 @@ def write_session_report(cu, start_time: float, exit_reason: str):
                     f.write(f"Final mode:    {sm.get('current_mode', 'N/A')}\n\n")
 
                 try:
-                    from database import get_db
+                    from src.storage.database import get_db
                     db = get_db()
                     if db:
                         s = db.get_stats()
@@ -247,11 +208,6 @@ def write_session_report(cu, start_time: float, exit_reason: str):
     except Exception as e:
         print(f"\n  Could not write session report: {e}")
 
-
-# =============================================================================
-# MAIN
-# =============================================================================
-
 def main():
 
     args = parse_args()
@@ -260,16 +216,15 @@ def main():
 
     logger = setup_logging(debug=args.debug, log_file=args.log_file)
 
-    # Apply overrides
     if args.no_display:
-        import control_unit as cu_module
+        import src.core.control_unit as cu_module
         cu_module.SHOW_DEBUG_WINDOW = False
         print("  Display:   OFF (headless)")
     else:
         print("  Display:   ON")
 
     if args.tolerance is not None:
-        import config
+        import src.core.config as config
         config.FACE_RECOGNITION_TOLERANCE = args.tolerance
         print(f"  Tolerance: {args.tolerance}")
 
@@ -286,9 +241,8 @@ def main():
     cu          = None
 
     try:
-        from control_unit import ControlUnit
+        from src.core.control_unit import ControlUnit
 
-        # Pass --manual flag directly to ControlUnit
         cu = ControlUnit(start_in_manual=args.manual)
 
         if args.no_audio:
@@ -335,8 +289,6 @@ def main():
         print("  ECHORA shutting down...")
         print("=" * 62)
 
-        # cu.run() calls shutdown() internally in its own finally block.
-        # Only call here if startup failed before run() was reached.
         if cu is not None and not cu._started:
             try:
                 cu.shutdown()
@@ -365,11 +317,6 @@ def main():
         print("  ECHORA stopped. Goodbye.")
         print("=" * 62)
         print()
-
-
-# =============================================================================
-# ENTRY POINT
-# =============================================================================
 
 if __name__ == "__main__":
     main()

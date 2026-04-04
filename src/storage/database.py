@@ -1,64 +1,22 @@
-# =============================================================================
-# database.py — ECHORA Persistent Storage
-# =============================================================================
-# Stores three things across restarts:
-#   1. Face profiles   — registered people + their embeddings
-#   2. Preferences     — user settings (dominant hand, volume, etc.)
-#   3. Event log       — what happened and when (face seen, note scanned, etc.)
-#
-# Uses SQLite — built into Python, no extra install needed.
-# Database file: database/echora.db
-# =============================================================================
 
-
-# =============================================================================
-# IMPORTS
-# =============================================================================
-
-# sqlite3 — Python's built-in SQLite database library.
-# SQLite stores everything in a single .db file on disk.
-# No server needed, no configuration, works everywhere.
 import sqlite3
 
-# numpy for converting face embeddings between numpy arrays and bytes.
-# Embeddings are stored as raw bytes (BLOB) in the database.
 import numpy as np
 
-# json for serialising event details dictionaries to strings.
-# SQLite can only store text, so we convert dicts to JSON strings.
 import json
 
-# datetime for timestamps on all database records.
 from datetime import datetime
 
-# pathlib for clean file path handling.
 from pathlib import Path
 
-# threading for the database lock — prevents two threads from writing
-# to the database simultaneously, which would corrupt it.
 import threading
 
-# Type hints.
 from typing import Optional, List, Dict, Tuple, Any
 
-# Our config and utils.
-from config import FACE_DB_PATH
-from utils import logger
+from src.core.config import FACE_DB_PATH
+from src.core.utils import logger
 
-
-# =============================================================================
-# DATABASE CONFIGURATION
-# =============================================================================
-
-# Path to the SQLite database file.
-# FACE_DB_PATH is the database folder from config.py.
-# We store the .db file inside that folder.
 DB_PATH = Path(FACE_DB_PATH) / "echora.db"
-
-
-# =============================================================================
-# DATABASE CLASS
-# =============================================================================
 
 class Database:
     """
@@ -73,16 +31,12 @@ class Database:
         db = Database()
         db.init_db()
 
-        # Register a face:
         db.add_person("Ahmed", embedding_array)
 
-        # Load all faces at startup:
         persons = db.get_all_persons()
 
-        # Save a preference:
         db.set_preference("dominant_hand", "Right")
 
-        # Read a preference:
         hand = db.get_preference("dominant_hand", default="Right")
     """
 
@@ -92,23 +46,13 @@ class Database:
         Call init_db() to create/open the database.
         """
 
-        # The SQLite connection object — None until init_db() runs.
-        # sqlite3.Connection manages the connection to the .db file.
         self._conn: Optional[sqlite3.Connection] = None
 
-        # Threading lock — prevents two threads writing at the same time.
-        # Without this, concurrent writes can corrupt the database.
         self._lock = threading.Lock()
 
-        # Whether the database is open and ready.
         self._ready: bool = False
 
         logger.info("Database created. Call init_db() to open.")
-
-
-    # =========================================================================
-    # INITIALISATION
-    # =========================================================================
 
     def init_db(self):
         """
@@ -121,51 +65,33 @@ class Database:
         without destroying existing data.
         """
 
-        # ── Create the database directory if it doesn't exist ─────────────────
-        # parents=True creates all intermediate directories.
-        # exist_ok=True prevents error if directory already exists.
         DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
         logger.info(f"Opening database at: {DB_PATH}")
 
         try:
-            # sqlite3.connect() opens the database file.
-            # If the file doesn't exist, SQLite creates it.
-            # check_same_thread=False allows the connection to be used from
-            # multiple threads — we handle thread safety ourselves with _lock.
             self._conn = sqlite3.connect(
                 str(DB_PATH),
                 check_same_thread=False
             )
 
-            # Enable WAL (Write-Ahead Logging) mode.
-            # WAL allows concurrent reads while writing — better performance.
-            # Without WAL, any write locks out all reads until it finishes.
             self._conn.execute("PRAGMA journal_mode=WAL")
 
-            # Enable foreign key constraints — ensures data integrity.
             self._conn.execute("PRAGMA foreign_keys=ON")
 
-            # Row factory — makes query results return as dictionaries
-            # instead of plain tuples. This means we can access columns by
-            # name: row["name"] instead of row[0].
-            # sqlite3.Row is a built-in row factory for this.
             self._conn.row_factory = sqlite3.Row
 
-            # Create all tables.
             self._create_tables()
 
             self._ready = True
             logger.info("Database opened successfully.")
 
-            # Load some stats for the log.
             n_persons = self._count_rows("persons")
             logger.info(f"  Registered persons: {n_persons}")
 
         except Exception as e:
             logger.error(f"Failed to open database: {e}")
             raise
-
 
     def _create_tables(self):
         """
@@ -175,15 +101,8 @@ class Database:
         IF NOT EXISTS prevents dropping existing data.
         """
 
-        # cursor() creates a cursor object for executing SQL statements.
-        # A cursor is like a pointer that runs queries against the database.
         cursor = self._conn.cursor()
 
-        # ── Table: persons ────────────────────────────────────────────────────
-        # Stores one row per registered person.
-        # PRIMARY KEY AUTOINCREMENT = SQLite assigns unique IDs automatically.
-        # NOT NULL = these fields must always have a value.
-        # UNIQUE(name) = two people cannot have the same name.
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS persons (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -195,10 +114,6 @@ class Database:
             )
         """)
 
-        # ── Table: preferences ────────────────────────────────────────────────
-        # Key-value store for user settings.
-        # PRIMARY KEY on 'key' means each setting name is unique.
-        # There can only be one "dominant_hand" row, one "volume" row, etc.
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS preferences (
                 key         TEXT NOT NULL PRIMARY KEY,
@@ -207,9 +122,6 @@ class Database:
             )
         """)
 
-        # ── Table: event_log ──────────────────────────────────────────────────
-        # Append-only log of significant events.
-        # details = JSON string with event-specific information.
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS event_log (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -219,10 +131,6 @@ class Database:
             )
         """)
 
-        # ── Indexes for faster queries ─────────────────────────────────────────
-        # An index is like a book index — makes lookups much faster.
-        # Without an index, finding a person by name scans every row.
-        # With an index, it jumps directly to the right row.
         cursor.execute("""
             CREATE INDEX IF NOT EXISTS idx_persons_name
             ON persons(name)
@@ -238,16 +146,9 @@ class Database:
             ON event_log(timestamp)
         """)
 
-        # commit() saves all the CREATE TABLE statements to disk.
-        # Without commit(), changes are only in memory and lost on crash.
         self._conn.commit()
 
         logger.debug("Database tables created/verified.")
-
-
-    # =========================================================================
-    # FACE PROFILE OPERATIONS
-    # =========================================================================
 
     def add_person(
         self,
@@ -273,33 +174,19 @@ class Database:
             return False
 
         try:
-            # Convert the numpy embedding array to raw bytes for storage.
-            # .tobytes() serialises the float array to a binary blob.
-            # We also store the dtype and shape so we can reconstruct it.
             embedding_bytes = embedding.astype(np.float64).tobytes()
 
-            # Current timestamp in ISO format: "2024-01-15 14:30:00"
             now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            # Acquire the lock before writing.
-            # 'with self._lock' automatically releases when the block exits.
             with self._lock:
                 cursor = self._conn.cursor()
 
-                # INSERT OR REPLACE handles both new and existing names.
-                # If name already exists (UNIQUE constraint), it replaces
-                # the entire row with the new data.
-                # If name is new, it inserts a fresh row.
                 cursor.execute("""
                     INSERT OR REPLACE INTO persons
                         (name, embedding, added_at, last_seen, seen_count)
                     VALUES
                         (?, ?, ?, NULL, 0)
                 """, (name, embedding_bytes, now))
-
-                # ? placeholders prevent SQL injection attacks.
-                # Never use f-strings or string concatenation in SQL queries.
-                # The values tuple (name, embedding_bytes, now) fills the ?s.
 
                 self._conn.commit()
 
@@ -309,7 +196,6 @@ class Database:
         except Exception as e:
             logger.error(f"Failed to save person {name}: {e}")
             return False
-
 
     def get_person_by_name(self, name: str) -> Optional[Dict]:
         """
@@ -336,26 +222,21 @@ class Database:
         try:
             cursor = self._conn.cursor()
 
-            # SELECT retrieves rows matching the WHERE condition.
-            # ? is the placeholder for the name parameter.
             cursor.execute(
                 "SELECT * FROM persons WHERE name = ?",
                 (name,)   # note the comma — (name,) is a tuple, not (name)
             )
 
-            # fetchone() returns the first matching row or None.
             row = cursor.fetchone()
 
             if row is None:
                 return None
 
-            # Convert the row back to a dictionary.
             return self._row_to_person_dict(row)
 
         except Exception as e:
             logger.error(f"Failed to get person {name}: {e}")
             return None
-
 
     def get_all_persons(self) -> List[Dict]:
         """
@@ -374,20 +255,15 @@ class Database:
         try:
             cursor = self._conn.cursor()
 
-            # SELECT * FROM persons returns all rows, all columns.
-            # ORDER BY name sorts alphabetically for consistent ordering.
             cursor.execute("SELECT * FROM persons ORDER BY name")
 
-            # fetchall() returns all matching rows as a list.
             rows = cursor.fetchall()
 
-            # Convert each row to a dictionary.
             return [self._row_to_person_dict(row) for row in rows]
 
         except Exception as e:
             logger.error(f"Failed to get all persons: {e}")
             return []
-
 
     def update_last_seen(self, name: str):
         """
@@ -409,8 +285,6 @@ class Database:
             with self._lock:
                 cursor = self._conn.cursor()
 
-                # UPDATE modifies existing rows.
-                # seen_count = seen_count + 1 increments the counter.
                 cursor.execute("""
                     UPDATE persons
                     SET last_seen  = ?,
@@ -422,7 +296,6 @@ class Database:
 
         except Exception as e:
             logger.error(f"Failed to update last_seen for {name}: {e}")
-
 
     def delete_person(self, name: str) -> bool:
         """
@@ -447,8 +320,6 @@ class Database:
                     (name,)
                 )
 
-                # rowcount tells us how many rows were deleted.
-                # 0 means the name wasn't found.
                 deleted = cursor.rowcount > 0
                 self._conn.commit()
 
@@ -463,11 +334,9 @@ class Database:
             logger.error(f"Failed to delete person {name}: {e}")
             return False
 
-
     def get_person_count(self) -> int:
         """Returns the total number of registered persons."""
         return self._count_rows("persons")
-
 
     def _row_to_person_dict(self, row: sqlite3.Row) -> Dict:
         """
@@ -484,9 +353,6 @@ class Database:
             Dictionary with all person fields, embedding as numpy array.
         """
 
-        # np.frombuffer() reconstructs a numpy array from raw bytes.
-        # dtype=np.float64 must match what we used in add_person().
-        # The result is a flat (128,) array — the face embedding.
         embedding = np.frombuffer(row["embedding"], dtype=np.float64)
 
         return {
@@ -497,11 +363,6 @@ class Database:
             "last_seen":  row["last_seen"],
             "seen_count": row["seen_count"],
         }
-
-
-    # =========================================================================
-    # PREFERENCES OPERATIONS
-    # =========================================================================
 
     def set_preference(self, key: str, value: Any):
         """
@@ -522,17 +383,12 @@ class Database:
             return
 
         try:
-            # Convert value to string — SQLite stores everything as text.
-            # str() handles strings, ints, floats, bools, etc.
             value_str = str(value)
             now       = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             with self._lock:
                 cursor = self._conn.cursor()
 
-                # INSERT OR REPLACE — if key exists, update it.
-                # If key is new, insert it.
-                # This is called an "upsert" (update or insert).
                 cursor.execute("""
                     INSERT OR REPLACE INTO preferences (key, value, updated_at)
                     VALUES (?, ?, ?)
@@ -544,7 +400,6 @@ class Database:
 
         except Exception as e:
             logger.error(f"Failed to save preference {key}: {e}")
-
 
     def get_preference(self, key: str, default: Any = None) -> Optional[str]:
         """
@@ -578,13 +433,11 @@ class Database:
             if row is None:
                 return default
 
-            # row["value"] returns the stored string value.
             return row["value"]
 
         except Exception as e:
             logger.error(f"Failed to get preference {key}: {e}")
             return default
-
 
     def get_all_preferences(self) -> Dict[str, str]:
         """
@@ -604,19 +457,11 @@ class Database:
             cursor.execute("SELECT key, value FROM preferences")
             rows = cursor.fetchall()
 
-            # Dict comprehension — builds a dictionary from the rows.
-            # {row["key"]: row["value"] for row in rows}
-            # creates {"dominant_hand": "Right", "volume": "0.8", ...}
             return {row["key"]: row["value"] for row in rows}
 
         except Exception as e:
             logger.error(f"Failed to get all preferences: {e}")
             return {}
-
-
-    # =========================================================================
-    # EVENT LOG OPERATIONS
-    # =========================================================================
 
     def log_event(self, event_type: str, details: Dict = None):
         """
@@ -640,9 +485,6 @@ class Database:
             return
 
         try:
-            # Serialise the details dictionary to a JSON string.
-            # json.dumps() converts dict → string.
-            # If details is None, store an empty JSON object "{}".
             details_str = json.dumps(details or {})
             now         = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -658,7 +500,6 @@ class Database:
 
         except Exception as e:
             logger.error(f"Failed to log event {event_type}: {e}")
-
 
     def get_recent_events(
         self,
@@ -684,7 +525,6 @@ class Database:
             cursor = self._conn.cursor()
 
             if event_type:
-                # Filter by event type if specified.
                 cursor.execute("""
                     SELECT * FROM event_log
                     WHERE event_type = ?
@@ -692,7 +532,6 @@ class Database:
                     LIMIT ?
                 """, (event_type, n))
             else:
-                # All event types.
                 cursor.execute("""
                     SELECT * FROM event_log
                     ORDER BY timestamp DESC
@@ -701,13 +540,11 @@ class Database:
 
             rows = cursor.fetchall()
 
-            # Convert each row to a dictionary with parsed JSON details.
             events = []
             for row in rows:
                 events.append({
                     "id":         row["id"],
                     "event_type": row["event_type"],
-                    # json.loads() converts the stored JSON string back to dict.
                     "details":    json.loads(row["details"]),
                     "timestamp":  row["timestamp"],
                 })
@@ -717,7 +554,6 @@ class Database:
         except Exception as e:
             logger.error(f"Failed to get recent events: {e}")
             return []
-
 
     def get_last_seen_time(self, name: str) -> Optional[str]:
         """
@@ -737,11 +573,6 @@ class Database:
             return None
         return person.get("last_seen")
 
-
-    # =========================================================================
-    # UTILITY FUNCTIONS
-    # =========================================================================
-
     def _count_rows(self, table: str) -> int:
         """
         Returns the number of rows in a table.
@@ -753,13 +584,10 @@ class Database:
 
         try:
             cursor = self._conn.cursor()
-            # COUNT(*) counts all rows in the table.
             cursor.execute(f"SELECT COUNT(*) FROM {table}")
-            # fetchone()[0] gets the first column of the first row.
             return cursor.fetchone()[0]
         except Exception:
             return 0
-
 
     def get_stats(self) -> Dict:
         """Returns diagnostic statistics about the database."""
@@ -771,7 +599,6 @@ class Database:
             "preferences":  self._count_rows("preferences"),
             "events":       self._count_rows("event_log"),
         }
-
 
     def close(self):
         """
@@ -788,14 +615,7 @@ class Database:
             except Exception as e:
                 logger.error(f"Error closing database: {e}")
 
-
-# =============================================================================
-# MODULE-LEVEL SINGLETON
-# =============================================================================
-# One shared Database instance — opened once at startup, used everywhere.
-
 _db: Optional[Database] = None
-
 
 def init_database() -> Database:
     """
@@ -816,7 +636,6 @@ def init_database() -> Database:
     logger.info("Module-level database ready.")
     return _db
 
-
 def get_db() -> Optional[Database]:
     """
     Returns the shared database instance.
@@ -824,27 +643,16 @@ def get_db() -> Optional[Database]:
     """
     return _db
 
-
-# =============================================================================
-# SELF-TEST
-# =============================================================================
-# Tests all database operations without any hardware.
-# Run with: python database.py
-
 if __name__ == "__main__":
 
     print("=== ECHORA database.py self-test ===\n")
 
-    # ── Initialise ────────────────────────────────────────────────────────────
     db = Database()
     db.init_db()
     print(f"Database opened at: {DB_PATH}\n")
 
-    # ── Test 1: Add persons ───────────────────────────────────────────────────
     print("Test 1: Add persons")
 
-    # Create fake 128-dimensional embeddings (random floats).
-    # In production these come from face_recognition.face_encodings().
     embedding_ahmed = np.random.rand(128).astype(np.float64)
     embedding_sara  = np.random.rand(128).astype(np.float64)
 
@@ -856,21 +664,17 @@ if __name__ == "__main__":
     assert ok1 and ok2
     print("  PASSED\n")
 
-    # ── Test 2: Get person by name ────────────────────────────────────────────
     print("Test 2: Get person by name")
 
     person = db.get_person_by_name("Ahmed")
     assert person is not None
     assert person["name"] == "Ahmed"
 
-    # Verify the embedding round-trips correctly.
-    # np.allclose checks if two arrays are equal within floating-point tolerance.
     assert np.allclose(person["embedding"], embedding_ahmed)
     print(f"  Ahmed found: seen_count={person['seen_count']}")
     print(f"  Embedding matches: {np.allclose(person['embedding'], embedding_ahmed)}")
     print("  PASSED\n")
 
-    # ── Test 3: Get all persons ───────────────────────────────────────────────
     print("Test 3: Get all persons")
 
     all_persons = db.get_all_persons()
@@ -880,7 +684,6 @@ if __name__ == "__main__":
     assert len(all_persons) >= 2
     print("  PASSED\n")
 
-    # ── Test 4: Update last seen ──────────────────────────────────────────────
     print("Test 4: Update last seen")
 
     db.update_last_seen("Ahmed")
@@ -892,7 +695,6 @@ if __name__ == "__main__":
     assert person["seen_count"] >= 2
     print("  PASSED\n")
 
-    # ── Test 5: Preferences ───────────────────────────────────────────────────
     print("Test 5: Preferences")
 
     db.set_preference("dominant_hand", "Right")
@@ -914,7 +716,6 @@ if __name__ == "__main__":
     assert miss == "fallback"
     print("  PASSED\n")
 
-    # ── Test 6: Event log ─────────────────────────────────────────────────────
     print("Test 6: Event log")
 
     db.log_event("face_identified", {"name": "Ahmed", "confidence": 0.91})
@@ -932,7 +733,6 @@ if __name__ == "__main__":
     assert len(face_events) >= 2
     print("  PASSED\n")
 
-    # ── Test 7: Delete person ─────────────────────────────────────────────────
     print("Test 7: Delete person")
 
     deleted = db.delete_person("Sara")
@@ -942,14 +742,12 @@ if __name__ == "__main__":
     print(f"  Sara still exists: {db.get_person_by_name('Sara') is not None}")
     print("  PASSED\n")
 
-    # ── Test 8: Stats ─────────────────────────────────────────────────────────
     print("Test 8: Stats")
     stats = db.get_stats()
     for key, val in stats.items():
         print(f"  {key}: {val}")
     print("  PASSED\n")
 
-    # ── Clean up test data ────────────────────────────────────────────────────
     db.delete_person("Ahmed")
 
     db.close()

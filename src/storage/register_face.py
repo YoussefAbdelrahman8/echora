@@ -1,42 +1,14 @@
-# =============================================================================
-# register_face.py — ECHORA Face Registration Tool
-# =============================================================================
-# A helper runs this script to register a new person's face into ECHORA.
-# The blind user does not interact with this directly.
-#
-# Usage:
-#   python register_face.py
-#
-# What it does:
-#   1. Asks for the person's name
-#   2. Opens the camera
-#   3. Shows a live preview with face detection overlay
-#   4. Captures a photo when you press SPACE
-#   5. Saves the face embedding to the SQLite database
-#   6. Immediately available for recognition without restart
-# =============================================================================
-
-
-# =============================================================================
-# IMPORTS
-# =============================================================================
 
 import cv2
 import sys
 from pathlib import Path
 
-# Add echora directory to path so we can import our modules.
 sys.path.insert(0, str(Path(__file__).parent))
 
-from camera import EchoraCamera
-from echora_face import FaceRecognizer
-from database import init_database
-from utils import logger
-
-
-# =============================================================================
-# MAIN REGISTRATION FUNCTION
-# =============================================================================
+from src.hardware.camera import EchoraCamera
+from src.perception.echora_face import FaceRecognizer
+from src.storage.database import init_database
+from src.core.utils import logger
 
 def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
     """
@@ -62,8 +34,6 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
     print("  Press SPACE to capture.")
     print("  Press Q to cancel.\n")
 
-    # Import face_recognition library for live face detection overlay.
-    # This lets us draw boxes around detected faces in the preview.
     try:
         import face_recognition as fr
         has_fr = True
@@ -77,12 +47,9 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
 
         frame = bundle["rgb"]
 
-        # ── Draw live overlay ──────────────────────────────────────────────────
         display = frame.copy()
 
-        # Draw face detection boxes if library available.
         if has_fr:
-            # Resize to 25% for fast detection in the preview loop.
             small = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
             import cv2 as _cv2
             small_rgb  = _cv2.cvtColor(small, _cv2.COLOR_BGR2RGB)
@@ -91,13 +58,11 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
             h, w = frame.shape[:2]
 
             for (top, right, bottom, left) in locations:
-                # Scale back to full resolution (we detected at 25% size).
                 top    = top    * 4
                 right  = right  * 4
                 bottom = bottom * 4
                 left   = left   * 4
 
-                # Green box = face found.
                 cv2.rectangle(
                     display,
                     (left, top), (right, bottom),
@@ -112,7 +77,6 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
                 )
 
             if not locations:
-                # Red text = no face found.
                 cv2.putText(
                     display, "No face detected",
                     (10, 60),
@@ -120,8 +84,6 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
                     0.7, (0, 0, 220), 2
                 )
 
-        # ── Draw instructions ──────────────────────────────────────────────────
-        # Black background strip at the top for readability.
         cv2.rectangle(display, (0, 0), (display.shape[1], 42), (0, 0, 0), -1)
 
         cv2.putText(
@@ -144,22 +106,17 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
 
         key = cv2.waitKey(1)
 
-        # ── Q = cancel ─────────────────────────────────────────────────────────
         if key == ord('q') or key == ord('Q'):
             print("  Registration cancelled.")
             return False
 
-        # ── SPACE = capture ────────────────────────────────────────────────────
         if key == ord(' '):
 
             print("  Capturing face...")
 
-            # Call the recogniser's register_face() method.
-            # This computes the embedding and saves it to the database.
             success = recogniser.register_face(name, frame)
 
             if success:
-                # ── Show success screen for 2 seconds ──────────────────────────
                 success_frame = frame.copy()
 
                 cv2.rectangle(
@@ -169,7 +126,6 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
                     (0, 0, 0), -1
                 )
 
-                # Large green checkmark text.
                 cv2.putText(
                     success_frame,
                     f"SAVED: {name}",
@@ -199,7 +155,6 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
                 return True
 
             else:
-                # ── Show failure screen for 1.5 seconds ────────────────────────
                 fail_frame = frame.copy()
 
                 cv2.rectangle(
@@ -224,12 +179,6 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
                 cv2.waitKey(1500)
 
                 print("  No face detected. Please try again.")
-                # Loop continues — user can try again.
-
-
-# =============================================================================
-# MAIN SCRIPT
-# =============================================================================
 
 def main():
 
@@ -238,11 +187,9 @@ def main():
     print("=" * 50)
     print()
 
-    # ── Initialise database ────────────────────────────────────────────────────
     print("Initialising database...")
     db = init_database()
 
-    # Show currently registered people.
     existing = db.get_all_persons()
     if existing:
         print(f"Currently registered: {', '.join(p['name'] for p in existing)}")
@@ -251,18 +198,14 @@ def main():
 
     print()
 
-    # ── Ask for name ───────────────────────────────────────────────────────────
     name = input("Enter the person's name (or Q to quit): ").strip()
 
     if not name or name.lower() == 'q':
         print("Exiting.")
         return
 
-    # Capitalise first letter of each word for consistency.
-    # "ahmed" → "Ahmed", "john doe" → "John Doe"
     name = name.title()
 
-    # ── Check for existing registration ───────────────────────────────────────
     existing_person = db.get_person_by_name(name)
     if existing_person:
         confirm = input(
@@ -275,7 +218,6 @@ def main():
             print("Cancelled.")
             return
 
-    # ── Start camera ───────────────────────────────────────────────────────────
     print("\nStarting camera...")
     cam        = EchoraCamera()
     recogniser = FaceRecognizer()
@@ -285,11 +227,9 @@ def main():
         recogniser.load_model()
         print("Camera ready.\n")
 
-        # ── Register the face ──────────────────────────────────────────────────
         success = register_person(name, cam, recogniser)
 
         if success:
-            # Show updated database.
             all_persons = db.get_all_persons()
             print(
                 f"\nDatabase now contains "
@@ -303,7 +243,6 @@ def main():
                     f"last seen: {last}"
                 )
 
-            # Ask if they want to register another person.
             print()
             another = input(
                 "Register another person? (y/n): "
@@ -327,10 +266,3 @@ def main():
         db.close()
         print("\nDone.")
 
-
-# =============================================================================
-# ENTRY POINT
-# =============================================================================
-
-if __name__ == "__main__":
-    main()
