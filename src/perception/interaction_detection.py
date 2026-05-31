@@ -6,7 +6,7 @@ from typing import List, Dict, Optional, Tuple
 from src.core.config import settings
 from src.core.utils import logger, bbox_center, depth_in_region, bbox_area, get_timestamp_ms
 
-# TODO: To be updated as per the hardware setup
+
 
 class InteractionPhase:
     IDLE     = "IDLE"

@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from src.hardware.camera import EchoraCamera
-from src.perception.ocr import OCRReader, settings.OCR_LANGUAGE, _get_ocr_gpu
+from src.perception.ocr import OCRReader, _get_ocr_gpu
 from src.core.config import settings
 
 if __name__ == "__main__":

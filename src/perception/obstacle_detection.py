@@ -24,9 +24,10 @@ VLM_PROMPT = (
     "the most important obstacle or hazard they should know about. "
     "Focus on objects in their direct path. Be very brief."
 )
-VLM_MODEL_NAME = "llava"
+VLM_MODEL_NAME = "gemma4:e2b"
 
 class ObstacleDetector:
+
     """
     Detects and tracks obstacles using YOLOv8 (Layer 1) and VLM for scene context (Layer 2).
     """
