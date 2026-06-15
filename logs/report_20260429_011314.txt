@@ -1,0 +1,10 @@
+==================================================
+ECHORA Session Report
+==================================================
+
+Date:        2026-04-29
+Start:       01:12:59
+Duration:    00:00:15
+Exit reason: user_quit
+
+System did not start successfully.

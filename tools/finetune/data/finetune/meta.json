@@ -1,0 +1,14 @@
+{
+  "n_train": 5400,
+  "n_val": 600,
+  "vocab_size": 311,
+  "font_sizes": [
+    18,
+    22,
+    26,
+    32,
+    38,
+    44
+  ],
+  "arabic_support": true
+}

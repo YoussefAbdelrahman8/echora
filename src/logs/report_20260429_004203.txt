@@ -1,0 +1,10 @@
+==================================================
+ECHORA Session Report
+==================================================
+
+Date:        2026-04-29
+Start:       00:42:03
+Duration:    00:00:00
+Exit reason: error: ModuleNotFoundError
+
+System did not start successfully.

@@ -1,0 +1,10 @@
+==================================================
+ECHORA Session Report
+==================================================
+
+Date:        2026-04-29
+Start:       00:34:36
+Duration:    00:00:04
+Exit reason: error: AttributeError
+
+System did not start successfully.

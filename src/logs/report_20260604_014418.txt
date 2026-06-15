@@ -1,0 +1,25 @@
+==================================================
+ECHORA Session Report
+==================================================
+
+Date:        2026-06-04
+Start:       01:43:28
+Duration:    00:00:50
+Exit reason: error: AttributeError
+
+Performance
+------------------------------
+Total frames: 199
+Average FPS:  19.0
+Slow frames:  102
+
+State Machine
+------------------------------
+Mode switches: 0
+Final mode:    NAVIGATION
+
+Database
+------------------------------
+Persons: 0
+Events:  0
+
