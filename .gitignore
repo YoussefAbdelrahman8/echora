@@ -218,3 +218,10 @@ __marimo__/
 .cache
 logs/assets/database
 assets/logs
+echora_finetune.zip
+*.zip
+*.tar
+*.pdopt
+*.pdparams
+*.states
+tools/finetune/pretrain_models/

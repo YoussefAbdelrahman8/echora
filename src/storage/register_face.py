@@ -1,184 +1,226 @@
 
 import cv2
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.hardware.camera import EchoraCamera
 from src.perception.echora_face import FaceRecognizer
-from src.storage.database import init_database
+from src.storage.database import init_database, get_db
+from src.core.config import settings
 from src.core.utils import logger
 
-def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer):
+
+# ── Overlay helper ─────────────────────────────────────────────────────────────
+
+def _show_message(
+    frame,
+    line1: str,
+    line2: str = "",
+    error: bool = False,
+    delay_ms: int = 2000,
+):
+    overlay = frame.copy()
+    h, w = overlay.shape[:2]
+    mid_y = h // 2
+    cv2.rectangle(overlay, (0, mid_y - 60), (w, mid_y + 60), (0, 0, 0), -1)
+    color1 = (0, 0, 210) if error else (0, 210, 0)
+    (tw, _), _ = cv2.getTextSize(line1, cv2.FONT_HERSHEY_SIMPLEX, 0.9, 2)
+    cv2.putText(overlay, line1, ((w - tw) // 2, mid_y - 10),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.9, color1, 2)
+    if line2:
+        (tw2, _), _ = cv2.getTextSize(line2, cv2.FONT_HERSHEY_SIMPLEX, 0.62, 1)
+        cv2.putText(overlay, line2, ((w - tw2) // 2, mid_y + 35),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.62, (180, 180, 180), 1)
+    cv2.imshow("ECHORA — Face Registration", overlay)
+    cv2.waitKey(delay_ms)
+
+
+# ── Main registration flow ─────────────────────────────────────────────────────
+
+def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer) -> bool:
     """
-    Interactive face registration for one person.
+    Interactive face registration with best-frame capture and quality gate.
 
-    Shows a live camera preview with face detection overlay.
-    User presses SPACE to capture when the face is clearly visible.
-    Saves the embedding to the database on success.
+    Flow:
+      1. Live preview with colour-coded quality indicator (green/orange/red).
+      2. SPACE starts a FACE_REGISTRATION_CAPTURE_SEC silent window.
+      3. The frame with the highest det_score in that window is selected.
+      4. Quality gate: if best det_score < FACE_REGISTRATION_MIN_SCORE → rejected
+         with on-screen and printed guidance.
+      5. register_face_hq() is called with the best frame:
+         - loads buffalo_l (GPU-accelerated)
+         - generates 5 photometric augmentations
+         - averages ArcFace embeddings → one high-quality stored embedding
+         - releases buffalo_l after registration.
 
-    Arguments:
-        name:       the person's name
-        cam:        running EchoraCamera instance
-        recogniser: loaded FaceRecognizer instance
-
-    Returns:
-        True if registered successfully, False if cancelled or failed.
+    Returns True if registered successfully, False if cancelled or failed.
     """
+    MIN_SCORE   = settings.FACE_REGISTRATION_MIN_SCORE
+    CAPTURE_SEC = settings.FACE_REGISTRATION_CAPTURE_SEC
 
     print(f"\nRegistering: {name}")
     print("─" * 40)
-    print("  Position face clearly in front of camera.")
-    print("  Make sure lighting is good.")
-    print("  Press SPACE to capture.")
+    print(f"  GREEN border = good quality (score ≥ {MIN_SCORE:.0%}).")
+    print("  Press SPACE when the face is clearly visible.")
     print("  Press Q to cancel.\n")
 
-    try:
-        import face_recognition as fr
-        has_fr = True
-    except ImportError:
-        has_fr = False
+    # ── State ──────────────────────────────────────────────────────────────────
+    capturing     = False
+    capture_start = 0.0
+    best_frame    = None
+    best_score    = 0.0
+    cancelled     = False
 
     while True:
         bundle = cam.get_synced_bundle()
         if bundle is None:
             continue
 
-        frame = bundle["rgb"]
-
+        frame   = bundle["rgb"]
         display = frame.copy()
+        current_score = 0.0
 
-        if has_fr:
-            small = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-            import cv2 as _cv2
-            small_rgb  = _cv2.cvtColor(small, _cv2.COLOR_BGR2RGB)
-            locations  = fr.face_locations(small_rgb, model="hog")
+        # ── Live face detection overlay ────────────────────────────────────────
+        try:
+            small = cv2.resize(frame, (320, 240))
+            faces = recogniser._app.get(small) if recogniser._app else []
+            h_s = frame.shape[0] / 240
+            w_s = frame.shape[1] / 320
 
-            h, w = frame.shape[:2]
-
-            for (top, right, bottom, left) in locations:
-                top    = top    * 4
-                right  = right  * 4
-                bottom = bottom * 4
-                left   = left   * 4
-
-                cv2.rectangle(
-                    display,
-                    (left, top), (right, bottom),
-                    (0, 255, 0), 2
+            if faces:
+                current_score = max(f.det_score for f in faces)
+                color = (
+                    (0, 210,   0) if current_score >= MIN_SCORE  else
+                    (0, 165, 255) if current_score >= 0.50       else
+                    (0,   0, 210)
                 )
+                for face in faces:
+                    x1 = int(face.bbox[0] * w_s)
+                    y1 = int(face.bbox[1] * h_s)
+                    x2 = int(face.bbox[2] * w_s)
+                    y2 = int(face.bbox[3] * h_s)
+                    cv2.rectangle(display, (x1, y1), (x2, y2), color, 2)
+                    cv2.putText(
+                        display, f"{face.det_score:.2f}",
+                        (x1, y1 - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.55, color, 1,
+                    )
+        except Exception:
+            pass
 
-                cv2.putText(
-                    display, "Face detected",
-                    (left, top - 8),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.6, (0, 255, 0), 2
-                )
+        # ── Capture-window state ───────────────────────────────────────────────
+        if capturing:
+            elapsed   = time.time() - capture_start
+            remaining = max(0.0, CAPTURE_SEC - elapsed)
 
-            if not locations:
-                cv2.putText(
-                    display, "No face detected",
-                    (10, 60),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7, (0, 0, 220), 2
-                )
+            if current_score > best_score:
+                best_score = current_score
+                best_frame = frame.copy()
 
+            cv2.putText(
+                display, f"Capturing best frame...  {remaining:.1f}s",
+                (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 220, 255), 2,
+            )
+
+            if elapsed >= CAPTURE_SEC:
+                break
+
+        else:
+            # ── Idle quality hint ──────────────────────────────────────────────
+            if current_score >= MIN_SCORE:
+                hint, hc = "GOOD — Press SPACE to register",      (0, 210,   0)
+            elif current_score >= 0.50:
+                hint, hc = "Move closer or improve lighting",     (0, 165, 255)
+            elif current_score > 0.0:
+                hint, hc = "Face too far or unclear",             (0,   0, 210)
+            else:
+                hint, hc = "No face detected",                    (100, 100, 100)
+
+            cv2.putText(display, hint, (10, 80),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, hc, 2)
+
+        # ── Header bar ─────────────────────────────────────────────────────────
         cv2.rectangle(display, (0, 0), (display.shape[1], 42), (0, 0, 0), -1)
-
-        cv2.putText(
-            display,
-            f"Registering: {name}",
-            (8, 18),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.6, (255, 255, 255), 1
-        )
-
-        cv2.putText(
-            display,
-            "SPACE = capture    Q = cancel",
-            (8, 36),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5, (180, 180, 180), 1
-        )
+        cv2.putText(display, f"Registering: {name}", (8, 18),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+        cv2.putText(display, "SPACE = capture    Q = cancel", (8, 36),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (180, 180, 180), 1)
 
         cv2.imshow("ECHORA — Face Registration", display)
-
         key = cv2.waitKey(1)
 
-        if key == ord('q') or key == ord('Q'):
+        if key in (ord('q'), ord('Q')):
             print("  Registration cancelled.")
-            return False
+            cancelled = True
+            break
 
-        if key == ord(' '):
+        if key == ord(' ') and not capturing:
+            print(f"  {CAPTURE_SEC:.0f}s capture window started — hold still...")
+            capturing     = True
+            capture_start = time.time()
+            best_frame    = frame.copy()
+            best_score    = current_score
 
-            print("  Capturing face...")
+    if cancelled:
+        return False
 
-            success = recogniser.register_face(name, frame)
+    # ── Post-capture quality gate ──────────────────────────────────────────────
+    if best_frame is None or best_score < MIN_SCORE:
+        if best_score > 0:
+            msg = (f"Best score was {best_score:.2f} "
+                   f"(minimum required: {MIN_SCORE:.2f}).")
+        else:
+            msg = "No face detected during the capture window."
 
-            if success:
-                success_frame = frame.copy()
+        print(f"  Registration failed — {msg}")
+        print("  Tips: better lighting / face the camera directly / move closer.")
 
-                cv2.rectangle(
-                    success_frame,
-                    (0, 0),
-                    (success_frame.shape[1], success_frame.shape[0]),
-                    (0, 0, 0), -1
-                )
+        _show_message(
+            best_frame if best_frame is not None else frame,
+            "QUALITY TOO LOW — try again",
+            "Better lighting  /  move closer  /  face camera",
+            error=True,
+            delay_ms=2500,
+        )
+        return False
 
-                cv2.putText(
-                    success_frame,
-                    f"SAVED: {name}",
-                    (
-                        success_frame.shape[1] // 2 - 120,
-                        success_frame.shape[0] // 2 - 20
-                    ),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1.2, (0, 220, 0), 3
-                )
+    print(f"  Best frame score: {best_score:.3f}. Running HQ registration...")
 
-                cv2.putText(
-                    success_frame,
-                    "Face registered successfully.",
-                    (
-                        success_frame.shape[1] // 2 - 170,
-                        success_frame.shape[0] // 2 + 30
-                    ),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7, (180, 180, 180), 1
-                )
+    # ── HQ registration ────────────────────────────────────────────────────────
+    success, reason = recogniser.register_face_hq(name, best_frame)
 
-                cv2.imshow("ECHORA — Face Registration", success_frame)
-                cv2.waitKey(2000)
+    if success:
+        _show_message(
+            best_frame,
+            f"SAVED: {name}",
+            f"Quality: {best_score:.2f}  —  Face registered successfully.",
+            delay_ms=2000,
+        )
+        print(f"  SUCCESS — {name} registered (det_score={best_score:.3f})")
+        return True
 
-                print(f"  SUCCESS — {name} registered.")
-                return True
+    reason_text = {
+        "no_face":          "No face found in the captured frame.",
+        "low_quality":      f"Score too low ({best_score:.2f}).",
+        "embedding_failed": "Could not generate face embedding.",
+        "db_unavailable":   "Database not available.",
+        "db_error":         "Failed to save to database.",
+    }.get(reason.split(":")[0], reason)
 
-            else:
-                fail_frame = frame.copy()
+    _show_message(
+        best_frame,
+        f"FAILED: {reason_text}",
+        "Please try again.",
+        error=True,
+        delay_ms=2500,
+    )
+    print(f"  FAILED — {reason_text}")
+    return False
 
-                cv2.rectangle(
-                    fail_frame,
-                    (0, fail_frame.shape[0] // 2 - 40),
-                    (fail_frame.shape[1], fail_frame.shape[0] // 2 + 40),
-                    (0, 0, 0), -1
-                )
 
-                cv2.putText(
-                    fail_frame,
-                    "NO FACE DETECTED — try again",
-                    (
-                        fail_frame.shape[1] // 2 - 210,
-                        fail_frame.shape[0] // 2 + 10
-                    ),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.8, (0, 0, 220), 2
-                )
-
-                cv2.imshow("ECHORA — Face Registration", fail_frame)
-                cv2.waitKey(1500)
-
-                print("  No face detected. Please try again.")
+# ── CLI entry point ────────────────────────────────────────────────────────────
 
 def main():
 
@@ -188,7 +230,8 @@ def main():
     print()
 
     print("Initialising database...")
-    db = init_database()
+    init_database()
+    db = get_db()
 
     existing = db.get_all_persons()
     if existing:
@@ -263,6 +306,5 @@ def main():
     finally:
         cv2.destroyAllWindows()
         cam.release()
-        db.close()
+        db.release()
         print("\nDone.")
-

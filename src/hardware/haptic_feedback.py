@@ -15,8 +15,6 @@ SERIAL_PORT     = "COM3"       # Windows: "COM3", "COM4" etc.
 SERIAL_BAUDRATE = 115200       # must match ESP32 firmware setting
 
 BLE_DEVICE_NAME           = "ECHORA-Wristband"
-settings.BLE_SERVICE_UUID          = "12345678-1234-1234-1234-123456789abc"
-settings.BLE_CHARACTERISTIC_UUID   = "87654321-4321-4321-4321-cba987654321"
 
 WIFI_ESP32_IP   = "192.168.1.100"   # IP address of ESP32 on local network
 WIFI_ESP32_PORT = 5005              # UDP port to send patterns to
@@ -293,14 +291,11 @@ class HapticFeedback:
         """
 
         n_active = int(np.sum(flat > 0))
-
-        if self._send_count % 10 == 0:
-            active_indices = [i for i, v in enumerate(flat) if v > 0]
-            logger.debug(
-                f"Haptic #{self._send_count}: "
-                f"{n_active}/30 active — indices: {active_indices}"
-            )
-
+        active_indices = [i for i, v in enumerate(flat) if v > 0]
+        logger.info(
+            f"Haptic STUB #{self._send_count}: "
+            f"{n_active}/30 electrodes active — {active_indices}"
+        )
         return True
 
     def _send_serial(self, flat: np.ndarray) -> bool:
@@ -406,6 +401,10 @@ class HapticFeedback:
         Rapid danger pulse — maximum urgency alert.
         Uses checkerboard pattern for maximum tactile contrast.
         """
+        logger.info(
+            f"Haptic: DANGER pulse fired "
+            f"({pulses} pulses, protocol={HAPTIC_PROTOCOL}, connected={self._connected})"
+        )
 
         def _danger_worker():
             for _ in range(pulses):
@@ -429,9 +428,10 @@ class HapticFeedback:
             intensity: electrode intensity 0.0-1.0
         """
 
-        from interaction_detection import ElectrodeGridBuilder
-        builder = ElectrodeGridBuilder()
-        grid    = builder.build_guidance_grid(dx, dy, intensity)
+        if abs(dx) >= abs(dy):
+            grid = pattern_right(intensity) if dx > 0 else pattern_left(intensity)
+        else:
+            grid = pattern_down(intensity) if dy > 0 else pattern_up(intensity)
         self.send(grid)
 
     def get_stats(self) -> dict:
