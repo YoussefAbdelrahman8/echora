@@ -1,15 +1,26 @@
 opencv-python-headless
 depthai
-easyocr
-face_recognition
-mediapipe
+# PaddleOCR — OCR engine (replaces EasyOCR)
+# GPU users: install paddlepaddle-gpu FIRST, matching your CUDA version:
+#   pip install paddlepaddle-gpu==2.6.1 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
+# CPU users: paddleocr will pull paddlepaddle (CPU) automatically.
+paddleocr>=2.7.0
+# Arabic text rendering — required for correct Arabic synthetic data generation
+arabic-reshaper>=3.0.0
+python-bidi>=0.4.2
+insightface
+onnxruntime
+onnx<1.17
+mediapipe==0.10.9
+protobuf>=3.20.2,<4
 numpy
 ollama
 pygame
 pyttsx3
 torch
+torchvision
 ultralytics
 pytest
 pydantic-settings
-pydantic-settings
 SQLAlchemy>=2.0.0
+requests

@@ -9,9 +9,11 @@ class EchoraConfig(BaseSettings):
     ASSETS_DIR: Path = BASE_DIR / "assets"
     
     FACE_DB_PATH: Path = ASSETS_DIR / "database" / "faces"
-    FACE_CONFIDENCE_THRESHOLD: float = 0.15
+    FACE_CONFIDENCE_THRESHOLD: float = 0.5   # InsightFace det_score (0-1); was 0.15 for dlib area heuristic
     FACE_STABILITY_FRAMES: int = 3
-    FACE_RECOGNITION_TOLERANCE: float = 0.6
+    FACE_RECOGNITION_THRESHOLD: float = 0.35  # ArcFace cosine similarity; higher = stricter
+    FACE_REGISTRATION_MIN_SCORE: float = 0.75  # minimum det_score to accept an enrollment frame
+    FACE_REGISTRATION_CAPTURE_SEC: float = 2.0  # best-frame capture window duration (seconds)
     
     CAMERA_RGB_WIDTH: int = 1280
     CAMERA_RGB_HEIGHT: int = 800
@@ -59,7 +61,7 @@ class EchoraConfig(BaseSettings):
     COLLISION_CORRIDOR_DEG: float = 20.0
     
     BANKNOTE_MODEL_PATH: Path = ASSETS_DIR / "models" / "banknote_egp.pt"
-    BANKNOTE_CONFIDENCE_THRESHOLD: float = 0.6
+    BANKNOTE_CONFIDENCE_THRESHOLD: float = 0.50
     BANKNOTE_STABILITY_FRAMES: int = 3
     BANKNOTE_MAX_DIST_MM: int = 500
     BANKNOTE_CURRENCY: str = "EGP"
@@ -77,6 +79,12 @@ class EchoraConfig(BaseSettings):
     OCR_LANGUAGE: List[str] = ["en", "ar"]
     OCR_MAX_CHARS: int = 200
     OCR_TRIGGER_DIST_MM: int = 2000
+    OCR_BLUR_THRESHOLD: float = 60.0   # Laplacian variance min; below = too blurry to OCR
+    OCR_SKEW_CORRECTION: bool = True   # enable Hough-based skew correction in preprocessing
+    # Fine-tuned model paths — leave empty to use default PP-OCRv4 models.
+    # Set via .env after running tools/finetune/export_model.py
+    OCR_CUSTOM_AR_MODEL: str = ""      # path to fine-tuned Arabic inference/ dir
+    OCR_CUSTOM_EN_MODEL: str = ""      # path to fine-tuned English inference/ dir (optional)
     
     OBSTACLE_RUN_EVERY: int = 1
     OCR_RUN_EVERY: int = 10

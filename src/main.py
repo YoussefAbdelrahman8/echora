@@ -289,7 +289,7 @@ def main():
         print("  ECHORA shutting down...")
         print("=" * 62)
 
-        if cu is not None and not cu._started:
+        if cu is not None and cu._started:
             try:
                 cu.shutdown()
             except Exception:

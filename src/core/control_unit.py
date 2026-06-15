@@ -25,7 +25,7 @@ from src.perception import echora_face as face_recognition
 
 from src.storage.database import init_database
 from src.perception.echora_face import init_face_recognition
-from src.hardware.haptic_feedback import init_haptic
+from src.hardware.haptic_feedback import init_haptic, get_haptic
 
 SHOW_DEBUG_WINDOW = True
 PERF_LOG_EVERY_N_FRAMES = 30
@@ -57,9 +57,21 @@ class ControlUnit:
         self._last_note_visible = False
         self._last_interact_dist = 0.0
 
-        self._ocr_running = False
+        self._ocr_running = False          # probe thread (distance check)
+        self._ocr_text_running = False      # OCR-mode text-reading thread
+        self._ocr_text_result: Optional[str] = None  # result from that thread
+        self._ocr_scan_start: float = 0.0  # when OCR mode was entered
+        self._ocr_no_text_said: bool = False  # guard for "no text found" announcement
         self._face_id_running = False
         self._face_id_result: Optional[Dict] = None
+        self._face_register_mode: bool = False   # True while user is typing the name
+        self._face_register_name: str = ""       # characters typed so far
+        self._last_rgb_frame: Optional[np.ndarray] = None  # latest frame for registration
+
+        self._last_haptic_danger: float = 0.0
+        self._last_nav_announce_time: float = 0.0
+        self._last_clear_announce_time: float = 0.0
+        self._path_was_blocked: bool = False
 
         self._auto_mode = not start_in_manual
         self._manual_mode = MODE.NAVIGATION
@@ -134,7 +146,7 @@ class ControlUnit:
         self._last_mode = new_mode
 
         if new_mode == MODE.OCR:
-            self._reset_ocr_state()
+            self._on_enter_ocr()
         elif new_mode == MODE.FACE_ID:
             self._reset_face_state()
             face_recognition.reset_face()
@@ -147,7 +159,7 @@ class ControlUnit:
         self._audio.announce_mode_change(new_mode)
 
     def _on_enter_interaction(self):
-        target = self._interaction_detector._target_object
+        target = self._interaction_detector._target_obj
         if target:
             label = target.get("label", "object")
             dist = target.get("distance_mm", 0)
@@ -159,8 +171,18 @@ class ControlUnit:
         else:
             self._audio.announce_mode_change(MODE.INTERACTION)
 
+    def _on_enter_ocr(self):
+        self._audio.stop_all()
+        self._ocr_scan_start   = time.time()
+        self._ocr_no_text_said = False
+        self._ocr_text_result  = None
+        self._audio.speak("Scanning for text.", priority=SpeechPriority.HIGH, ttl_sec=3.0)
+        logger.info("OCR mode entered — scanning started.")
+
     def _reset_ocr_state(self):
-        self._last_ocr_text = ""
+        self._last_ocr_text    = ""
+        self._ocr_text_result  = None
+        self._ocr_no_text_said = False
 
     def _reset_face_state(self):
         self._last_face_name = ""
@@ -175,13 +197,14 @@ class ControlUnit:
     def _register_callbacks(self):
         sm = self._state_machine
         sm.register_callback(mode=MODE.NAVIGATION, on_enter=lambda: self._audio.announce_mode_change(MODE.NAVIGATION), on_exit=self._detector.reset_tracker)
-        sm.register_callback(mode=MODE.OCR, on_enter=lambda: (self._audio.announce_mode_change(MODE.OCR), self._audio.stop_all()),
-                             on_exit=lambda: (self._reset_ocr_state(), __import__('src.perception.ocr').reset_ocr()))
+        sm.register_callback(mode=MODE.OCR,
+                             on_enter=self._on_enter_ocr,
+                             on_exit=lambda: (self._reset_ocr_state(), ocr.reset_ocr()))
         sm.register_callback(mode=MODE.INTERACTION, on_enter=self._on_enter_interaction, on_exit=self._reset_interaction_state)
         sm.register_callback(mode=MODE.FACE_ID, on_enter=lambda: self._audio.announce_mode_change(MODE.FACE_ID),
                              on_exit=lambda: (self._reset_face_state(), __import__('src.perception.echora_face').reset_face()))
         sm.register_callback(mode=MODE.BANKNOTE, on_enter=lambda: self._audio.announce_mode_change(MODE.BANKNOTE),
-                             on_exit=lambda: (self._reset_banknote_state(), __import__('src.perception.banknote').reset_banknote()))
+                             on_exit=lambda: (self._reset_banknote_state(), banknote.reset_banknote()))
 
     def run(self):
         if not self._started:
@@ -189,7 +212,7 @@ class ControlUnit:
             return
 
         self._running = True
-        logger.info("Main loop started. TAB = toggle AUTO/MANUAL | 1-5 = set mode | Q = quit")
+        logger.info("Main loop started. TAB = AUTO/MANUAL | 1-5 = mode | 6 = register face | Q = quit")
 
         try:
             while self._running:
@@ -224,36 +247,131 @@ class ControlUnit:
 
     def _handle_key(self, key: int):
         if key == -1: return
+
+        # ── Registration text-entry mode ──────────────────────────────
+        # While active, all keystrokes build the person's name directly
+        # inside the cv2 window — no terminal input() needed.
+        if self._face_register_mode:
+            if key == 27:                        # Esc — cancel
+                self._face_register_mode = False
+                self._face_register_name = ""
+                self._audio.speak("Registration cancelled.", priority=SpeechPriority.NORMAL)
+                logger.info("Face registration cancelled.")
+            elif key in (13, 10):                # Enter — confirm
+                name = self._face_register_name.strip().title()
+                self._face_register_mode = False
+                self._face_register_name = ""
+                if name:
+                    self._do_face_registration(name)
+                else:
+                    self._audio.speak("Registration cancelled.", priority=SpeechPriority.NORMAL)
+            elif key == 8:                       # Backspace
+                self._face_register_name = self._face_register_name[:-1]
+            elif 32 <= key <= 126:               # Printable ASCII character
+                self._face_register_name += chr(key)
+            return  # swallow all keys during name entry
+
+        # ── Normal key handling ───────────────────────────────────────
         if key in (ord('q'), ord('Q')):
             logger.info("Q pressed — quitting.")
             self._running = False
             return
-        if key == 9:
+        if key == 9:                             # Tab
             self._toggle_auto_manual()
+            return
+        if key == ord('6'):
+            self._start_face_registration()
             return
         if key in self._key_to_mode:
             self._set_manual_mode(self._key_to_mode[key])
+
+    def _start_face_registration(self):
+        if self._face_register_mode:
+            return
+        if self._last_rgb_frame is None:
+            return
+        self._face_register_mode = True
+        self._face_register_name = ""
+        self._audio.speak(
+            "Registration mode. Type the name in the camera window, then press Enter.",
+            priority=SpeechPriority.HIGH,
+            ttl_sec=5.0,
+        )
+        logger.info("Face registration mode entered — waiting for name input in cv2 window.")
+
+    def _do_face_registration(self, name: str):
+        """Called once Enter is pressed with a non-empty name."""
+        if self._last_rgb_frame is None:
+            self._audio.speak("No camera frame. Try again.", priority=SpeechPriority.HIGH)
+            return
+
+        captured_frame = self._last_rgb_frame.copy()
+        self._audio.speak(f"Registering {name}.", priority=SpeechPriority.HIGH, ttl_sec=3.0)
+        logger.info(f"Registering face: '{name}'")
+
+        def _worker(frame=captured_frame):
+            try:
+                success = face_recognition._recogniser.register_face(name, frame)
+                if success:
+                    self._audio.speak(
+                        f"{name} registered successfully.",
+                        priority=SpeechPriority.HIGH, ttl_sec=4.0,
+                    )
+                    logger.info(f"Face registered: '{name}'")
+                else:
+                    self._audio.speak(
+                        "No face detected. Position your face clearly and press 6 again.",
+                        priority=SpeechPriority.HIGH, ttl_sec=5.0,
+                    )
+                    logger.warning(f"Registration failed for '{name}' — no face detected.")
+            except Exception as e:
+                logger.error(f"Registration error: {e}")
+                self._audio.speak("Registration error.", priority=SpeechPriority.HIGH)
+
+        threading.Thread(target=_worker, daemon=True).start()
 
     def _process_frame(self, bundle: Dict) -> Optional[np.ndarray]:
         try:
             rgb_frame = bundle["rgb"]
             depth_map = bundle["depth"]
+            self._last_rgb_frame = rgb_frame  # kept for face registration (key 6)
 
             if self._face_id_result is not None:
                 result = self._face_id_result
                 self._face_id_result = None
-                name = result.get("name", "")
+                name    = result.get("name", "")
+                details = result.get("details", "")
                 if name and name != self._last_face_name:
                     self._last_face_name = name
-                    self._audio.speak(f"This is {name}.", priority=SpeechPriority.HIGH, ttl_sec=8.0)
-                    logger.info(f"Face announced: {name}")
-                elif not name and self._last_face_name == "":
-                    self._last_face_name = "unknown"
-                    self._audio.speak("Unknown person.", priority=SpeechPriority.NORMAL, ttl_sec=4.0)
+                    if name == "unknown":
+                        self._audio.speak("Unknown person.", priority=SpeechPriority.NORMAL, ttl_sec=4.0)
+                        logger.info("Face: unknown person.")
+                    else:
+                        text = f"This is {name}."
+                        if details:
+                            text += f" {details}"
+                        self._audio.speak(text, priority=SpeechPriority.HIGH, ttl_sec=8.0)
+                        logger.info(f"Face announced: {name} — {details}")
 
             obstacle_result = self._detector.update(bundle)
 
-            if self._frame_count % 20 == 0 and not self._ocr_running:
+            # Determine current mode first — needed by the probe guard below.
+            current_mode = self._manual_mode
+            if self._auto_mode:
+                current_mode = self._state_machine.update(
+                    bundle=bundle, obstacle_result=obstacle_result,
+                    ocr_text_distance=self._last_ocr_dist, face_confidence=self._last_face_conf,
+                    interactable_distance=self._last_interact_dist, banknote_visible=self._last_note_visible
+                )
+                if current_mode != self._last_mode:
+                    logger.info(f"Mode: {self._last_mode} -> {current_mode} [AUTO]")
+                    self._last_mode = current_mode
+
+            # OCR probe — skip when already in OCR mode to prevent concurrent
+            # PaddleOCR calls (it is not thread-safe).
+            if (current_mode != MODE.OCR
+                    and self._frame_count % 20 == 0
+                    and not self._ocr_running):
                 self._ocr_running = True
                 def _ocr_worker(f=rgb_frame.copy(), d=depth_map.copy()):
                     self._last_ocr_dist = ocr.get_text_distance(f, d)
@@ -271,17 +389,6 @@ class ControlUnit:
                     detections=obstacle_result.get("tracks", []), depth_map=depth_map
                 )
 
-            current_mode = self._manual_mode
-            if self._auto_mode:
-                current_mode = self._state_machine.update(
-                    bundle=bundle, obstacle_result=obstacle_result,
-                    ocr_text_distance=self._last_ocr_dist, face_confidence=self._last_face_conf,
-                    interactable_distance=self._last_interact_dist, banknote_visible=self._last_note_visible
-                )
-                if current_mode != self._last_mode:
-                    logger.info(f"Mode: {self._last_mode} -> {current_mode} [AUTO]")
-                    self._last_mode = current_mode
-
             if current_mode == MODE.NAVIGATION:
                 self._handle_navigation(bundle, obstacle_result)
             elif current_mode == MODE.OCR:
@@ -298,8 +405,11 @@ class ControlUnit:
                 debug_frame = draw_overlay(debug_frame, obstacle_result["tracks"])
             if current_mode == MODE.INTERACTION and self._interaction_detector._last_grid is not None:
                 debug_frame = self._interaction_detector.draw_debug_overlay(debug_frame, {
-                    "phase": self._interaction_detector._phase, "hand": None,
-                    "target": self._interaction_detector._target_object, "electrode_grid": self._interaction_detector._last_grid
+                    "phase":          self._interaction_detector._phase,
+                    "hand":           None,
+                    "target":         self._interaction_detector._target_obj,
+                    "vector":         None,
+                    "electrode_grid": self._interaction_detector._last_grid,
                 })
             debug_frame = self._draw_debug_overlay(debug_frame, obstacle_result, current_mode)
 
@@ -310,23 +420,130 @@ class ControlUnit:
             return bundle.get("rgb")
 
     def _handle_navigation(self, bundle: Dict, obstacle_result: Dict):
-        for track in obstacle_result.get("danger", []): self._audio.announce_obstacle(track)
-        for track in obstacle_result.get("warning", []): self._audio.announce_obstacle(track)
-        scene_desc = obstacle_result.get("scene_desc", "")
-        if scene_desc and scene_desc != self._last_scene_desc and len(scene_desc) > 10:
-            self._last_scene_desc = scene_desc
-            self._audio.announce_scene(scene_desc)
-            logger.info(f"Scene: {scene_desc[:60]}...")
+        danger  = obstacle_result.get("danger",  [])
+        warning = obstacle_result.get("warning", [])
+        now     = time.time()
+
+        # ── Zone-priority logic ───────────────────────────────────────
+        # RED  zone active → announce closest red + haptic. Orange/green ignored.
+        # ORANGE zone active (no red) → announce closest orange. No haptic. Green ignored.
+        # CLEAR (no red, no orange) → periodic "path is clear" reassurance. No haptic.
+
+        if danger:
+            # ── RED zone ─────────────────────────────────────────────
+            self._path_was_blocked = True
+
+            # Haptic: danger pulse, max once per 1.5 s
+            if now - self._last_haptic_danger >= 1.5:
+                self._last_haptic_danger = now
+                self._interaction_detector.pulse_danger()
+
+            # Audio: closest red obstacle, max once per ALERT_COOLDOWN_SEC
+            if now - self._last_nav_announce_time >= settings.ALERT_COOLDOWN_SEC:
+                self._last_nav_announce_time = now
+                track = dict(min(danger, key=lambda t: t["distance_mm"]))
+                approach = track.get("approach_mm_s", 0.0)
+                if approach < -500:
+                    track["label"] = "fast approaching " + track["label"]
+                elif approach < -200:
+                    track["label"] = "approaching " + track["label"]
+                self._audio.announce_obstacle(track)
+                logger.info(
+                    f"Nav [RED]: {track['label']} @ {track['distance_mm']:.0f}mm "
+                    f"{track['angle_deg']:+.1f}°  approach={approach:.0f}mm/s"
+                )
+
+        elif warning:
+            # ── ORANGE zone ───────────────────────────────────────────
+            self._path_was_blocked = True
+
+            # No haptic for orange — only audio
+            if now - self._last_nav_announce_time >= settings.ALERT_COOLDOWN_SEC:
+                self._last_nav_announce_time = now
+                track = dict(min(warning, key=lambda t: t["distance_mm"]))
+                approach = track.get("approach_mm_s", 0.0)
+                if approach < -500:
+                    track["label"] = "fast approaching " + track["label"]
+                elif approach < -200:
+                    track["label"] = "approaching " + track["label"]
+                self._audio.announce_obstacle(track)
+                logger.info(
+                    f"Nav [ORANGE]: {track['label']} @ {track['distance_mm']:.0f}mm "
+                    f"{track['angle_deg']:+.1f}°  approach={approach:.0f}mm/s"
+                )
+
+        else:
+            # ── CLEAR path ────────────────────────────────────────────
+            # Announce immediately when transitioning from blocked → clear,
+            # then repeat every 5 s as active reassurance while walking.
+            clear_cooldown = 0.0 if self._path_was_blocked else 5.0
+            self._path_was_blocked = False
+
+            if now - self._last_clear_announce_time >= clear_cooldown:
+                self._last_clear_announce_time = now
+                self._audio.speak(
+                    "Path is clear. You can move forward.",
+                    priority=SpeechPriority.NORMAL,
+                    ttl_sec=4.0,
+                )
+                logger.info("Nav [CLEAR]: path is clear.")
+
+        # ── VLM scene context (only when path is clear) ───────────────
+        # Suppress VLM announcements while obstacles are present so they
+        # don't compete with obstacle warnings.
+        if not danger and not warning:
+            scene_desc = obstacle_result.get("scene_desc", "")
+            if scene_desc and scene_desc != self._last_scene_desc and len(scene_desc) > 10:
+                self._last_scene_desc = scene_desc
+                self._audio.announce_scene(scene_desc)
+                logger.info(f"Scene: {scene_desc[:60]}...")
 
     def _handle_ocr(self, bundle: Dict):
-        text = ocr.read_text(bundle["rgb"])
-        if text and text.strip() and text.strip() != self._last_ocr_text:
-            self._last_ocr_text = text.strip()
-            self._audio.announce_ocr(text)
-            logger.info(f"OCR: '{text[:60]}'")
+        # ── Start background OCR thread if idle ───────────────────────
+        # PaddleOCR takes ~50–100 ms on GPU, ~300 ms on CPU. Running it in
+        # a daemon thread keeps the main loop at 30 FPS regardless.
+        if not self._ocr_text_running:
+            self._ocr_text_running = True
+            def _ocr_worker(frame=bundle["rgb"].copy()):
+                try:
+                    self._ocr_text_result = ocr.read_text(frame)
+                except Exception as e:
+                    logger.error(f"OCR worker error: {e}")
+                    self._ocr_text_result = ""
+                finally:
+                    self._ocr_text_running = False
+            threading.Thread(target=_ocr_worker, daemon=True).start()
+
+        # ── Pick up completed result ───────────────────────────────────
+        if self._ocr_text_result is not None:
+            text = self._ocr_text_result.strip()
+            self._ocr_text_result = None
+            if text and text != self._last_ocr_text:
+                self._last_ocr_text    = text
+                self._ocr_no_text_said = False
+                self._audio.announce_ocr(text)
+                logger.info(f"OCR result: '{text[:80]}'")
+
+        # ── "No text found" timeout ───────────────────────────────────
+        # If OCR mode has been active for 5 s and nothing was read yet,
+        # tell the user so they know to reposition the camera.
+        if (not self._ocr_no_text_said
+                and not self._last_ocr_text
+                and time.time() - self._ocr_scan_start >= 5.0):
+            self._ocr_no_text_said = True
+            self._audio.speak(
+                "No text found. Try moving closer or adjusting the angle.",
+                priority=SpeechPriority.NORMAL,
+                ttl_sec=5.0,
+            )
+            logger.info("OCR timeout — no text detected.")
 
     def _handle_interaction(self, bundle: Dict, obstacle_result: Dict):
-        result = self._interaction_detector.update(bundle["rgb"], bundle["depth"], obstacle_result.get("tracks", []))
+        result = self._interaction_detector.update(
+            bundle["rgb"], 
+            bundle["depth"], 
+            obstacle_result.get("tracks", [])
+        )
         if result.get("on_target"):
             self._audio.speak("Object reached.", priority=SpeechPriority.HIGH)
             logger.info("Interaction SUCCESS.")
@@ -402,11 +619,23 @@ class ControlUnit:
                 cv2.putText(frame, text, (8, h - 10 - i * 22), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (160, 160, 160), 1, cv2.LINE_AA)
         else:
             cv2.putText(frame, "State machine: BYPASSED", (8, h - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 100), 1, cv2.LINE_AA)
-            hint = "1:NAV  2:OCR  3:INTERACT  4:FACE  5:BANKNOTE"
+            hint = "1:NAV  2:OCR  3:INTERACT  4:FACE  5:BANKNOTE  6:REGISTER"
             (hw, _), _ = cv2.getTextSize(hint, cv2.FONT_HERSHEY_SIMPLEX, 0.38, 1)
             hx = (w - hw) // 2
             cv2.rectangle(frame, (hx - 6, h - 80), (hx + hw + 6, h - 60), (0, 0, 0), -1)
             cv2.putText(frame, hint, (hx, h - 64), cv2.FONT_HERSHEY_SIMPLEX, 0.38, (0, 165, 255), 1, cv2.LINE_AA)
+
+        # ── Registration overlay (shown on top of everything) ─────────
+        if self._face_register_mode:
+            overlay_h = 90
+            cv2.rectangle(frame, (0, h // 2 - overlay_h // 2 - 10),
+                          (w, h // 2 + overlay_h // 2 + 10), (0, 0, 0), -1)
+            cv2.putText(frame, "REGISTER FACE — type name, Enter to save, Esc to cancel",
+                        (10, h // 2 - 22), cv2.FONT_HERSHEY_SIMPLEX, 0.52, (0, 220, 255), 1, cv2.LINE_AA)
+            cursor = "_" if (self._frame_count // 15) % 2 == 0 else " "
+            name_display = f"Name: {self._face_register_name}{cursor}"
+            cv2.putText(frame, name_display, (10, h // 2 + 18),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2, cv2.LINE_AA)
 
         return frame
 

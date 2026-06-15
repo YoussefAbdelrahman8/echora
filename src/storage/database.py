@@ -67,7 +67,7 @@ class Database:
     def add_person(self, name: str, embedding: np.ndarray) -> bool:
         if not self._ready: return False
         try:
-            embedding_bytes = embedding.astype(np.float64).tobytes()
+            embedding_bytes = embedding.astype(np.float32).tobytes()
             now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             with Session(self._engine) as session:
                 person = session.query(Person).filter_by(name=name).first()
@@ -99,7 +99,12 @@ class Database:
         try:
             with Session(self._engine) as session:
                 persons = session.query(Person).order_by(Person.name).all()
-                return [self._person_to_dict(p) for p in persons]
+                results = []
+                for p in persons:
+                    d = self._person_to_dict(p)
+                    if d is not None:
+                        results.append(d)
+                return results
         except Exception as e:
             logger.error(f"Failed to get all persons: {e}")
             return []
@@ -141,13 +146,23 @@ class Database:
         except Exception:
             return 0
 
-    def _person_to_dict(self, person: Person) -> Dict:
-        embedding = np.frombuffer(person.embedding, dtype=np.float64)
+    _EXPECTED_EMBEDDING_BYTES = 512 * 4  # InsightFace buffalo_sc: 512-d float32
+
+    def _person_to_dict(self, person: Person) -> Optional[Dict]:
+        raw = person.embedding
+        if len(raw) != self._EXPECTED_EMBEDDING_BYTES:
+            logger.warning(
+                f"Skipping '{person.name}': incompatible embedding "
+                f"({len(raw)} bytes, expected {self._EXPECTED_EMBEDDING_BYTES}). "
+                "Re-register this face with InsightFace."
+            )
+            return None
+        embedding = np.frombuffer(raw, dtype=np.float32).copy()
         return {
-            "id": person.id,
-            "name": person.name,
+            "id":        person.id,
+            "name":      person.name,
             "embedding": embedding,
-            "added_at": person.added_at,
+            "added_at":  person.added_at,
             "last_seen": person.last_seen,
             "seen_count": person.seen_count,
         }
