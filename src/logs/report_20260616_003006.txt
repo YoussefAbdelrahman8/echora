@@ -1,0 +1,10 @@
+==================================================
+ECHORA Session Report
+==================================================
+
+Date:        2026-06-16
+Start:       00:29:57
+Duration:    00:00:08
+Exit reason: error: ValueError
+
+System did not start successfully.

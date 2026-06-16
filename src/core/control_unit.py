@@ -102,7 +102,7 @@ class ControlUnit:
         self._interaction_detector = InteractionDetector()
         self._interaction_detector.load_model()
         
-        ocr.init_ocr()
+       # ocr.init_ocr()
         banknote.init_banknote()
         
         init_database()
