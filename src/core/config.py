@@ -60,8 +60,8 @@ class EchoraConfig(BaseSettings):
     
     COLLISION_CORRIDOR_DEG: float = 20.0
     
-    BANKNOTE_MODEL_PATH: Path = ASSETS_DIR / "models" / "banknote_egp.pt"
-    BANKNOTE_CONFIDENCE_THRESHOLD: float = 0.50
+    BANKNOTE_MODEL_PATH: Path = ASSETS_DIR / "models" / "banknote.pt"
+    BANKNOTE_CONFIDENCE_THRESHOLD: float = 0.85
     BANKNOTE_STABILITY_FRAMES: int = 3
     BANKNOTE_MAX_DIST_MM: int = 500
     BANKNOTE_CURRENCY: str = "EGP"
