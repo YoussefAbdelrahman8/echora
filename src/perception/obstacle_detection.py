@@ -48,6 +48,9 @@ class ObstacleDetector:
         self._last_result: Optional[Dict] = None
         self._last_confirmed: List[Dict] = []
         self._device: str = "cpu"
+        self._relevant_class_ids: Optional[List[int]] = None
+        self._vlm_failures: int = 0
+        self._vlm_disabled: bool = not settings.VLM_ENABLED
 
     # ── Lifecycle ─────────────────────────────────────────────────────
 
@@ -56,6 +59,7 @@ class ObstacleDetector:
             raise FileNotFoundError(f"YOLO model not found: {settings.YOLO_MODEL_PATH}")
 
         self._yolo = YOLO(str(settings.YOLO_MODEL_PATH))
+        self._relevant_class_ids = self._get_relevant_class_ids()
 
         if torch.backends.mps.is_available():
             self._device = "mps"
@@ -73,7 +77,10 @@ class ObstacleDetector:
         for _ in range(3):
             self._yolo(blank, verbose=False, device=self._device,
                        half=(self._device == "cuda"))
-        logger.info("YOLO warmup complete.")
+        logger.info(
+            f"YOLO warmup complete. Relevant classes: "
+            f"{len(self._relevant_class_ids or []) or 'all'}"
+        )
 
     # ── Main entry point ──────────────────────────────────────────────
 
@@ -88,12 +95,17 @@ class ObstacleDetector:
         else:
             confirmed_tracks = self._tracker.get_confirmed_tracks()
 
-        if self._vlm_limiter.should_run() and not self._vlm_running:
-            self._start_vlm_thread(rgb_frame.copy())
-
         danger_tracks  = [t for t in confirmed_tracks if t["urgency"] == "DANGER"]
         warning_tracks = [t for t in confirmed_tracks if t["urgency"] == "WARNING"]
         safe_tracks    = [t for t in confirmed_tracks if t["urgency"] == "SAFE"]
+        unknown_tracks = [t for t in confirmed_tracks if t["urgency"] == "UNKNOWN"]
+
+        if (
+            not danger_tracks
+            and not warning_tracks
+            and self._should_run_vlm()
+        ):
+            self._start_vlm_thread(rgb_frame.copy())
 
         with self._vlm_lock:
             scene_desc = self.latest_vlm_description
@@ -103,6 +115,7 @@ class ObstacleDetector:
             "danger":       danger_tracks,
             "warning":      warning_tracks,
             "safe":         safe_tracks,
+            "unknown":      unknown_tracks,
             "scene_desc":   scene_desc,
             "frame_count":  self._frame_count,
             "timestamp_ms": timestamp,
@@ -126,12 +139,22 @@ class ObstacleDetector:
             det["distance_mm"] = distance_mm
             det["angle_deg"]   = angle_from_x(cx, rgb_frame.shape[1])
             det["urgency"]     = classify_urgency(distance_mm)
+            det["frame_shape"]  = rgb_frame.shape[:2]
             enriched.append(det)
 
         filtered = self._filter_and_promote(enriched)
         confirmed = self._tracker.update(filtered)
         self._last_confirmed = confirmed
         return confirmed
+
+    def _get_relevant_class_ids(self) -> List[int]:
+        if self._yolo is None:
+            return []
+        return [
+            idx
+            for idx, name in self._yolo.names.items()
+            if name in settings.RELEVANT_CLASSES
+        ]
 
     def _run_yolo(self, rgb_frame: np.ndarray) -> List[Dict]:
         """
@@ -147,9 +170,10 @@ class ObstacleDetector:
                 persist=True,
                 tracker="bytetrack.yaml",
                 conf=settings.DETECTION_CONFIDENCE_THRESHOLD,
+                classes=self._relevant_class_ids or None,
                 device=self._device,
                 half=(self._device == "cuda"),
-                imgsz=settings.YOLO_INPUT_WIDTH,
+                imgsz=(settings.YOLO_INPUT_HEIGHT, settings.YOLO_INPUT_WIDTH),
             )
 
             result = results[0]
@@ -197,11 +221,35 @@ class ObstacleDetector:
             min(depth_map.shape[0] - 1, y2 - my),
         )
 
+    def _bbox_area_ratio(self, det: Dict) -> float:
+        frame_h, frame_w = det.get("frame_shape", (settings.CAMERA_RGB_HEIGHT, settings.CAMERA_RGB_WIDTH))
+        x1, y1, x2, y2 = det["bbox"]
+        area = max(0, x2 - x1) * max(0, y2 - y1)
+        return area / max(frame_w * frame_h, 1)
+
+    def _overlaps_collision_corridor(self, det: Dict) -> bool:
+        _, frame_w = det.get("frame_shape", (settings.CAMERA_RGB_HEIGHT, settings.CAMERA_RGB_WIDTH))
+        half_fov = settings.CAMERA_HFOV_DEG / 2.0
+        half_corridor_px = int((settings.COLLISION_CORRIDOR_DEG / max(half_fov, 1.0)) * (frame_w / 2.0))
+        corridor_cx = frame_w // 2
+        corridor_x1 = max(0, corridor_cx - half_corridor_px)
+        corridor_x2 = min(frame_w, corridor_cx + half_corridor_px)
+        x1, _, x2, _ = det["bbox"]
+        return x1 <= corridor_x2 and x2 >= corridor_x1
+
+    def _should_keep_unknown_depth(self, det: Dict) -> bool:
+        return (
+            self._overlaps_collision_corridor(det)
+            or self._bbox_area_ratio(det) >= settings.UNKNOWN_OBSTACLE_MIN_AREA_RATIO
+        )
+
     def _filter_and_promote(self, detections: List[Dict]) -> List[Dict]:
         """
-        1. Drop irrelevant classes and out-of-range depths.
-        2. Corridor promotion: a WARNING obstacle that is directly ahead
-           (within COLLISION_CORRIDOR_DEG) and nearly at danger distance is
+        1. Drop irrelevant classes.
+        2. Keep relevant detections with invalid depth as UNKNOWN when they
+           overlap the walking corridor or are large in the image.
+        3. Corridor promotion: a WARNING obstacle that overlaps the walking
+           corridor and is nearly at danger distance is
            escalated to DANGER so the user gets an immediate alert.
 
         Because ByteTracker stores the full dict (including urgency), this
@@ -214,12 +262,19 @@ class ObstacleDetector:
                 continue
 
             d = det["distance_mm"]
-            if d <= settings.DEPTH_MIN_MM or d > settings.DEPTH_MAX_MM:
+            if d <= settings.DEPTH_MIN_MM:
+                if self._should_keep_unknown_depth(det):
+                    det["urgency"] = "UNKNOWN"
+                    det["distance_mm"] = 0.0
+                    out.append(det)
+                continue
+
+            if d > settings.DEPTH_MAX_MM:
                 continue
 
             if (
                 det["urgency"] == "WARNING"
-                and abs(det.get("angle_deg", 0)) <= settings.COLLISION_CORRIDOR_DEG
+                and self._overlaps_collision_corridor(det)
                 and d < settings.DANGER_DIST_MM * 1.2
             ):
                 det["urgency"] = "DANGER"
@@ -229,6 +284,14 @@ class ObstacleDetector:
         return out
 
     # ── VLM scene description ─────────────────────────────────────────
+
+    def _should_run_vlm(self) -> bool:
+        return (
+            settings.VLM_ENABLED
+            and not self._vlm_disabled
+            and not self._vlm_running
+            and self._vlm_limiter.should_run()
+        )
 
     def _start_vlm_thread(self, rgb_frame: np.ndarray):
         self._vlm_running = True
@@ -245,7 +308,7 @@ class ObstacleDetector:
                 return
 
             response = ollama.chat(
-                model=VLM_MODEL_NAME,
+                model=settings.VLM_MODEL_NAME or VLM_MODEL_NAME,
                 messages=[{
                     "role":    "user",
                     "content": VLM_PROMPT,
@@ -261,9 +324,20 @@ class ObstacleDetector:
 
             with self._vlm_lock:
                 self.latest_vlm_description = description
+            self._vlm_failures = 0
 
         except Exception as e:
-            logger.warning(f"VLM error (non-fatal): {e}")
+            self._vlm_failures += 1
+            if self._vlm_failures >= settings.VLM_MAX_FAILURES:
+                self._vlm_disabled = True
+                logger.warning(
+                    f"VLM disabled after {self._vlm_failures} failed call(s): {e}"
+                )
+            else:
+                logger.warning(
+                    f"VLM error (non-fatal, {self._vlm_failures}/"
+                    f"{settings.VLM_MAX_FAILURES}): {e}"
+                )
         finally:
             self._vlm_running = False
 
@@ -300,6 +374,8 @@ class ObstacleDetector:
         return {
             "frame_count":     self._frame_count,
             "vlm_running":     self._vlm_running,
+            "vlm_disabled":    self._vlm_disabled,
+            "vlm_failures":    self._vlm_failures,
             "tracker":         self._tracker.get_stats(),
             "last_scene_desc": desc[:80] + "..." if len(desc) > 80 else desc,
         }
