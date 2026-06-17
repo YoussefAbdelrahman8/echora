@@ -83,7 +83,7 @@ class EchoraConfig(BaseSettings):
     OCR_SKEW_CORRECTION: bool = True   # enable Hough-based skew correction in preprocessing
     # Fine-tuned model paths — leave empty to use default PP-OCRv4 models.
     # Set via .env after running tools/finetune/export_model.py
-    OCR_CUSTOM_AR_MODEL: str = ""      # path to fine-tuned Arabic inference/ dir
+    OCR_CUSTOM_AR_MODEL: str = "src/tools/finetune/output/rec_arabic_ft/inference"  # path to fine-tuned Arabic inference/ dir
     OCR_CUSTOM_EN_MODEL: str = ""      # path to fine-tuned English inference/ dir (optional)
     
     OBSTACLE_RUN_EVERY: int = 1
