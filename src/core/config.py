@@ -42,6 +42,7 @@ class EchoraConfig(BaseSettings):
         "cell phone", "backpack", "umbrella", "bench", "fire hydrant", "stop sign", "traffic light",
     ]
     DEPTH_BBOX_SCALE: float = 0.5
+    UNKNOWN_OBSTACLE_MIN_AREA_RATIO: float = 0.08
     
     INTERACTABLE_CLASSES: List[str] = [
         "door handle", "cup", "bottle", "bowl", "cell phone", "remote",
@@ -91,6 +92,9 @@ class EchoraConfig(BaseSettings):
     FACE_RUN_EVERY: int = 15
     INTERACTION_RUN_EVERY: int = 2
     VLM_RUN_EVERY: int = 30
+    VLM_ENABLED: bool = True
+    VLM_MODEL_NAME: str = "gemma4:e2b"
+    VLM_MAX_FAILURES: int = 5
     
     ALERT_COOLDOWN_SEC: float = 2.0
     MAX_FRAME_TIME_MS: int = 50

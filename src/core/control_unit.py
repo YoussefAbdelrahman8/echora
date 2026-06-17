@@ -423,6 +423,7 @@ class ControlUnit:
     def _handle_navigation(self, bundle: Dict, obstacle_result: Dict):
         danger  = obstacle_result.get("danger",  [])
         warning = obstacle_result.get("warning", [])
+        unknown = obstacle_result.get("unknown", [])
         now     = time.time()
 
         # ── Zone-priority logic ───────────────────────────────────────
@@ -473,6 +474,28 @@ class ControlUnit:
                     f"{track['angle_deg']:+.1f}°  approach={approach:.0f}mm/s"
                 )
 
+        elif unknown:
+            self._path_was_blocked = True
+
+            if now - self._last_nav_announce_time >= settings.ALERT_COOLDOWN_SEC:
+                self._last_nav_announce_time = now
+                def _bbox_area(t: Dict) -> int:
+                    x1, y1, x2, y2 = t.get("bbox", (0, 0, 0, 0))
+                    return max(0, x2 - x1) * max(0, y2 - y1)
+
+                track = dict(min(
+                    unknown,
+                    key=lambda t: (
+                        abs(t.get("angle_deg", 0.0)),
+                        -_bbox_area(t),
+                    )
+                ))
+                self._audio.announce_obstacle(track)
+                logger.info(
+                    f"Nav [UNKNOWN]: {track['label']} distance unknown "
+                    f"{track.get('angle_deg', 0.0):+.1f}°"
+                )
+
         else:
             # ── CLEAR path ────────────────────────────────────────────
             # Announce immediately when transitioning from blocked → clear,
@@ -492,7 +515,7 @@ class ControlUnit:
         # ── VLM scene context (only when path is clear) ───────────────
         # Suppress VLM announcements while obstacles are present so they
         # don't compete with obstacle warnings.
-        if not danger and not warning:
+        if not danger and not warning and not unknown:
             scene_desc = obstacle_result.get("scene_desc", "")
             if scene_desc and scene_desc != self._last_scene_desc and len(scene_desc) > 10:
                 self._last_scene_desc = scene_desc
@@ -594,11 +617,15 @@ class ControlUnit:
         cv2.putText(frame, fps_text, (w - tw - 8, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (200, 200, 200), 1, cv2.LINE_AA)
 
         if current_mode == MODE.NAVIGATION:
-            n_danger, n_warn, n_tracks = len(obstacle_result.get("danger", [])), len(obstacle_result.get("warning", [])), len(obstacle_result.get("tracks", []))
+            n_danger = len(obstacle_result.get("danger", []))
+            n_warn = len(obstacle_result.get("warning", []))
+            n_unknown = len(obstacle_result.get("unknown", []))
+            n_tracks = len(obstacle_result.get("tracks", []))
             for i, (text, col) in enumerate(reversed([
                 (f"Tracks: {n_tracks}", (180, 180, 180)),
                 (f"Danger: {n_danger}", (0, 0, 220) if n_danger > 0 else (180, 180, 180)),
-                (f"Warning: {n_warn}", (0, 165, 255) if n_warn > 0 else (180, 180, 180))
+                (f"Warning: {n_warn}", (0, 165, 255) if n_warn > 0 else (180, 180, 180)),
+                (f"Unknown: {n_unknown}", (160, 160, 255) if n_unknown > 0 else (180, 180, 180)),
             ])):
                 cv2.putText(frame, text, (w - 140, h - 10 - i * 22), cv2.FONT_HERSHEY_SIMPLEX, 0.5, col, 1, cv2.LINE_AA)
 
