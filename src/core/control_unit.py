@@ -14,11 +14,11 @@ if sys.platform == "win32":
 from src.core.config import settings, MODE
 from src.core.utils import logger, get_timestamp_ms, draw_overlay, mm_to_spoken
 from src.hardware.camera import EchoraCamera
+from src.perception import ocr
 from src.perception.obstacle_detection import ObstacleDetector
 from src.core.state_machine import StateMachine
 from src.hardware.audio_feedback import AudioFeedback, SpeechPriority
 
-from src.perception import ocr
 from src.perception.interaction_detection import InteractionDetector
 from src.perception import banknote
 from src.perception import echora_face as face_recognition
@@ -95,6 +95,8 @@ class ControlUnit:
 
         self._camera = EchoraCamera()
         self._camera.init_pipeline()
+
+        ocr.init_ocr()
         
         self._detector = ObstacleDetector()
         self._detector.load_model()
@@ -102,7 +104,6 @@ class ControlUnit:
         self._interaction_detector = InteractionDetector()
         self._interaction_detector.load_model()
         
-       # ocr.init_ocr()
         banknote.init_banknote()
         
         init_database()

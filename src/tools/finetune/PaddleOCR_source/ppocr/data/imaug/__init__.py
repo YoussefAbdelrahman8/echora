@@ -16,7 +16,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from .iaa_augment import IaaAugment
 from .make_border_map import MakeBorderMap
 from .make_shrink_map import MakeShrinkMap
 from .random_crop_data import EastRandomCropData, RandomCropImgMask
@@ -45,7 +44,6 @@ from .rec_img_aug import (
 )
 from .ssl_img_aug import SSLRotateResize
 from .randaugment import RandAugment
-from .copy_paste import CopyPaste
 from .ColorJitter import ColorJitter
 from .operators import *
 from .label_ops import *
@@ -61,8 +59,6 @@ from .fce_aug import *
 from .fce_targets import FCENetTargets
 from .ct_process import *
 from .drrg_targets import DRRGTargets
-from .latex_ocr_aug import *
-from .unimernet_aug import *
 
 
 def transform(data, ops=None):

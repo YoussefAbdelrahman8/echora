@@ -24,6 +24,32 @@ import urllib.request
 from pathlib import Path
 
 
+def _add_nvidia_dll_dirs():
+    """Make pip-installed CUDA/cuDNN DLLs visible to Paddle on Windows."""
+    if platform.system() != "Windows":
+        return
+    nvidia_dir = Path(sys.prefix) / "Lib" / "site-packages" / "nvidia"
+    dll_dirs = [
+        nvidia_dir / "cudnn" / "bin",
+        nvidia_dir / "cublas" / "bin",
+        nvidia_dir / "cuda_nvrtc" / "bin",
+    ]
+    existing_path = os.environ.get("PATH", "")
+    prepend = []
+    for dll_dir in dll_dirs:
+        if dll_dir.exists():
+            prepend.append(str(dll_dir))
+            try:
+                os.add_dll_directory(str(dll_dir))
+            except (AttributeError, OSError):
+                pass
+    if prepend:
+        os.environ["PATH"] = os.pathsep.join(prepend + [existing_path])
+
+
+_add_nvidia_dll_dirs()
+
+
 # ── Paddle check (must happen before anything else) ───────────────────────────
 
 def _check_paddle():

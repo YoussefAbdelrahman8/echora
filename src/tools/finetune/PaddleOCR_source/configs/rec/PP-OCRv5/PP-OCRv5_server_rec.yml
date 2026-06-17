@@ -19,7 +19,7 @@ Global:
   max_text_length: &max_text_length 25
   infer_mode: false
   use_space_char: true
-  distributed: true
+  distributed: false
   save_res_path: ./output/rec/predicts_ppocrv5.txt
   d2s_train_image_shape: [3, 48, 320]
 
@@ -99,7 +99,7 @@ Train:
   sampler:
     name: MultiScaleSampler
     scales: [[320, 32], [320, 48], [320, 64]]
-    first_bs: &bs 128
+    first_bs: &bs 64
     fix_bs: false
     divided_factor: [8, 16] # w, h
     is_training: True
@@ -107,7 +107,7 @@ Train:
     shuffle: true
     batch_size_per_card: *bs
     drop_last: true
-    num_workers: 16
+    num_workers: 4
 Eval:
   dataset:
     name: SimpleDataSet
@@ -132,5 +132,5 @@ Eval:
   loader:
     shuffle: false
     drop_last: false
-    batch_size_per_card: 128
+    batch_size_per_card: 64
     num_workers: 4

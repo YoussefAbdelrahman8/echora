@@ -14,12 +14,39 @@ Optional — test against a specific image:
 """
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 import cv2
 import numpy as np
+
+
+def _add_nvidia_dll_dirs():
+    """Make pip-installed CUDA/cuDNN DLLs visible to Paddle on Windows."""
+    if sys.platform != "win32":
+        return
+    nvidia_dir = Path(sys.prefix) / "Lib" / "site-packages" / "nvidia"
+    dll_dirs = [
+        nvidia_dir / "cudnn" / "bin",
+        nvidia_dir / "cublas" / "bin",
+        nvidia_dir / "cuda_nvrtc" / "bin",
+    ]
+    existing_path = os.environ.get("PATH", "")
+    prepend = []
+    for dll_dir in dll_dirs:
+        if dll_dir.exists():
+            prepend.append(str(dll_dir))
+            try:
+                os.add_dll_directory(str(dll_dir))
+            except (AttributeError, OSError):
+                pass
+    if prepend:
+        os.environ["PATH"] = os.pathsep.join(prepend + [existing_path])
+
+
+_add_nvidia_dll_dirs()
 
 ROOT         = Path(__file__).parent.parent.parent
 FINETUNE_DIR = ROOT / "tools" / "finetune"
@@ -65,6 +92,7 @@ def export():
             "-o",
             f"Global.pretrained_model={TRAINED_DIR / 'best_accuracy'}",
             f"Global.save_inference_dir={INFERENCE_DIR}",
+            "Global.export_with_pir=False",
         ],
         cwd=ROOT,
     )
