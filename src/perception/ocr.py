@@ -17,6 +17,7 @@ TEXT_STABILITY_FRAMES = 3
 OCR_SCALE_FACTOR      = 1.0   # full resolution â€” GPU handles it (was 0.75 for CPU)
 BBOX_PADDING          = 8
 INFERENCE_CACHE_MS    = 200
+STALE_CACHE_MS        = 1000
 MERGE_IOU_THRESHOLD   = 0.3   # IoU above this â†’ duplicate; Arabic result wins
 
 # â”€â”€ Preprocessing tuning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -78,6 +79,14 @@ def _resolve_model_dir(path_value: str) -> str:
     if not path.is_absolute():
         path = settings.BASE_DIR / path
     return str(path)
+
+
+def _valid_paddle_inference_dir(path_value: str) -> bool:
+    if not path_value:
+        return False
+    path = Path(_resolve_model_dir(path_value))
+    required = ("inference.pdmodel", "inference.pdiparams")
+    return path.is_dir() and all((path / name).exists() for name in required)
 
 
 def _bbox_iou(b1: Tuple[int, int, int, int], b2: Tuple[int, int, int, int]) -> float:
@@ -145,10 +154,16 @@ class OCRReader:
 
         ar_kwargs = dict(_base)
         ar_kwargs["lang"] = "ar"
-        if settings.OCR_CUSTOM_AR_MODEL:
+        ar_custom_model = _valid_paddle_inference_dir(settings.OCR_CUSTOM_AR_MODEL)
+        if ar_custom_model:
             ar_kwargs["rec_model_dir"] = _resolve_model_dir(settings.OCR_CUSTOM_AR_MODEL)
-            logger.info(f"  Arabic model: fine-tuned at {ar_kwargs['rec_model_dir']}")
+            logger.info(f"  Arabic model: custom runtime model at {ar_kwargs['rec_model_dir']}")
         else:
+            if settings.OCR_CUSTOM_AR_MODEL:
+                logger.warning(
+                    f"  Arabic custom model not found or incomplete: "
+                    f"{_resolve_model_dir(settings.OCR_CUSTOM_AR_MODEL)}. Using PaddleOCR default."
+                )
             logger.info("  Arabic model: default PaddleOCR Arabic model")
 
         try:
@@ -163,9 +178,14 @@ class OCRReader:
                 t1 = time.time()
                 en_kwargs = dict(_base)
                 en_kwargs["lang"] = "en"
-                if settings.OCR_CUSTOM_EN_MODEL:
+                if _valid_paddle_inference_dir(settings.OCR_CUSTOM_EN_MODEL):
                     en_kwargs["rec_model_dir"] = _resolve_model_dir(settings.OCR_CUSTOM_EN_MODEL)
-                    logger.info(f"  English model: fine-tuned at {en_kwargs['rec_model_dir']}")
+                    logger.info(f"  English model: custom runtime model at {en_kwargs['rec_model_dir']}")
+                elif settings.OCR_CUSTOM_EN_MODEL:
+                    logger.warning(
+                        f"  English custom model not found or incomplete: "
+                        f"{_resolve_model_dir(settings.OCR_CUSTOM_EN_MODEL)}. Using PaddleOCR default."
+                    )
                 self._ocr_en = PaddleOCR(**en_kwargs)
                 logger.info(f"PaddleOCR English model ready in {(time.time()-t1)*1000:.0f}ms.")
             except Exception as e:
@@ -175,7 +195,7 @@ class OCRReader:
         self._ready = True
         logger.info(
             f"PaddleOCR ready. Total load: {(time.time()-t0)*1000:.0f}ms  "
-            f"gpu={use_gpu}  arabic={'fine-tuned' if settings.OCR_CUSTOM_AR_MODEL else 'default'}  "
+            f"gpu={use_gpu}  arabic={'custom' if ar_custom_model else 'default'}  "
             f"english={'yes' if self._ocr_en else 'no'}"
         )
 
@@ -261,7 +281,10 @@ class OCRReader:
         # Blur gate: check BEFORE acquiring the lock so we don't block the
         # inference thread on a frame that won't produce useful results anyway.
         if not self._is_frame_sharp_enough(frame):
-            return self._last_boxes
+            if age < STALE_CACHE_MS:
+                return self._last_boxes
+            self._last_boxes = []
+            return []
 
         with self._inference_lock:
             age = get_timestamp_ms() - self._last_inference_ts
@@ -569,8 +592,22 @@ class OCRReader:
         """True when more than 40% of characters are in the Arabic Unicode block."""
         if not text:
             return False
-        arabic = sum(1 for c in text if "Ø€" <= c <= "Û¿")
-        return arabic / max(len(text), 1) > 0.4
+        letters = [c for c in text if c.isalpha()]
+        if not letters:
+            return False
+        arabic = sum(1 for c in letters if OCRReader._is_arabic_char(c))
+        return arabic / len(letters) > 0.4
+
+    @staticmethod
+    def _is_arabic_char(char: str) -> bool:
+        code = ord(char)
+        return (
+            0x0600 <= code <= 0x06FF or
+            0x0750 <= code <= 0x077F or
+            0x08A0 <= code <= 0x08FF or
+            0xFB50 <= code <= 0xFDFF or
+            0xFE70 <= code <= 0xFEFF
+        )
 
     def _prioritise(
         self, detections: List[Dict], frame_width: int, frame_height: int

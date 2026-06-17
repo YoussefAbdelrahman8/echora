@@ -224,4 +224,3 @@ echora_finetune.zip
 *.pdopt
 *.pdparams
 *.states
-tools/finetune/pretrain_models/
