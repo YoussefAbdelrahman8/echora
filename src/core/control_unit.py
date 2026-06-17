@@ -662,7 +662,11 @@ class ControlUnit:
         from src.hardware.haptic_feedback import get_haptic
         if h := get_haptic(): h.disconnect()
         from src.storage.database import get_db
-        if db := get_db(): db.close()
+        if db := get_db():
+            if hasattr(db, "release"):
+                db.release()
+            elif hasattr(db, "close"):
+                db.close()
 
         logger.info(f"ECHORA stopped. Frames: {self._frame_count} | Uptime: {time.time() - self._start_time:.1f}s | Slow:{self._slow_frames}")
         self._started = False
