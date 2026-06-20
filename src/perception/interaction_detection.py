@@ -339,6 +339,8 @@ class InteractionDetector:
         self._target_obj  : Optional[Dict] = None
         self._pulse_count : int            = 0
         self._frame_count : int            = 0
+        self._success_started_at: Optional[float] = None
+        self._success_announced : bool           = False
         self._last_grid   : np.ndarray     = np.zeros(
             (GRID_ROWS, GRID_COLS), dtype=np.float32
         )
@@ -379,6 +381,8 @@ class InteractionDetector:
         self._phase       = InteractionPhase.IDLE
         self._target_obj  = None
         self._pulse_count = 0
+        self._success_started_at = None
+        self._success_announced = False
         self._last_grid   = np.zeros((GRID_ROWS, GRID_COLS), dtype=np.float32)
         self._haptic.all_off()
 
@@ -472,10 +476,25 @@ class InteractionDetector:
         # 7 ── Trigger one-shot success pulse on first SUCCESS frame
         if self._phase == InteractionPhase.SUCCESS:
             if prev_phase != InteractionPhase.SUCCESS:
+                self._success_started_at = time.time()
+                self._success_announced = False
                 self._haptic.pulse_success()
             self._pulse_count += 1
         else:
             self._pulse_count = 0
+            self._success_started_at = None
+            self._success_announced = False
+
+        dwell_sec = 0.0
+        if self._success_started_at is not None:
+            dwell_sec = time.time() - self._success_started_at
+        on_target = (
+            self._phase == InteractionPhase.SUCCESS
+            and dwell_sec >= settings.INTERACTION_MIN_DWELL_SEC
+            and not self._success_announced
+        )
+        if on_target:
+            self._success_announced = True
 
         return {
             "phase":          self._phase,
@@ -483,7 +502,8 @@ class InteractionDetector:
             "target":         self._target_obj,
             "vector":         vector,
             "electrode_grid": grid,
-            "on_target":      self._phase == InteractionPhase.SUCCESS,
+            "on_target":      on_target,
+            "success_dwell_s": dwell_sec,
             "timestamp_ms":   get_timestamp_ms(),
         }
 
@@ -492,7 +512,8 @@ class InteractionDetector:
     def _detect_right_hand(self, rgb_frame: np.ndarray) -> Optional[Dict]:
         """
         Run MediaPipe Hands on the frame and return structured data for
-        the user's dominant (right) hand only.
+        the configured dominant hand. Set DOMINANT_HAND to Any when testing
+        egocentric cameras that flip MediaPipe left/right labels.
 
         Returns None if no right hand is visible.
         """
@@ -507,17 +528,19 @@ class InteractionDetector:
         if not results.multi_hand_landmarks:
             return None
 
+        desired_hand = str(getattr(settings, "DOMINANT_HAND", "Right")).strip().lower()
+        accept_any = desired_hand in ("", "any", "both")
+
+        fallback = None
         for landmarks, handedness in zip(
             results.multi_hand_landmarks, results.multi_handedness
         ):
             label = handedness.classification[0].label   # "Left" or "Right"
-            # Accept any hand in the frame since egocentric left/right
-            # classification in MediaPipe is often inverted.
             all_px = [
                 (int(lm.x * w), int(lm.y * h))
                 for lm in landmarks.landmark
             ]
-            return {
+            hand = {
                 "landmarks":  all_px,
                 "index_tip":  all_px[8],   # MediaPipe INDEX_FINGER_TIP
                 "middle_tip": all_px[12],  # MIDDLE_FINGER_TIP
@@ -525,8 +548,12 @@ class InteractionDetector:
                 "wrist":      all_px[0],   # WRIST
                 "handedness": label,
             }
+            if accept_any or label.lower() == desired_hand:
+                return hand
+            if fallback is None:
+                fallback = hand
 
-        return None   # dominant hand not in frame
+        return fallback if accept_any else None
 
     # ── Object detection ──────────────────────────────────────────────
 
@@ -545,11 +572,15 @@ class InteractionDetector:
             if bbox_area(x1, y1, x2, y2) < settings.MIN_INTERACTABLE_AREA_PX:
                 continue
 
-            if "distance_mm" not in det or det["distance_mm"] <= 0:
-                det["distance_mm"] = depth_in_region(depth_map, x1, y1, x2, y2)
+            candidate = dict(det)
+            if "distance_mm" not in candidate or candidate["distance_mm"] <= 0:
+                candidate["distance_mm"] = depth_in_region(depth_map, x1, y1, x2, y2)
 
-            det["center"] = bbox_center(x1, y1, x2, y2)
-            out.append(det)
+            if candidate["distance_mm"] <= 0:
+                continue
+
+            candidate["center"] = bbox_center(x1, y1, x2, y2)
+            out.append(candidate)
 
         return out
 
@@ -633,8 +664,9 @@ class InteractionDetector:
         if xy_dist <= SUCCESS_XY_PX and z_dist <= SUCCESS_Z_MM:
             return InteractionPhase.SUCCESS
 
-        # EDGE: XY aligned but still needs to push forward/back
-        if xy_dist <= EDGE_XY_PX:
+        # EDGE: near enough in the image and close enough in depth to guide
+        # the final forward/back movement, but not yet successful.
+        if xy_dist <= EDGE_XY_PX and z_dist <= EDGE_Z_MM:
             return InteractionPhase.EDGE
 
         # GUIDANCE: general direction feedback
@@ -680,6 +712,7 @@ class InteractionDetector:
             "vector":         None,
             "electrode_grid": self._last_grid,
             "on_target":      False,
+            "success_dwell_s": 0.0,
             "timestamp_ms":   get_timestamp_ms(),
         }
 

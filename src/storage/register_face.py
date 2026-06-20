@@ -42,19 +42,16 @@ def _show_message(
 
 def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer) -> bool:
     """
-    Interactive face registration with best-frame capture and quality gate.
+    Interactive face registration with multi-frame capture and quality gate.
 
     Flow:
       1. Live preview with colour-coded quality indicator (green/orange/red).
       2. SPACE starts a FACE_REGISTRATION_CAPTURE_SEC silent window.
-      3. The frame with the highest det_score in that window is selected.
+      3. Good frames in that window are collected; the recognizer keeps the best.
       4. Quality gate: if best det_score < FACE_REGISTRATION_MIN_SCORE → rejected
          with on-screen and printed guidance.
-      5. register_face_hq() is called with the best frame:
-         - loads buffalo_l (GPU-accelerated)
-         - generates 5 photometric augmentations
-         - averages ArcFace embeddings → one high-quality stored embedding
-         - releases buffalo_l after registration.
+      5. The best live-frame embeddings are averaged using the same model used
+         during recognition, so their cosine similarities remain valid.
 
     Returns True if registered successfully, False if cancelled or failed.
     """
@@ -72,6 +69,7 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer) ->
     capture_start = 0.0
     best_frame    = None
     best_score    = 0.0
+    sample_frames = []
     cancelled     = False
 
     while True:
@@ -118,6 +116,8 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer) ->
             if current_score > best_score:
                 best_score = current_score
                 best_frame = frame.copy()
+            if current_score >= MIN_SCORE:
+                sample_frames.append(frame.copy())
 
             cv2.putText(
                 display, f"Capturing best frame...  {remaining:.1f}s",
@@ -186,10 +186,10 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer) ->
         )
         return False
 
-    print(f"  Best frame score: {best_score:.3f}. Running HQ registration...")
+    print(f"  Best frame score: {best_score:.3f}. Processing {len(sample_frames)} enrollment samples...")
 
     # ── HQ registration ────────────────────────────────────────────────────────
-    success, reason = recogniser.register_face_hq(name, best_frame)
+    success, reason = recogniser.register_face_samples(name, sample_frames or [best_frame])
 
     if success:
         _show_message(
@@ -204,6 +204,8 @@ def register_person(name: str, cam: EchoraCamera, recogniser: FaceRecognizer) ->
     reason_text = {
         "no_face":          "No face found in the captured frame.",
         "low_quality":      f"Score too low ({best_score:.2f}).",
+        "no_good_frames":   "No sharp, well-lit face was captured.",
+        "not_enough_good_frames": "Hold still so several clear face samples can be captured.",
         "embedding_failed": "Could not generate face embedding.",
         "db_unavailable":   "Database not available.",
         "db_error":         "Failed to save to database.",

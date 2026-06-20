@@ -138,6 +138,20 @@ class Database:
             logger.error(f"Failed to delete person {name}: {e}")
             return False
 
+    def clear_persons(self) -> int:
+        """Delete face profiles only; preferences and event history are retained."""
+        if not self._ready:
+            return 0
+        try:
+            with Session(self._engine) as session:
+                count = session.query(Person).delete()
+                session.commit()
+            logger.info(f"Deleted {count} face profile(s).")
+            return count
+        except Exception as e:
+            logger.error(f"Failed to clear face profiles: {e}")
+            return 0
+
     def get_person_count(self) -> int:
         if not self._ready: return 0
         try:
