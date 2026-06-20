@@ -224,3 +224,6 @@ echora_finetune.zip
 *.pdopt
 *.pdparams
 *.states
+assets/training_runs/
+runs/
+yolo26n.pt

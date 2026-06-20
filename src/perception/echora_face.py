@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import torch
 from collections import deque, Counter
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from insightface.app import FaceAnalysis
 
@@ -160,13 +160,19 @@ class FaceRecognizer:
             sims     = [float(np.dot(embedding, k)) for k in self._known_embeddings]
             best_idx = int(np.argmax(sims))
             best_sim = sims[best_idx]
+            second_sim = max((sim for i, sim in enumerate(sims) if i != best_idx), default=-1.0)
 
             logger.debug(
                 f"Best match: {self._known_names[best_idx]} "
                 f"sim={best_sim:.3f} threshold={RECOGNITION_THRESHOLD}"
             )
 
-            if best_sim < RECOGNITION_THRESHOLD:
+            if (best_sim < RECOGNITION_THRESHOLD
+                    or best_sim - second_sim < settings.FACE_RECOGNITION_MARGIN):
+                logger.debug(
+                    f"Rejected face match: best={best_sim:.3f} second={second_sim:.3f} "
+                    f"margin={best_sim - second_sim:.3f}"
+                )
                 self._name_history.append("unknown")
                 stable = self._stable_result()
                 if stable == "unknown" and self._last_spoken != "unknown":
@@ -202,32 +208,63 @@ class FaceRecognizer:
     # ── Registration ──────────────────────────────────────────────────
 
     def register_face(self, name: str, frame: np.ndarray) -> bool:
+        """Backward-compatible single-frame enrollment."""
+        return self.register_face_samples(name, [frame])[0]
+
+    def register_face_samples(
+        self, name: str, frames: Sequence[np.ndarray]
+    ) -> Tuple[bool, str]:
+        """Enroll from several live frames in the same embedding space as recognition."""
         if not self._ready or self._app is None:
-            logger.error("FaceRecognizer not ready.")
-            return False
+            return False, "not_ready"
 
-        logger.info(f"Registering face for: {name}")
-        faces = self._app.get(frame)
+        candidates = []
+        for frame in frames:
+            try:
+                faces = self._app.get(frame)
+                if not faces:
+                    continue
+                face = max(faces, key=lambda f: f.det_score)
+                if face.det_score < settings.FACE_REGISTRATION_MIN_SCORE:
+                    continue
+                x1, y1, x2, y2 = np.asarray(face.bbox, dtype=int)
+                h, w = frame.shape[:2]
+                x1, x2 = max(0, x1), min(w, x2)
+                y1, y2 = max(0, y1), min(h, y2)
+                crop = frame[y1:y2, x1:x2]
+                if crop.size == 0 or min(crop.shape[:2]) < 60:
+                    continue
+                sharpness = float(cv2.Laplacian(cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY), cv2.CV_64F).var())
+                if sharpness < 20.0:
+                    continue
+                emb = face.embedding.astype(np.float32)
+                norm = np.linalg.norm(emb)
+                if norm > 0:
+                    candidates.append((float(face.det_score) + min(sharpness, 200.0) / 1000.0, emb / norm))
+            except Exception as exc:
+                logger.debug(f"Skipping enrollment frame: {exc}")
 
-        if not faces:
-            logger.warning(f"No face detected in frame for {name}.")
-            return False
+        if not candidates:
+            return False, "no_good_frames"
+        candidates.sort(key=lambda item: item[0], reverse=True)
+        selected = candidates[:settings.FACE_REGISTRATION_SAMPLE_COUNT]
+        if len(selected) < min(settings.FACE_REGISTRATION_MIN_SAMPLES, len(frames)):
+            return False, f"not_enough_good_frames:{len(selected)}"
 
-        face      = max(faces, key=lambda f: f.det_score)
-        embedding = face.embedding   # 512-d float32, L2-normalised
-
+        embedding = np.mean([item[1] for item in selected], axis=0).astype(np.float32)
+        norm = np.linalg.norm(embedding)
+        if norm == 0:
+            return False, "embedding_failed"
+        embedding /= norm
         db = get_db()
         if db is None:
-            logger.error("Database not available.")
-            return False
-
-        success = db.add_person(name, embedding)
-        if success:
-            self.reload_embeddings()
-            db.log_event("face_registered", {"name": name})
-            logger.info(f"Face registered: {name}  det_score={face.det_score:.2f}")
-
-        return success
+            return False, "db_unavailable"
+        if not db.add_person(name, embedding):
+            return False, "db_error"
+        self.reload_embeddings()
+        db.log_event("face_registered", {"name": name, "samples": len(selected), "model": "buffalo_sc"})
+        logger.info(f"Face registered: '{name}' samples={len(selected)}")
+        return True, ""
 
     def _generate_augmentations(self, frame: np.ndarray) -> List[np.ndarray]:
         """
@@ -277,6 +314,11 @@ class FaceRecognizer:
                 "no_face", "low_quality:<score>", "embedding_failed",
                 "db_unavailable", "db_error"
         """
+        # buffalo_l and buffalo_sc produce embeddings in different spaces.
+        # Persisting a buffalo_l embedding while recognition uses buffalo_sc makes
+        # cosine scores meaningless, so legacy callers use the compatible path.
+        return self.register_face_samples(name, [frame])
+
         logger.info(f"HQ registration for '{name}' — loading buffalo_l...")
         logger.info("  First run will download ~500 MB of model weights automatically.")
 

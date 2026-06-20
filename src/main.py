@@ -68,6 +68,12 @@ Examples:
         default = None,
         help    = "Face recognition tolerance 0.0-1.0"
     )
+    parser.add_argument(
+        "--ocr-mode",
+        choices = ["both", "ar", "arabic", "en", "english"],
+        default = None,
+        help    = "OCR language mode: both, Arabic only, or English only"
+    )
 
     return parser.parse_args()
 
@@ -227,6 +233,11 @@ def main():
         from src.core.config import settings
         settings.FACE_RECOGNITION_TOLERANCE = args.tolerance
         print(f"  Tolerance: {args.tolerance}")
+
+    if args.ocr_mode is not None:
+        from src.core.config import settings
+        settings.OCR_MODE = args.ocr_mode
+        print(f"  OCR mode:  {args.ocr_mode}")
 
     if args.debug:
         print("  Logging:   DEBUG")

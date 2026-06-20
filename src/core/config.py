@@ -11,9 +11,12 @@ class EchoraConfig(BaseSettings):
     FACE_DB_PATH: Path = ASSETS_DIR / "database" / "faces"
     FACE_CONFIDENCE_THRESHOLD: float = 0.5   # InsightFace det_score (0-1); was 0.15 for dlib area heuristic
     FACE_STABILITY_FRAMES: int = 3
-    FACE_RECOGNITION_THRESHOLD: float = 0.35  # ArcFace cosine similarity; higher = stricter
+    FACE_RECOGNITION_THRESHOLD: float = 0.50  # ArcFace cosine similarity; higher = stricter
+    FACE_RECOGNITION_MARGIN: float = 0.08     # best match must clearly beat the runner-up
     FACE_REGISTRATION_MIN_SCORE: float = 0.75  # minimum det_score to accept an enrollment frame
     FACE_REGISTRATION_CAPTURE_SEC: float = 2.0  # best-frame capture window duration (seconds)
+    FACE_REGISTRATION_SAMPLE_COUNT: int = 5    # good live frames averaged per enrollment
+    FACE_REGISTRATION_MIN_SAMPLES: int = 3     # reject an enrollment with too few usable frames
     
     CAMERA_RGB_WIDTH: int = 1280
     CAMERA_RGB_HEIGHT: int = 800
@@ -66,6 +69,7 @@ class EchoraConfig(BaseSettings):
     BANKNOTE_STABILITY_FRAMES: int = 3
     BANKNOTE_MAX_DIST_MM: int = 500
     BANKNOTE_CURRENCY: str = "EGP"
+    BANKNOTE_DETECTION_COOLDOWN_SEC: float = 3.0
     
     BLE_SERVICE_UUID: str = "0000ffe0-0000-1000-8000-00805f9b34fb"
     BLE_CHARACTERISTIC_UUID: str = "0000ffe1-0000-1000-8000-00805f9b34fb"
@@ -78,10 +82,13 @@ class EchoraConfig(BaseSettings):
     OCR_MIN_TEXT_HEIGHT_PX: int = 20
     OCR_CONFIDENCE_THRESHOLD: float = 0.7
     OCR_LANGUAGE: List[str] = ["en", "ar"]
+    OCR_MODE: str = "both"  # choices: both, ar, en
+    OCR_USE_GPU: bool = True
     OCR_MAX_CHARS: int = 200
     OCR_TRIGGER_DIST_MM: int = 2000
     OCR_BLUR_THRESHOLD: float = 60.0   # Laplacian variance min; below = too blurry to OCR
     OCR_SKEW_CORRECTION: bool = True   # enable Hough-based skew correction in preprocessing
+    OCR_READ_EVERY_FRAMES: int = 5
     # Fine-tuned model paths — leave empty to use default PP-OCRv4 models.
     OCR_CUSTOM_AR_MODEL: str = "assets/models/ocr/arabic_rec"
     OCR_CUSTOM_EN_MODEL: str = ""
@@ -105,9 +112,9 @@ class EchoraConfig(BaseSettings):
     MAX_MOTION_FOR_STILL_MODES: float = 0.8
     IMU_MOTION_THRESHOLD: float = 0.5
     
-    DOMINANT_HAND: str = "Right"
-    HAPTIC_ROWS: int = 5
-    HAPTIC_COLS: int = 6
+    DOMINANT_HAND: str = "Right"  # choices: Right, Left, Any
+    HAPTIC_ROWS: int = 4
+    HAPTIC_COLS: int = 5
     
     GUIDANCE_TO_EDGE_DIST_MM: int = 150
     EDGE_TO_SUCCESS_DIST_MM: int = 30

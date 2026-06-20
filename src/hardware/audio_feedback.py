@@ -5,10 +5,11 @@ import pygame.mixer
 import pygame.sndarray
 import numpy as np
 import queue
+import sys
 import threading
 import time
 from dataclasses import dataclass, field
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 from src.core.config import settings
 from src.core.utils import logger, mm_to_spoken, get_timestamp_ms, AlertCooldown
@@ -26,12 +27,14 @@ class SpeechRequest:
     text:         str   = field(compare=False)
     timestamp_ms: float = field(compare=False, default_factory=get_timestamp_ms)
     ttl_sec:      float = field(compare=False, default=3.0)
+    completed:     threading.Event = field(compare=False, default_factory=threading.Event)
 
 class AudioFeedback:
 
     def __init__(self):
 
         self._engine: Optional[pyttsx3.Engine] = None
+        self._use_worker_sapi: bool = sys.platform == "win32"
 
         self._ready: bool = False
 
@@ -233,7 +236,7 @@ class AudioFeedback:
         text:     str,
         priority: int   = SpeechPriority.NORMAL,
         ttl_sec:  float = 3.0
-    ):
+    ) -> Optional[threading.Event]:
         """
         Adds a speech request to the priority queue.
         Returns immediately — speech happens in background thread.
@@ -241,10 +244,10 @@ class AudioFeedback:
 
         if not self._ready:
             logger.warning(f"Audio not ready. Discarding: '{text[:40]}'")
-            return
+            return None
 
         if not text or not text.strip():
-            return
+            return None
 
         request = SpeechRequest(
             sort_index   = priority,
@@ -255,6 +258,7 @@ class AudioFeedback:
 
         self._speech_queue.put(request)
         logger.debug(f"Queued [p={priority}]: '{text[:50]}'")
+        return request.completed
 
     def _speech_worker(self):
         """
@@ -267,6 +271,20 @@ class AudioFeedback:
         """
 
         logger.info("Speech worker thread running.")
+        sapi_voice = None
+
+        if self._use_worker_sapi:
+            try:
+                import pythoncom
+                import win32com.client
+
+                pythoncom.CoInitialize()
+                sapi_voice = win32com.client.Dispatch("SAPI.SpVoice")
+                sapi_voice.Volume = int(self._volume * 100)
+                sapi_voice.Rate = max(-10, min(10, int((settings.TTS_RATE - 150) / 15)))
+                logger.info("Windows SAPI voice ready in speech worker.")
+            except Exception as exc:
+                logger.warning(f"Windows SAPI unavailable; using pyttsx3 fallback: {exc}")
 
         while self._running:
 
@@ -274,7 +292,7 @@ class AudioFeedback:
                 request = self._speech_queue.get(timeout=0.1)
 
             except queue.Empty:
-                if self._engine:
+                if self._engine and sapi_voice is None:
                     if time.time() - self._last_speak_time > 25:
                         try:
                             self._engine.runAndWait()
@@ -286,17 +304,21 @@ class AudioFeedback:
             age_sec = (get_timestamp_ms() - request.timestamp_ms) / 1000.0
             if age_sec > request.ttl_sec:
                 logger.debug(f"Expired: '{request.text[:40]}'")
+                request.completed.set()
                 self._speech_queue.task_done()
                 continue
 
-            if self._engine:
+            if sapi_voice or self._engine:
                 try:
                     with self._speaking_lock:
                         self._is_speaking = True
 
-                    logger.debug(f"Speaking: '{request.text[:60]}'")
-                    self._engine.say(request.text)
-                    self._engine.runAndWait()
+                    logger.info(f"Speaking: '{request.text[:60]}'")
+                    if sapi_voice:
+                        sapi_voice.Speak(request.text)
+                    else:
+                        self._engine.say(request.text)
+                        self._engine.runAndWait()
 
                     self._last_speak_time = time.time()
 
@@ -308,7 +330,11 @@ class AudioFeedback:
                     with self._speaking_lock:
                         self._is_speaking = False
 
+            request.completed.set()
             self._speech_queue.task_done()
+
+        if sapi_voice:
+            pythoncom.CoUninitialize()
 
         logger.info("Speech worker thread stopped.")
 
@@ -431,14 +457,26 @@ class AudioFeedback:
         text = f"{name}. {details}." if details else f"This is {name}."
         self.speak(text, priority=SpeechPriority.HIGH, ttl_sec=4.0)
 
-    def announce_banknote(self, denomination: str):
+    def announce_banknote(self, denomination: str) -> Optional[threading.Event]:
         if not denomination:
-            return
-        self.speak(
-            f"This is a {denomination} note.",
+            return None
+
+        spoken_denomination = self._banknote_label_to_speech(denomination)
+        return self.speak(
+            spoken_denomination,
             priority = SpeechPriority.HIGH,
-            ttl_sec  = 4.0
+            ttl_sec  = 8.0
         )
+
+    @staticmethod
+    def _banknote_label_to_speech(denomination: str) -> str:
+        if denomination.endswith("_EGP_coin"):
+            amount = denomination.removesuffix("_EGP_coin").replace("_", " ")
+            return f"{amount} Egyptian pound coin"
+        if denomination.endswith("_EGP"):
+            amount = denomination.removesuffix("_EGP").replace("_", " ")
+            return f"{amount} Egyptian pounds"
+        return denomination.replace("_", " ")
 
     def announce_mode_change(self, new_mode: str):
         mode_phrases = {
