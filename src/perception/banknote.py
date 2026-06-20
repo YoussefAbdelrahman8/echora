@@ -29,8 +29,9 @@ class BanknoteDetector:
         self._ready:  bool           = False
 
         # Stability: keep last N results; require majority match
-        self._history:     deque = deque(maxlen=settings.BANKNOTE_STABILITY_FRAMES)
-        self._last_spoken: str   = ""
+        self._history:                deque = deque(maxlen=settings.BANKNOTE_STABILITY_FRAMES)
+        self._last_spoken:            str   = ""
+        self._announced_denominations: set[str] = set()
 
         # Per-frame inference cache
         self._cache_dets: List[Dict] = []
@@ -82,8 +83,9 @@ class BanknoteDetector:
     def classify_denomination(self, frame: np.ndarray) -> str:
         """
         Full classification.  Returns the spoken denomination string when
-        stable (majority of BANKNOTE_STABILITY_FRAMES agree) and not the
-        same as the last announcement.  Returns "" otherwise.
+        stable (majority of BANKNOTE_STABILITY_FRAMES agree) and has not
+        already been announced during the current banknote scan. Returns
+        "" otherwise.
         """
         if not self._ready:
             return ""
@@ -112,10 +114,11 @@ class BanknoteDetector:
         self._history.append(label)
 
         stable = self._stable_label()
-        if not stable or stable == self._last_spoken:
+        if not stable or stable in self._announced_denominations:
             return ""
 
-        self._last_spoken   = stable
+        self._last_spoken = stable
+        self._announced_denominations.add(stable)
         self._success_count += 1
         elapsed = get_timestamp_ms() - t0
         self._avg_ms = self._avg_ms * 0.8 + elapsed * 0.2
@@ -249,6 +252,7 @@ class BanknoteDetector:
     def reset(self):
         self._history.clear()
         self._last_spoken = ""
+        self._announced_denominations.clear()
         self._cache_dets  = []
         self._cache_ts    = 0.0
 
@@ -260,6 +264,7 @@ class BanknoteDetector:
             "success_count":  self._success_count,
             "avg_ms":         round(self._avg_ms, 1),
             "last_spoken":    self._last_spoken,
+            "announced_denominations": sorted(self._announced_denominations),
             "stability":      len(self._history),
             "conf_threshold": settings.BANKNOTE_CONFIDENCE_THRESHOLD,
         }

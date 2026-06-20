@@ -23,3 +23,5 @@ pytest
 pydantic-settings
 SQLAlchemy>=2.0.0
 requests
+kagglehub
+PyYAML

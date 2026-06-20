@@ -68,3 +68,41 @@ You can automatically run these sequentially across your operating system from t
 ```bash
 ./run_tests.sh
 ```
+
+## Fine-Tune Indoor Obstacle Detection
+
+The obstacle detector currently loads the YOLO model configured by `YOLO_MODEL_PATH`
+in `src/core/config.py`. To fine-tune that model on the Kaggle indoor object
+detection dataset and save the best checkpoint under `assets/models`, run:
+
+```bash
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe scripts/train_indoor_yolo.py --epochs 80 --batch 8 --device 0
+```
+
+If you do not have a CUDA GPU, use `--device cpu` and reduce `--batch` if memory
+is limited:
+
+```bash
+.venv\Scripts\python.exe scripts/train_indoor_yolo.py --epochs 50 --batch 4 --device cpu
+```
+
+The script downloads `thepbordin/indoor-object-detection` with `kagglehub`,
+starts training from `assets/models/yolov8s.pt`, and copies the trained
+`best.pt` checkpoint to:
+
+```text
+assets/models/yolov8s_indoor.pt
+```
+
+To verify or reuse an already downloaded dataset without starting training:
+
+```bash
+.venv\Scripts\python.exe scripts/train_indoor_yolo.py --prepare-only
+```
+
+To make ECHORA use the fine-tuned model, add this to your `.env` file:
+
+```env
+YOLO_MODEL_PATH=assets/models/yolov8s_indoor.pt
+```

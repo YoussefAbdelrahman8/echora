@@ -34,7 +34,7 @@ BILATERAL_SIGMA    = 15   # colour and spatial sigma (kept low to preserve edges
 
 def _add_nvidia_dll_dirs():
     """Make pip-installed CUDA/cuDNN DLLs visible to PaddleOCR on Windows."""
-    if os.name != "nt" or os.environ.get("ECHORA_PADDLE_GPU") != "1":
+    if os.name != "nt":
         return
     nvidia_dir = Path(os.sys.prefix) / "Lib" / "site-packages" / "nvidia"
     dll_dirs = [
@@ -59,6 +59,9 @@ _add_nvidia_dll_dirs()
 
 
 def _use_gpu() -> bool:
+    if not settings.OCR_USE_GPU:
+        logger.info("OCR: GPU disabled by configuration; using CPU.")
+        return False
     try:
         import paddle
         if paddle.device.is_compiled_with_cuda():
@@ -87,6 +90,28 @@ def _valid_paddle_inference_dir(path_value: str) -> bool:
     path = Path(_resolve_model_dir(path_value))
     required = ("inference.pdmodel", "inference.pdiparams")
     return path.is_dir() and all((path / name).exists() for name in required)
+
+
+def _normalise_ocr_mode(mode: str) -> str:
+    normalised = (mode or "both").strip().lower()
+    aliases = {
+        "arabic": "ar",
+        "ara": "ar",
+        "english": "en",
+        "eng": "en",
+        "both": "both",
+        "all": "both",
+        "ar": "ar",
+        "en": "en",
+    }
+    if normalised not in aliases:
+        logger.warning(f"Unknown OCR_MODE '{mode}'. Falling back to both.")
+    return aliases.get(normalised, "both")
+
+
+def _enabled_ocr_languages(mode: str) -> Tuple[bool, bool]:
+    mode = _normalise_ocr_mode(mode)
+    return mode in ("both", "ar"), mode in ("both", "en")
 
 
 def _bbox_iou(b1: Tuple[int, int, int, int], b2: Tuple[int, int, int, int]) -> float:
@@ -119,7 +144,8 @@ class OCRReader:
         self._ocr_ar: Optional[Any] = None
         self._ocr_en: Optional[Any] = None
         self._ready:  bool = False
-        self._use_english: bool = 'en' in settings.OCR_LANGUAGE
+        self._ocr_mode: str = _normalise_ocr_mode(settings.OCR_MODE)
+        self._use_arabic, self._use_english = _enabled_ocr_languages(self._ocr_mode)
 
         self._text_history:     deque = deque(maxlen=TEXT_STABILITY_FRAMES)
         self._last_spoken_text: str   = ""
@@ -148,30 +174,32 @@ class OCRReader:
             use_gpu=use_gpu,
             show_log=False,
             det_db_unclip_ratio=1.6,
-            drop_score=MIN_WORD_CONFIDENCE,
+            drop_score=settings.OCR_CONFIDENCE_THRESHOLD,
             use_mp=False,
         )
 
-        ar_kwargs = dict(_base)
-        ar_kwargs["lang"] = "ar"
-        ar_custom_model = _valid_paddle_inference_dir(settings.OCR_CUSTOM_AR_MODEL)
-        if ar_custom_model:
-            ar_kwargs["rec_model_dir"] = _resolve_model_dir(settings.OCR_CUSTOM_AR_MODEL)
-            logger.info(f"  Arabic model: custom runtime model at {ar_kwargs['rec_model_dir']}")
-        else:
-            if settings.OCR_CUSTOM_AR_MODEL:
-                logger.warning(
-                    f"  Arabic custom model not found or incomplete: "
-                    f"{_resolve_model_dir(settings.OCR_CUSTOM_AR_MODEL)}. Using PaddleOCR default."
-                )
-            logger.info("  Arabic model: default PaddleOCR Arabic model")
+        ar_custom_model = False
+        if self._use_arabic:
+            ar_kwargs = dict(_base)
+            ar_kwargs["lang"] = "ar"
+            ar_custom_model = _valid_paddle_inference_dir(settings.OCR_CUSTOM_AR_MODEL)
+            if ar_custom_model:
+                ar_kwargs["rec_model_dir"] = _resolve_model_dir(settings.OCR_CUSTOM_AR_MODEL)
+                logger.info(f"  Arabic model: custom runtime model at {ar_kwargs['rec_model_dir']}")
+            else:
+                if settings.OCR_CUSTOM_AR_MODEL:
+                    logger.warning(
+                        f"  Arabic custom model not found or incomplete: "
+                        f"{_resolve_model_dir(settings.OCR_CUSTOM_AR_MODEL)}. Using PaddleOCR default."
+                    )
+                logger.info("  Arabic model: default PaddleOCR Arabic model")
 
-        try:
-            self._ocr_ar = PaddleOCR(**ar_kwargs)
-            logger.info(f"PaddleOCR Arabic model ready in {(time.time()-t0)*1000:.0f}ms.")
-        except Exception as e:
-            logger.error(f"PaddleOCR Arabic model failed to load: {e}")
-            raise
+            try:
+                self._ocr_ar = self._create_paddle_ocr(PaddleOCR, ar_kwargs, "Arabic")
+                logger.info(f"PaddleOCR Arabic model ready in {(time.time()-t0)*1000:.0f}ms.")
+            except Exception as e:
+                logger.error(f"PaddleOCR Arabic model failed to load: {e}")
+                raise
 
         if self._use_english:
             try:
@@ -186,18 +214,34 @@ class OCRReader:
                         f"  English custom model not found or incomplete: "
                         f"{_resolve_model_dir(settings.OCR_CUSTOM_EN_MODEL)}. Using PaddleOCR default."
                     )
-                self._ocr_en = PaddleOCR(**en_kwargs)
+                self._ocr_en = self._create_paddle_ocr(PaddleOCR, en_kwargs, "English")
                 logger.info(f"PaddleOCR English model ready in {(time.time()-t1)*1000:.0f}ms.")
             except Exception as e:
-                logger.warning(f"PaddleOCR English model failed ({e}) â€” Arabic-only mode.")
+                if not self._use_arabic:
+                    logger.error(f"PaddleOCR English model failed to load: {e}")
+                    raise
+                logger.warning(f"PaddleOCR English model failed ({e}) - Arabic-only mode.")
                 self._ocr_en = None
 
-        self._ready = True
+        self._ready = self._ocr_ar is not None or self._ocr_en is not None
         logger.info(
             f"PaddleOCR ready. Total load: {(time.time()-t0)*1000:.0f}ms  "
-            f"gpu={use_gpu}  arabic={'custom' if ar_custom_model else 'default'}  "
+            f"gpu={use_gpu}  mode={self._ocr_mode}  "
+            f"arabic={'custom' if ar_custom_model else ('default' if self._ocr_ar else 'off')}  "
             f"english={'yes' if self._ocr_en else 'no'}"
         )
+
+    @staticmethod
+    def _create_paddle_ocr(PaddleOCR: Any, kwargs: Dict, label: str) -> Any:
+        try:
+            return PaddleOCR(**kwargs)
+        except Exception as e:
+            if kwargs.get("use_gpu"):
+                logger.warning(f"{label} OCR GPU load failed ({e}); retrying on CPU.")
+                cpu_kwargs = dict(kwargs)
+                cpu_kwargs["use_gpu"] = False
+                return PaddleOCR(**cpu_kwargs)
+            raise
 
     def reset(self):
         self._text_history.clear()
@@ -228,7 +272,7 @@ class OCRReader:
         self._last_dist_mm = 0.0 if min_dist == float("inf") else min_dist
         return self._last_dist_mm
 
-    def read_text(self, frame: np.ndarray) -> str:
+    def read_text(self, frame: np.ndarray, depth_map: Optional[np.ndarray] = None) -> str:
         """
         Full OCR pass: run inference (or use cache), apply stability filter,
         return the cleaned text string ready for TTS.
@@ -247,7 +291,7 @@ class OCRReader:
             return ""
 
         h, w      = frame.shape[:2]
-        detections = self._prioritise(detections, w, h)
+        detections = self._prioritise(detections, w, h, depth_map=depth_map)
         combined  = self._clean_text([d["text"] for d in detections])
 
         self._text_history.append(combined)
@@ -297,7 +341,7 @@ class OCRReader:
             return detections
 
     def _run_ocr_on_frame(self, frame: np.ndarray) -> List[Dict]:
-        if not self._ready or self._ocr_ar is None:
+        if not self._ready:
             return []
         try:
             h, w = frame.shape[:2]
@@ -310,13 +354,18 @@ class OCRReader:
             preprocessed   = self._preprocess(frame)
             orig_shape     = frame.shape[:2]
 
-            ar_dets = self._run_paddle_pass(self._ocr_ar, preprocessed, orig_shape)
+            ar_dets = (
+                self._run_paddle_pass(self._ocr_ar, preprocessed, orig_shape)
+                if self._ocr_ar is not None else []
+            )
+            en_dets = (
+                self._run_paddle_pass(self._ocr_en, preprocessed, orig_shape)
+                if self._ocr_en is not None else []
+            )
 
-            if self._ocr_en is not None:
-                en_dets = self._run_paddle_pass(self._ocr_en, preprocessed, orig_shape)
+            if ar_dets and en_dets:
                 return self._merge_detections(ar_dets, en_dets)
-
-            return ar_dets
+            return ar_dets or en_dets
 
         except Exception as e:
             logger.error(f"OCR frame error: {e}")
@@ -357,6 +406,8 @@ class OCRReader:
 
                 text = text.strip()
                 if not text or len(text) < MIN_TEXT_LENGTH:
+                    continue
+                if float(confidence) < settings.OCR_CONFIDENCE_THRESHOLD:
                     continue
 
                 alpha = sum(1 for c in text if c.isalnum())
@@ -552,8 +603,22 @@ class OCRReader:
         non_empty = [t for t in self._text_history if t]
         if not non_empty:
             return ""
-        most_common, count = Counter(non_empty).most_common(1)[0]
-        return most_common if count >= 2 else ""
+        normalised = [self._normalise_for_stability(t) for t in non_empty]
+        candidates = [t for t in normalised if t]
+        if not candidates:
+            return ""
+        most_common, count = Counter(candidates).most_common(1)[0]
+        if count < 2:
+            return ""
+        for original in reversed(non_empty):
+            if self._normalise_for_stability(original) == most_common:
+                return original
+        return ""
+
+    @staticmethod
+    def _normalise_for_stability(text: str) -> str:
+        text = " ".join(text.lower().split())
+        return "".join(c for c in text if c.isalnum() or c.isspace())
 
     def _clean_text(self, text_blocks: List[str]) -> str:
         cleaned = []
@@ -610,9 +675,13 @@ class OCRReader:
         )
 
     def _prioritise(
-        self, detections: List[Dict], frame_width: int, frame_height: int
+        self,
+        detections: List[Dict],
+        frame_width: int,
+        frame_height: int,
+        depth_map: Optional[np.ndarray] = None,
     ) -> List[Dict]:
-        """Sort by proximity to frame centre â€” the text the user is aiming at."""
+        """Sort by proximity, size, and optional depth."""
         cx = frame_width  // 2
         cy = frame_height // 2
         fd = (frame_width**2 + frame_height**2) ** 0.5
@@ -622,7 +691,12 @@ class OCRReader:
             rx, ry = (x1 + x2) // 2, (y1 + y2) // 2
             ndist  = ((rx - cx)**2 + (ry - cy)**2) ** 0.5 / fd
             narea  = 1.0 - ((x2 - x1) * (y2 - y1)) / (frame_width * frame_height)
-            return ndist * 0.7 + narea * 0.3
+            depth_score = 0.5
+            if depth_map is not None:
+                depth = depth_in_region(depth_map, x1, y1, x2, y2)
+                if depth > 0:
+                    depth_score = min(depth / max(settings.OCR_TRIGGER_DIST_MM, 1), 1.0)
+            return ndist * 0.55 + narea * 0.25 + depth_score * 0.20
 
         return sorted(detections, key=score)
 
@@ -656,8 +730,8 @@ def init_ocr():
     logger.info("OCR module ready.")
 
 
-def read_text(frame: np.ndarray) -> str:
-    return _ocr_reader.read_text(frame) if _ocr_reader else ""
+def read_text(frame: np.ndarray, depth_map: Optional[np.ndarray] = None) -> str:
+    return _ocr_reader.read_text(frame, depth_map=depth_map) if _ocr_reader else ""
 
 
 def get_text_distance(frame: np.ndarray, depth_map: np.ndarray) -> float:

@@ -51,6 +51,8 @@ class ControlUnit:
         self._last_ocr_text = ""
         self._last_face_name = ""
         self._last_denomination = ""
+        self._banknote_announcement_complete: Optional[threading.Event] = None
+        self._banknote_cooldown_until: float = 0.0
 
         self._last_ocr_dist = 0.0
         self._last_face_conf = 0.0
@@ -66,6 +68,7 @@ class ControlUnit:
         self._face_id_result: Optional[Dict] = None
         self._face_register_mode: bool = False   # True while user is typing the name
         self._face_register_name: str = ""       # characters typed so far
+        self._face_registration_active: bool = False
         self._last_rgb_frame: Optional[np.ndarray] = None  # latest frame for registration
 
         self._last_haptic_danger: float = 0.0
@@ -190,6 +193,26 @@ class ControlUnit:
 
     def _reset_banknote_state(self):
         self._last_denomination = ""
+        self._banknote_announcement_complete = None
+        self._banknote_cooldown_until = 0.0
+
+    def _banknote_detection_paused(self) -> bool:
+        if self._banknote_announcement_complete is not None:
+            if not self._banknote_announcement_complete.is_set():
+                return True
+
+            self._banknote_announcement_complete = None
+            self._banknote_cooldown_until = (
+                time.monotonic() + settings.BANKNOTE_DETECTION_COOLDOWN_SEC
+            )
+            self._last_denomination = ""
+            banknote.reset_banknote()
+            logger.info(
+                "Banknote announcement complete; pausing detection for "
+                f"{settings.BANKNOTE_DETECTION_COOLDOWN_SEC:.1f}s."
+            )
+
+        return time.monotonic() < self._banknote_cooldown_until
 
     def _reset_interaction_state(self):
         if self._interaction_detector:
@@ -221,7 +244,9 @@ class ControlUnit:
                 if not bundle: continue
 
                 frame_start = get_timestamp_ms()
-                debug_frame = self._process_frame(bundle)
+                registration_screen = self._face_register_mode or self._face_registration_active
+                debug_frame = (self._process_registration_frame(bundle)
+                               if registration_screen else self._process_frame(bundle))
                 frame_duration = get_timestamp_ms() - frame_start
 
                 self._frame_times.append(frame_duration)
@@ -230,7 +255,7 @@ class ControlUnit:
                     self._slow_frames += 1
 
                 if SHOW_DEBUG_WINDOW and debug_frame is not None:
-                    cv2.imshow("ECHORA - Debug", debug_frame)
+                    cv2.imshow("ECHORA - Face Registration" if registration_screen else "ECHORA - Debug", debug_frame)
                     self._handle_key(cv2.waitKey(1))
 
                 self._frame_count += 1
@@ -287,12 +312,14 @@ class ControlUnit:
             self._set_manual_mode(self._key_to_mode[key])
 
     def _start_face_registration(self):
-        if self._face_register_mode:
+        if self._face_register_mode or self._face_registration_active:
             return
         if self._last_rgb_frame is None:
             return
         self._face_register_mode = True
         self._face_register_name = ""
+        if SHOW_DEBUG_WINDOW:
+            cv2.destroyWindow("ECHORA - Debug")
         self._audio.speak(
             "Registration mode. Type the name in the camera window, then press Enter.",
             priority=SpeechPriority.HIGH,
@@ -300,19 +327,49 @@ class ControlUnit:
         )
         logger.info("Face registration mode entered — waiting for name input in cv2 window.")
 
+    def _process_registration_frame(self, bundle: Dict) -> np.ndarray:
+        """Dedicated registration screen; normal perception is suspended."""
+        self._last_rgb_frame = bundle["rgb"]
+        frame = self._last_rgb_frame.copy()
+        h, w = frame.shape[:2]
+        cv2.rectangle(frame, (0, 0), (w, h), (0, 0, 0), -1)
+        preview = cv2.resize(self._last_rgb_frame, (w // 2, h // 2))
+        y, x = h // 4, w // 4
+        frame[y:y + preview.shape[0], x:x + preview.shape[1]] = preview
+        cv2.putText(frame, "FACE REGISTRATION", (20, 45), cv2.FONT_HERSHEY_SIMPLEX,
+                    1.0, (0, 220, 255), 2, cv2.LINE_AA)
+        if self._face_register_mode:
+            cv2.putText(frame, "Type name, then press Enter. Esc cancels.", (20, 85),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 255), 1, cv2.LINE_AA)
+            cursor = "_" if (self._frame_count // 15) % 2 == 0 else " "
+            cv2.putText(frame, f"Name: {self._face_register_name}{cursor}", (20, h - 45),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2, cv2.LINE_AA)
+        else:
+            cv2.putText(frame, "Hold still - collecting clear face samples...", (20, h - 45),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 220, 255), 2, cv2.LINE_AA)
+        return frame
+
     def _do_face_registration(self, name: str):
-        """Called once Enter is pressed with a non-empty name."""
+        """Capture a short burst, then average the best compatible embeddings."""
         if self._last_rgb_frame is None:
             self._audio.speak("No camera frame. Try again.", priority=SpeechPriority.HIGH)
             return
 
-        captured_frame = self._last_rgb_frame.copy()
+        if self._face_registration_active:
+            return
+        self._face_registration_active = True
         self._audio.speak(f"Registering {name}.", priority=SpeechPriority.HIGH, ttl_sec=3.0)
         logger.info(f"Registering face: '{name}'")
 
-        def _worker(frame=captured_frame):
+        def _worker():
             try:
-                success = face_recognition._recogniser.register_face(name, frame)
+                frames = []
+                deadline = time.time() + settings.FACE_REGISTRATION_CAPTURE_SEC
+                while time.time() < deadline:
+                    if self._last_rgb_frame is not None:
+                        frames.append(self._last_rgb_frame.copy())
+                    time.sleep(0.12)
+                success, reason = face_recognition._recogniser.register_face_samples(name, frames)
                 if success:
                     self._audio.speak(
                         f"{name} registered successfully.",
@@ -321,13 +378,15 @@ class ControlUnit:
                     logger.info(f"Face registered: '{name}'")
                 else:
                     self._audio.speak(
-                        "No face detected. Position your face clearly and press 6 again.",
+                        "Registration needs a clear, well-lit face held still for two seconds. Please try again.",
                         priority=SpeechPriority.HIGH, ttl_sec=5.0,
                     )
-                    logger.warning(f"Registration failed for '{name}' — no face detected.")
+                    logger.warning(f"Registration failed for '{name}' — {reason}")
             except Exception as e:
                 logger.error(f"Registration error: {e}")
                 self._audio.speak("Registration error.", priority=SpeechPriority.HIGH)
+            finally:
+                self._face_registration_active = False
 
         threading.Thread(target=_worker, daemon=True).start()
 
@@ -379,10 +438,12 @@ class ControlUnit:
                     self._ocr_running = False
                 threading.Thread(target=_ocr_worker, daemon=True).start()
 
-            if self._frame_count % 5 == 0 and self._last_mode != MODE.FACE_ID:
+            if (not self._face_registration_active
+                    and self._frame_count % 5 == 0 and self._last_mode != MODE.FACE_ID):
                 self._last_face_conf = face_recognition.detect_face(rgb_frame)
 
-            if self._frame_count % 5 == 0:
+            if (self._frame_count % 5 == 0
+                    and not self._banknote_detection_paused()):
                 self._last_note_visible = banknote.detect_banknote(rgb_frame)
 
             if self._frame_count % 5 == 0:
@@ -405,13 +466,16 @@ class ControlUnit:
             if current_mode == MODE.NAVIGATION and obstacle_result.get("tracks"):
                 debug_frame = draw_overlay(debug_frame, obstacle_result["tracks"])
             if current_mode == MODE.INTERACTION and self._interaction_detector._last_grid is not None:
-                debug_frame = self._interaction_detector.draw_debug_overlay(debug_frame, {
-                    "phase":          self._interaction_detector._phase,
-                    "hand":           None,
-                    "target":         self._interaction_detector._target_obj,
-                    "vector":         None,
-                    "electrode_grid": self._interaction_detector._last_grid,
-                })
+                debug_frame = self._interaction_detector.draw_debug_overlay(
+                    debug_frame,
+                    self._last_interaction_result or {
+                        "phase":          self._interaction_detector._phase,
+                        "hand":           None,
+                        "target":         self._interaction_detector._target_obj,
+                        "vector":         None,
+                        "electrode_grid": self._interaction_detector._last_grid,
+                    },
+                )
             debug_frame = self._draw_debug_overlay(debug_frame, obstacle_result, current_mode)
 
             return debug_frame
@@ -526,11 +590,15 @@ class ControlUnit:
         # ── Start background OCR thread if idle ───────────────────────
         # PaddleOCR takes ~50–100 ms on GPU, ~300 ms on CPU. Running it in
         # a daemon thread keeps the main loop at 30 FPS regardless.
-        if not self._ocr_text_running:
+        should_read_this_frame = (
+            settings.OCR_READ_EVERY_FRAMES <= 1
+            or self._frame_count % settings.OCR_READ_EVERY_FRAMES == 0
+        )
+        if should_read_this_frame and not self._ocr_text_running:
             self._ocr_text_running = True
-            def _ocr_worker(frame=bundle["rgb"].copy()):
+            def _ocr_worker(frame=bundle["rgb"].copy(), depth=bundle["depth"].copy()):
                 try:
-                    self._ocr_text_result = ocr.read_text(frame)
+                    self._ocr_text_result = ocr.read_text(frame, depth)
                 except Exception as e:
                     logger.error(f"OCR worker error: {e}")
                     self._ocr_text_result = ""
@@ -575,7 +643,7 @@ class ControlUnit:
                 self._state_machine.force_mode(MODE.NAVIGATION, reason="object reached")
 
     def _handle_face_id(self, bundle: Dict):
-        if self._frame_count % 5 != 0 or self._face_id_running: return
+        if self._face_registration_active or self._frame_count % 5 != 0 or self._face_id_running: return
         self._face_id_running = True
         def _face_worker(f=bundle["rgb"].copy()):
             try:
@@ -589,10 +657,13 @@ class ControlUnit:
         threading.Thread(target=_face_worker, daemon=True).start()
 
     def _handle_banknote(self, bundle: Dict):
+        if self._banknote_detection_paused():
+            return
+
         denomination = banknote.classify_denomination(bundle["rgb"])
         if denomination and denomination != self._last_denomination:
             self._last_denomination = denomination
-            self._audio.announce_banknote(denomination)
+            self._banknote_announcement_complete = self._audio.announce_banknote(denomination)
             logger.info(f"Banknote: {denomination}")
 
     def _draw_debug_overlay(self, frame: np.ndarray, obstacle_result: Dict, current_mode: str) -> np.ndarray:
@@ -664,6 +735,9 @@ class ControlUnit:
             name_display = f"Name: {self._face_register_name}{cursor}"
             cv2.putText(frame, name_display, (10, h // 2 + 18),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2, cv2.LINE_AA)
+        elif self._face_registration_active:
+            cv2.putText(frame, "REGISTER FACE - hold still while samples are captured", (10, h // 2),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.58, (0, 220, 255), 2, cv2.LINE_AA)
 
         return frame
 
