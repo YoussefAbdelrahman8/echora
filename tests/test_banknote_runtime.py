@@ -20,11 +20,11 @@ def _classify_until_stable(detector: BanknoteDetector) -> str:
 def test_banknote_denomination_is_announced_once_per_scan():
     detector = _detector_with_label("50 Egyptian pounds")
 
-    assert _classify_until_stable(detector) == "50 Egyptian pounds"
+    assert _classify_until_stable(detector) == "1 50 Egyptian pound note. Total: 50 Egyptian pounds."
     assert _classify_until_stable(detector) == ""
 
     detector._run_yolo_cached = lambda _: [{"label": "100 Egyptian pounds", "confidence": 0.99}]
-    assert _classify_until_stable(detector) == "100 Egyptian pounds"
+    assert _classify_until_stable(detector) == "1 100 Egyptian pound note. Total: 100 Egyptian pounds."
 
     detector._run_yolo_cached = lambda _: [{"label": "50 Egyptian pounds", "confidence": 0.99}]
     assert _classify_until_stable(detector) == ""
@@ -33,6 +33,21 @@ def test_banknote_denomination_is_announced_once_per_scan():
 def test_banknote_reset_allows_a_new_scan_to_announce_the_denomination():
     detector = _detector_with_label("20 Egyptian pounds")
 
-    assert _classify_until_stable(detector) == "20 Egyptian pounds"
+    assert _classify_until_stable(detector) == "1 20 Egyptian pound note. Total: 20 Egyptian pounds."
     detector.reset()
-    assert _classify_until_stable(detector) == "20 Egyptian pounds"
+    assert _classify_until_stable(detector) == "1 20 Egyptian pound note. Total: 20 Egyptian pounds."
+
+
+def test_banknote_summary_counts_each_denomination_and_announces_total():
+    detector = BanknoteDetector()
+    detector._ready = True
+    detector._run_yolo_cached = lambda _: [
+        {"label": "10_EGP", "confidence": 0.99},
+        {"label": "10_EGP", "confidence": 0.98},
+        {"label": "100_EGP", "confidence": 0.97},
+    ]
+
+    assert _classify_until_stable(detector) == (
+        "1 100 Egyptian pound note and 2 10 Egyptian pound notes. "
+        "Total: 120 Egyptian pounds."
+    )

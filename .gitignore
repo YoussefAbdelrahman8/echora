@@ -227,3 +227,4 @@ echora_finetune.zip
 assets/training_runs/
 runs/
 yolo26n.pt
+datasets/
