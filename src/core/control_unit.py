@@ -670,11 +670,11 @@ class ControlUnit:
         if self._banknote_detection_paused():
             return
 
-        denomination = banknote.classify_denomination(bundle["rgb"])
-        if denomination and denomination != self._last_denomination:
-            self._last_denomination = denomination
-            self._banknote_announcement_complete = self._audio.announce_banknote(denomination)
-            logger.info(f"Banknote: {denomination}")
+        summary = banknote.classify_denomination(bundle["rgb"])
+        if summary and summary != self._last_denomination:
+            self._last_denomination = summary
+            self._banknote_announcement_complete = self._audio.announce_banknote(summary)
+            logger.info(f"Banknotes: {summary}")
 
     def _draw_debug_overlay(self, frame: np.ndarray, obstacle_result: Dict, current_mode: str) -> np.ndarray:
         h, w = frame.shape[:2]

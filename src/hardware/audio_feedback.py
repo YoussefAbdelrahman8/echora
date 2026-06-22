@@ -469,7 +469,7 @@ class AudioFeedback:
         return self.speak(
             spoken_denomination,
             priority = SpeechPriority.HIGH,
-            ttl_sec  = 8.0
+            ttl_sec  = 12.0
         )
 
     @staticmethod
