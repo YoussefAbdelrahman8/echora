@@ -34,7 +34,9 @@ class EchoraConfig(BaseSettings):
     KALMAN_MAX_MISSED_FRAMES: int = 10
     
     DETECTION_CONFIDENCE_THRESHOLD: float = 0.5
-    YOLO_MODEL_PATH: Path = ASSETS_DIR / "models" / "yolov8s.pt"
+    YOLO_MODEL_PATH: Path = ASSETS_DIR / "models" / "yolov8s_accessibility.pt"
+    COCO_YOLO_MODEL_PATH: Path = ASSETS_DIR / "models" / "yolov8s.pt"
+    COCO_YOLO_ENABLED: bool = True
     YOLO_INPUT_WIDTH: int = 416
     YOLO_INPUT_HEIGHT: int = 256
     
@@ -42,14 +44,16 @@ class EchoraConfig(BaseSettings):
         "person", "bicycle", "car", "motorcycle", "bus", "truck", "chair", "couch",
         "dining table", "bed", "toilet", "sink", "door", "stairs", "potted plant",
         "dog", "cat", "bottle", "cup", "bowl", "laptop", "tv", "book", "clock",
-        "cell phone", "backpack", "umbrella", "bench", "fire hydrant", "stop sign", "traffic light",
+        "cell phone", "remote", "light switch", "backpack", "umbrella", "bench", "fire hydrant", "stop sign", "traffic light",
+        "door handle", "up", "updown", "close", "down", "open",
     ]
     DEPTH_BBOX_SCALE: float = 0.5
     UNKNOWN_OBSTACLE_MIN_AREA_RATIO: float = 0.08
     
     INTERACTABLE_CLASSES: List[str] = [
-        "door handle", "cup", "bottle", "bowl", "cell phone", "remote",
-        "keyboard", "elevator button", "light switch", "door",
+        "cup", "bottle", "bowl", "cell phone", "remote",
+        "light switch", "door handle","up", "updown",
+        "close", "down", "open",
     ]
     INTERACTION_TRIGGER_DIST_MM: int = 800
     
@@ -104,6 +108,9 @@ class EchoraConfig(BaseSettings):
     VLM_MAX_FAILURES: int = 5
     
     ALERT_COOLDOWN_SEC: float = 2.0
+    CRITICAL_OBSTACLE_DIST_MM: int = 500
+    CRITICAL_ALERT_COOLDOWN_SEC: float = 1.0
+    NORMAL_ALERT_COOLDOWN_SEC: float = 5.0
     MAX_FRAME_TIME_MS: int = 50
     
     LOG_PATH: Path = ASSETS_DIR / "logs" / "echora.log"

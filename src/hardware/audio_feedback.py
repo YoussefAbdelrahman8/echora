@@ -440,7 +440,11 @@ class AudioFeedback:
     def announce_scene(self, description: str):
         if not description or not description.strip():
             return
-        self.speak(description, priority=SpeechPriority.NORMAL, ttl_sec=4.0)
+        self.speak(
+            f"Scene: {description.strip()}",
+            priority=SpeechPriority.NORMAL,
+            ttl_sec=6.0,
+        )
 
     def announce_ocr(self, text: str):
         if not text or not text.strip():
