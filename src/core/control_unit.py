@@ -463,8 +463,8 @@ class ControlUnit:
                 self._handle_banknote(bundle)
 
             debug_frame = rgb_frame.copy()
-            if current_mode == MODE.NAVIGATION and obstacle_result.get("tracks"):
-                debug_frame = draw_overlay(debug_frame, obstacle_result["tracks"])
+            if current_mode == MODE.NAVIGATION and obstacle_result.get("obstacle_tracks"):
+                debug_frame = draw_overlay(debug_frame, obstacle_result["obstacle_tracks"])
             if current_mode == MODE.INTERACTION and self._interaction_detector._last_grid is not None:
                 debug_frame = self._interaction_detector.draw_debug_overlay(
                     debug_frame,
@@ -504,10 +504,12 @@ class ControlUnit:
                 self._last_haptic_danger = now
                 self._interaction_detector.pulse_danger()
 
-            # Audio: closest red obstacle, max once per ALERT_COOLDOWN_SEC
-            if now - self._last_nav_announce_time >= settings.ALERT_COOLDOWN_SEC:
+            # Critical (<0.5 m) alerts repeat every 2 s; other red alerts
+            # repeat every 5 s so their beep does not crowd out speech.
+            track = min(danger, key=lambda t: t["distance_mm"])
+            if now - self._last_nav_announce_time >= self._alert_cooldown_for(track):
                 self._last_nav_announce_time = now
-                track = dict(min(danger, key=lambda t: t["distance_mm"]))
+                track = dict(track)
                 approach = track.get("approach_mm_s", 0.0)
                 if approach < -500:
                     track["label"] = "fast approaching " + track["label"]
@@ -524,7 +526,7 @@ class ControlUnit:
             self._path_was_blocked = True
 
             # No haptic for orange — only audio
-            if now - self._last_nav_announce_time >= settings.ALERT_COOLDOWN_SEC:
+            if now - self._last_nav_announce_time >= settings.NORMAL_ALERT_COOLDOWN_SEC:
                 self._last_nav_announce_time = now
                 track = dict(min(warning, key=lambda t: t["distance_mm"]))
                 approach = track.get("approach_mm_s", 0.0)
@@ -541,7 +543,7 @@ class ControlUnit:
         elif unknown:
             self._path_was_blocked = True
 
-            if now - self._last_nav_announce_time >= settings.ALERT_COOLDOWN_SEC:
+            if now - self._last_nav_announce_time >= settings.NORMAL_ALERT_COOLDOWN_SEC:
                 self._last_nav_announce_time = now
                 def _bbox_area(t: Dict) -> int:
                     x1, y1, x2, y2 = t.get("bbox", (0, 0, 0, 0))
@@ -585,6 +587,14 @@ class ControlUnit:
                 self._last_scene_desc = scene_desc
                 self._audio.announce_scene(scene_desc)
                 logger.info(f"Scene: {scene_desc[:60]}...")
+
+    @staticmethod
+    def _alert_cooldown_for(track: Dict) -> float:
+        """Return the beep/speech interval for a distance-known obstacle."""
+        distance_mm = track.get("distance_mm", 0.0)
+        if 0 < distance_mm < settings.CRITICAL_OBSTACLE_DIST_MM:
+            return settings.CRITICAL_ALERT_COOLDOWN_SEC
+        return settings.NORMAL_ALERT_COOLDOWN_SEC
 
     def _handle_ocr(self, bundle: Dict):
         # ── Start background OCR thread if idle ───────────────────────
@@ -691,8 +701,15 @@ class ControlUnit:
             n_danger = len(obstacle_result.get("danger", []))
             n_warn = len(obstacle_result.get("warning", []))
             n_unknown = len(obstacle_result.get("unknown", []))
-            n_tracks = len(obstacle_result.get("tracks", []))
+            n_tracks = len(obstacle_result.get("obstacle_tracks", []))
+            inference_ms = self._detector.get_stats().get("inference_ms", {})
+            timing_text = (
+                "YOLO ms: "
+                f"A {inference_ms.get('accessibility', 0.0):.0f} / "
+                f"C {inference_ms.get('coco', 0.0):.0f}"
+            )
             for i, (text, col) in enumerate(reversed([
+                (timing_text, (180, 180, 180)),
                 (f"Tracks: {n_tracks}", (180, 180, 180)),
                 (f"Danger: {n_danger}", (0, 0, 220) if n_danger > 0 else (180, 180, 180)),
                 (f"Warning: {n_warn}", (0, 165, 255) if n_warn > 0 else (180, 180, 180)),
