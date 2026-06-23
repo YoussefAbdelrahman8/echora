@@ -152,6 +152,8 @@ class OCRReader:
 
         self._last_boxes:        List[Dict] = []
         self._last_inference_ts: float      = 0.0
+        self._inference_generation: int     = 0
+        self._last_history_generation: int  = -1
         self._last_dist_mm:      float      = 0.0
 
         self._read_count:    int   = 0
@@ -248,6 +250,8 @@ class OCRReader:
         self._last_spoken_text = ""
         self._last_boxes       = []
         self._last_inference_ts = 0.0
+        self._inference_generation = 0
+        self._last_history_generation = -1
 
     # â”€â”€ Public API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -286,12 +290,17 @@ class OCRReader:
 
         detections = self._run_ocr_cached(frame)
 
+        # Never treat the same cached inference as multiple independent OCR
+        # observations. Text must be confirmed by separate OCR runs.
+        if self._last_history_generation == self._inference_generation:
+            return ""
+        self._last_history_generation = self._inference_generation
+
         if not detections:
             self._text_history.append("")
             return ""
 
-        h, w      = frame.shape[:2]
-        detections = self._prioritise(detections, w, h, depth_map=depth_map)
+        detections = self._order_for_reading(detections)
         combined  = self._clean_text([d["text"] for d in detections])
 
         self._text_history.append(combined)
@@ -319,7 +328,7 @@ class OCRReader:
         Double-checked locking prevents redundant inference when two threads race.
         """
         age = get_timestamp_ms() - self._last_inference_ts
-        if age < INFERENCE_CACHE_MS and self._last_boxes:
+        if age < INFERENCE_CACHE_MS:
             return self._last_boxes
 
         # Blur gate: check BEFORE acquiring the lock so we don't block the
@@ -332,12 +341,13 @@ class OCRReader:
 
         with self._inference_lock:
             age = get_timestamp_ms() - self._last_inference_ts
-            if age < INFERENCE_CACHE_MS and self._last_boxes:
+            if age < INFERENCE_CACHE_MS:
                 return self._last_boxes
 
             detections = self._run_ocr_on_frame(frame)
             self._last_boxes        = detections
             self._last_inference_ts = get_timestamp_ms()
+            self._inference_generation += 1
             return detections
 
     def _run_ocr_on_frame(self, frame: np.ndarray) -> List[Dict]:
@@ -699,6 +709,43 @@ class OCRReader:
             return ndist * 0.55 + narea * 0.25 + depth_score * 0.20
 
         return sorted(detections, key=score)
+
+    @staticmethod
+    def _order_for_reading(detections: List[Dict]) -> List[Dict]:
+        """Order English document text by line, then left-to-right in each line."""
+        if len(detections) < 2:
+            return list(detections)
+
+        def center_y(det: Dict) -> float:
+            _, y1, _, y2 = det["bbox"]
+            return (y1 + y2) / 2.0
+
+        def center_x(det: Dict) -> float:
+            x1, _, x2, _ = det["bbox"]
+            return (x1 + x2) / 2.0
+
+        heights = sorted(
+            max(1, det["bbox"][3] - det["bbox"][1]) for det in detections
+        )
+        median_height = heights[len(heights) // 2]
+        line_tolerance = max(10.0, median_height * 0.65)
+
+        lines: List[List[Dict]] = []
+        line_centers: List[float] = []
+        for det in sorted(detections, key=lambda item: (center_y(item), center_x(item))):
+            y = center_y(det)
+            if lines and abs(y - line_centers[-1]) <= line_tolerance:
+                lines[-1].append(det)
+                line_centers[-1] = sum(center_y(item) for item in lines[-1]) / len(lines[-1])
+            else:
+                lines.append([det])
+                line_centers.append(y)
+
+        return [
+            det
+            for line in lines
+            for det in sorted(line, key=center_x)
+        ]
 
     # â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 

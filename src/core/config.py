@@ -85,8 +85,8 @@ class EchoraConfig(BaseSettings):
     
     OCR_MIN_TEXT_HEIGHT_PX: int = 20
     OCR_CONFIDENCE_THRESHOLD: float = 0.7
-    OCR_LANGUAGE: List[str] = ["en", "ar"]
-    OCR_MODE: str = "both"  # choices: both, ar, en
+    OCR_LANGUAGE: List[str] = ["en"]
+    OCR_MODE: str = "en"  # choices: both, ar, en
     OCR_USE_GPU: bool = True
     OCR_MAX_CHARS: int = 200
     OCR_TRIGGER_DIST_MM: int = 2000
