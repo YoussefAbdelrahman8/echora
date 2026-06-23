@@ -434,8 +434,13 @@ class ControlUnit:
                     and not self._ocr_running):
                 self._ocr_running = True
                 def _ocr_worker(f=rgb_frame.copy(), d=depth_map.copy()):
-                    self._last_ocr_dist = ocr.get_text_distance(f, d)
-                    self._ocr_running = False
+                    try:
+                        self._last_ocr_dist = ocr.get_text_distance(f, d)
+                    except Exception as e:
+                        logger.error(f"OCR probe worker error: {e}")
+                        self._last_ocr_dist = 0.0
+                    finally:
+                        self._ocr_running = False
                 threading.Thread(target=_ocr_worker, daemon=True).start()
 
             if (not self._face_registration_active
@@ -670,11 +675,11 @@ class ControlUnit:
         if self._banknote_detection_paused():
             return
 
-        summary = banknote.classify_denomination(bundle["rgb"])
-        if summary and summary != self._last_denomination:
-            self._last_denomination = summary
-            self._banknote_announcement_complete = self._audio.announce_banknote(summary)
-            logger.info(f"Banknotes: {summary}")
+        denomination = banknote.classify_denomination(bundle["rgb"])
+        if denomination and denomination != self._last_denomination:
+            self._last_denomination = denomination
+            self._banknote_announcement_complete = self._audio.announce_banknote(denomination)
+            logger.info(f"Banknote: {denomination}")
 
     def _draw_debug_overlay(self, frame: np.ndarray, obstacle_result: Dict, current_mode: str) -> np.ndarray:
         h, w = frame.shape[:2]

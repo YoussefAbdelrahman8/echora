@@ -1,5 +1,4 @@
 import time
-import re
 from collections import deque, Counter
 from typing import Dict, List, Optional
 
@@ -29,11 +28,9 @@ class BanknoteDetector:
         self._device: str            = "cpu"
         self._ready:  bool           = False
 
-        # Stability: keep the complete per-frame denomination/count result;
-        # require the same result in a majority of recent frames.
         self._history:                deque = deque(maxlen=settings.BANKNOTE_STABILITY_FRAMES)
         self._last_spoken:            str   = ""
-        self._announced_signatures:   set = set()
+        self._announced_denominations: set[str] = set()
 
         # Per-frame inference cache
         self._cache_dets: List[Dict] = []
@@ -84,9 +81,10 @@ class BanknoteDetector:
 
     def classify_denomination(self, frame: np.ndarray) -> str:
         """
-        Return a stable spoken summary of every visible banknote and its
-        total value. Returns an empty string until the result is stable, or
-        when that exact visible set has already been announced in this scan.
+        Full classification.  Returns the spoken denomination string when
+        stable (majority of BANKNOTE_STABILITY_FRAMES agree) and has not
+        already been announced during the current banknote scan. Returns
+        "" otherwise.
         """
         if not self._ready:
             return ""
@@ -100,29 +98,34 @@ class BanknoteDetector:
             self._history.append(())
             return ""
 
-        signature = self._make_signature(dets)
+        # Pick the highest-confidence detection
+        best  = max(dets, key=lambda d: d["confidence"])
+        label = best["label"]
 
-        # When the visible group changes completely, discard the stale scan
-        # history so the new combination can stabilize quickly.
-        if self._history and signature and all(h and h != signature for h in self._history):
+        # If a clearly different denomination is starting to appear, clear
+        # the stale history so the switch registers within 1-2 frames
+        # instead of waiting for the full window to rotate out.
+        if self._history and label != "" and all(
+            h != "" and h != label for h in self._history
+        ):
             self._history.clear()
 
-        self._history.append(signature)
+        self._history.append(label)
 
-        stable = self._stable_signature()
-        if not stable or stable in self._announced_signatures:
+        stable = self._stable_label()
+        if not stable or stable in self._announced_denominations:
             return ""
 
-        summary = self._format_summary(stable)
-        self._last_spoken = summary
-        self._announced_signatures.add(stable)
+        self._last_spoken = stable
+        self._announced_denominations.add(stable)
         self._success_count += 1
         elapsed = get_timestamp_ms() - t0
         self._avg_ms = self._avg_ms * 0.8 + elapsed * 0.2
         logger.info(
-            f"Banknotes: {summary} ({len(dets)} note(s), {elapsed:.0f}ms)"
+            f"Banknote: {stable}  "
+            f"(conf={best['confidence']:.0%}  {elapsed:.0f}ms)"
         )
-        return summary
+        return stable
 
     def is_note_in_range(self, frame: np.ndarray, depth_map: np.ndarray) -> bool:
         """
@@ -201,50 +204,14 @@ class BanknoteDetector:
 
     # ── Stability ─────────────────────────────────────────────────────
 
-    @staticmethod
-    def _make_signature(dets: List[Dict]) -> tuple:
-        """Canonical, hashable denomination/count representation of one frame."""
-        return tuple(sorted(Counter(det["label"] for det in dets).items()))
-
-    def _stable_signature(self) -> tuple:
+    def _stable_label(self) -> str:
         if len(self._history) < settings.BANKNOTE_STABILITY_FRAMES:
-            return ()
+            return ""
         non_empty = [x for x in self._history if x]
         if not non_empty:
-            return ()
-        signature, count = Counter(non_empty).most_common(1)[0]
-        return signature if count >= 2 else ()
-
-    @staticmethod
-    def _denomination_value(label: str) -> int:
-        """Extract an EGP denomination from model labels such as 10_EGP."""
-        match = re.search(r"\d+", label)
-        return int(match.group()) if match else 0
-
-    @classmethod
-    def _format_note_group(cls, label: str, count: int) -> str:
-        value = cls._denomination_value(label)
-        amount = str(value) if value else label.replace("_", " ")
-        note_word = "note" if count == 1 else "notes"
-        return f"{count} {amount} Egyptian pound {note_word}"
-
-    @classmethod
-    def _format_summary(cls, signature: tuple) -> str:
-        """Create a concise speech-ready count and total announcement."""
-        groups = sorted(
-            signature,
-            key=lambda item: (-cls._denomination_value(item[0]), item[0]),
-        )
-        parts = [cls._format_note_group(label, count) for label, count in groups]
-        if len(parts) == 1:
-            listing = parts[0]
-        elif len(parts) == 2:
-            listing = " and ".join(parts)
-        else:
-            listing = ", ".join(parts[:-1]) + ", and " + parts[-1]
-
-        total = sum(cls._denomination_value(label) * count for label, count in signature)
-        return f"{listing}. Total: {total} Egyptian pounds."
+            return ""
+        label, count = Counter(non_empty).most_common(1)[0]
+        return label if count >= 2 else ""
 
     # ── Debug overlay ─────────────────────────────────────────────────
 
@@ -284,7 +251,7 @@ class BanknoteDetector:
     def reset(self):
         self._history.clear()
         self._last_spoken = ""
-        self._announced_signatures.clear()
+        self._announced_denominations.clear()
         self._cache_dets  = []
         self._cache_ts    = 0.0
 
@@ -296,7 +263,7 @@ class BanknoteDetector:
             "success_count":  self._success_count,
             "avg_ms":         round(self._avg_ms, 1),
             "last_spoken":    self._last_spoken,
-            "announced_summaries": sorted(self._announced_signatures),
+            "announced_denominations": sorted(self._announced_denominations),
             "stability":      len(self._history),
             "conf_threshold": settings.BANKNOTE_CONFIDENCE_THRESHOLD,
         }
