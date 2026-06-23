@@ -38,16 +38,17 @@ def test_ocr_mode_selection():
 def test_gpu_load_falls_back_to_cpu():
     calls = []
 
-    class FakePaddleOCR:
-        def __init__(self, **kwargs):
-            calls.append(kwargs["use_gpu"])
-            if kwargs["use_gpu"]:
+    class FakeEasyOCR:
+        def __init__(self, languages, **kwargs):
+            assert languages == ["en"]
+            calls.append(kwargs["gpu"])
+            if kwargs["gpu"]:
                 raise RuntimeError("gpu failed")
 
     reader = OCRReader()
-    instance = reader._create_paddle_ocr(FakePaddleOCR, {"use_gpu": True}, "Fake")
+    instance = reader._create_easyocr_reader(FakeEasyOCR, {"gpu": True}, "Fake")
 
-    assert isinstance(instance, FakePaddleOCR)
+    assert isinstance(instance, FakeEasyOCR)
     assert calls == [True, False]
 
 

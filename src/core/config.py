@@ -83,18 +83,25 @@ class EchoraConfig(BaseSettings):
     HAPTIC_GUIDE_PATTERN:   List[int] = [100, 50]
     HAPTIC_ELECTRODE_COUNT: int = 8
     
-    OCR_MIN_TEXT_HEIGHT_PX: int = 20
-    OCR_CONFIDENCE_THRESHOLD: float = 0.7
+    OCR_MIN_TEXT_HEIGHT_PX: int = 8
+    # EasyOCR runs a multi-frame stability check before speech, so accept weak
+    # camera text here and let repeated observations reject one-frame noise.
+    OCR_CONFIDENCE_THRESHOLD: float = 0.25
     OCR_LANGUAGE: List[str] = ["en"]
     OCR_MODE: str = "en"  # choices: both, ar, en
     OCR_USE_GPU: bool = True
     OCR_MAX_CHARS: int = 200
     OCR_TRIGGER_DIST_MM: int = 2000
-    OCR_BLUR_THRESHOLD: float = 60.0   # Laplacian variance min; below = too blurry to OCR
+    OCR_BLUR_THRESHOLD: float = 20.0   # allow text detection on handheld camera frames
     OCR_SKEW_CORRECTION: bool = True   # enable Hough-based skew correction in preprocessing
     OCR_READ_EVERY_FRAMES: int = 5
+    # Avoid flooding speech while allowing a user to hear the same sign again
+    # without leaving and re-entering OCR mode.
+    OCR_REPEAT_SAME_TEXT_SEC: float = 6.0
     # Fine-tuned model paths — leave empty to use default PP-OCRv4 models.
-    OCR_CUSTOM_AR_MODEL: str = "assets/models/ocr/arabic_rec"
+    OCR_CUSTOM_AR_MODEL: str = ""
+    # Fine-tuned on TextOCR English.  This is a PaddleOCR inference export,
+    # not the training checkpoint, so it can be loaded directly at runtime.
     OCR_CUSTOM_EN_MODEL: str = ""
     
     OBSTACLE_RUN_EVERY: int = 1

@@ -1,0 +1,122 @@
+\chapter{Requirements and System Analysis}
+
+\section{System Features \& Functional Requirements}
+
+\subsection{Feature 1: Continuous Environment Mapping \& Audio Guidance}
+
+\subsubsection{Description \& Priority}
+
+This feature provides continuous, real-time three-dimensional spatial awareness of the surrounding environment, including nearby walls, furniture, and open pathways. It operates by combining depth sensor data with inertial measurements to construct a stable representation of the user’s immediate surroundings. The feature enables safe and intuitive walking by generating spatialized audio cues that communicate the direction, distance, and proximity of obstacles and navigable space. Due to its fundamental role in user safety and navigation, this feature is classified as a Critical (Live) priority.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{0.45\textwidth}|p{0.45\textwidth}|}
+        \hline
+        \textbf{Stimulus} & \textbf{Response} \\
+        \hline
+        The user is walking in a corridor or open space. &
+        The smartphone processes incoming depth frames and IMU data to generate spatial 3D audio cues whose pitch, tone, and position dynamically change based on the distance and location of nearby obstacles and open areas. \\
+        \hline
+    \end{tabular}
+    \caption{Stimulus-Response for Continuous Environment Mapping}
+\end{table}
+
+\subsubsection{Functional Requirements}
+
+The system shall continuously acquire and fuse sensor data by streaming low-resolution depth frames and high-frequency IMU data from the smart glasses to the smartphone using Wi-Fi Direct. All incoming sensor data shall be timestamped and buffered to maintain synchronized fusion between depth and inertial streams. A sensor fusion algorithm, such as a Kalman Filter, shall be applied to combine IMU signals with depth frames to achieve stable real-time pose and orientation estimation. If sensor data latency exceeds 150 milliseconds, the system shall temporarily switch to IMU-only navigation until depth data resumes. In the event that more than five consecutive depth frames are lost, the system shall attempt automatic reconnection without interrupting user operation.
+
+The smartphone shall perform real-time three-dimensional environment mapping using a lightweight vision model capable of segmenting walls, obstacles, and open pathways. The system shall compute obstacle distance, direction, and relative motion with respect to the user and classify detected elements into predefined categories including walls, furniture, humans, and open space. Mapping updates shall occur at a minimum rate of 15 frames per second to maintain smooth spatial awareness. If segmentation confidence drops below a defined threshold, the system shall gracefully degrade by switching to coarse shape detection only.
+
+To ensure real-time performance, the system shall downsample distant depth data beyond three meters to prioritize computation near the user while preserving full-resolution processing within the one-to-three-meter safety range. Processing time per frame shall not exceed 40 milliseconds to prevent perceptible audio delays. The system shall dynamically adjust computational load based on CPU and GPU temperature and fall back to simplified segmentation pipelines during performance spikes.
+
+Spatial audio feedback shall be generated to indicate the direction and distance of walls, furniture, and open spaces. Audio cues shall adapt pitch, tone, and intensity based on proximity, with critical obstacles within 1.5 meters triggering stronger and more urgent signals. Audio output shall be managed using a priority-based queue to prevent overlapping cues, and newly detected hazards shall immediately interrupt ongoing non-critical audio.
+
+The navigation feature shall activate automatically when the user is detected to be walking continuously for more than two seconds. Manual activation shall also be supported through a voice command such as “Guide me,” with an audible confirmation stating “Navigation active.” When the user enters a safe, open area, audio intensity shall be reduced to prevent fatigue. Guidance shall pause automatically when the user stops moving and resume once motion is detected again.
+
+From a safety perspective, if depth data is lost for more than 200 milliseconds, the system shall trigger a strong wrist-based haptic alert and switch to IMU-only navigation while announcing “Depth unavailable. Switching to fallback navigation.” If IMU data becomes unstable, navigation guidance shall be halted entirely and the user shall be prompted to adjust the glasses. All error notifications shall be delivered without blocking critical safety cues, and error events shall be logged for debugging and system optimization.
+
+Environment mapping shall operate at a minimum of 15 frames per second and preferably above 24 frames per second. Total end-to-end latency from depth acquisition to audio output shall not exceed 120 milliseconds. All processing shall occur fully on-device without reliance on cloud services, and power consumption shall remain within defined limits to preserve battery life.
+
+---
+
+\subsection{Feature 2: Text and Sign Detection}
+
+\subsubsection{Description \& Priority}
+
+This feature enables the detection and recognition of text and signs present in the environment, including printed or handwritten text as well as traffic signs, warning signs, icons, and logos. It integrates optical character recognition with object detection and semantic classification to identify text regions, extract their content, and interpret sign meaning. The feature operates entirely on-device and is assigned a High priority due to its importance in information access rather than immediate safety.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{0.45\textwidth}|p{0.45\textwidth}|}
+        \hline
+        \textbf{Stimulus} & \textbf{Response} \\
+        \hline
+        A region containing text is detected. &
+        The system extracts the text using OCR and reads it aloud using text-to-speech. \\
+        \hline
+        A traffic or warning sign is detected. &
+        The system classifies the sign and verbally announces its meaning to the user. \\
+        \hline
+    \end{tabular}
+    \caption{Stimulus-Response for Text and Sign Detection}
+\end{table}
+
+\subsubsection{Functional Requirements}
+
+The smart glasses shall stream camera frames to the smartphone continuously, and the system shall handle temporary frame loss by retrying or using the most recent valid frame. A real-time text detection model shall identify candidate text regions, filtering out non-text elements based on confidence thresholds. If no text is detected within one second, the system shall announce “No text found” without blocking subsequent detection attempts.
+
+Detected text regions shall be processed using an on-device OCR engine, with preprocessing steps applied to handle noise, skew, and low-light conditions. OCR results below a defined confidence threshold shall be discarded, and the system shall request new frames. Recognized text shall be converted into speech using an on-device text-to-speech engine, with audio playback managed through a non-overlapping queue. If new text appears during playback, the system shall interrupt the current output and read the new content.
+
+The feature shall activate automatically when the user holds an object or sign within approximately 70 centimeters of the camera, and it shall also support manual activation via voice command such as “Read this.” Detection initiation shall be confirmed with an audible “Scanning…” prompt. Error conditions such as camera unavailability, insufficient lighting, or incomplete text visibility shall trigger appropriate user feedback messages.
+
+OCR processing shall operate at a minimum of 10 frames per second, with an ideal target above 20 frames per second. Total latency from detection to spoken output shall not exceed one second.
+
+---
+
+\section{System Requirements}
+
+This section defines the system-level requirements for Project Echora, describing the functional and operational capabilities required to satisfy user needs. The system architecture consists of wearable smart glasses, haptic feedback devices, and a smartphone-based processing unit.
+
+The wearable system shall consist of smart glasses that are comfortable for extended daily use and integrate depth sensing, RGB imaging, and inertial measurement capabilities. Sensor data shall be streamed continuously to a paired smartphone using secure wireless communication. The system shall include wearable haptic actuators, such as a wrist-mounted device, to deliver directional tactile feedback.
+
+From a perception standpoint, the system shall perform real-time sensor fusion using depth, RGB, and IMU data to generate a continuous three-dimensional representation of the environment. It shall detect obstacles, open pathways, and environmental hazards within a safe navigation range while analyzing proximity, direction, and relative motion.
+
+Navigation assistance shall be delivered using continuous spatial audio cues that adapt dynamically as the user moves. Safety alerts shall always be prioritized above all other system outputs, and normal navigation shall operate in a hands-free manner.
+
+For object interaction, the system shall detect interactive objects such as door handles and elevator panels, estimate their spatial location, track the user’s hand in real time, and guide hand movement using directional haptic feedback. Confirmation feedback shall be provided once correct alignment is achieved.
+
+The system shall support recognition of text, signs, and known individuals, converting recognized information into speech. Facial recognition functionality shall operate only with explicit user consent and shall associate identities with user-defined names.
+
+Automatic mode switching shall manage transitions between navigation, interaction, OCR, and hand guidance modes while preventing unstable or rapid switching. Users shall retain the ability to manually override modes using voice commands.
+
+All sensitive data shall be processed locally, encrypted at rest, and manageable by the user. The system shall support degraded operation when sensors fail, revert to safe navigation modes during critical failures, and immediately notify the user of any safety-impacting errors.
+
+---
+
+\section{User Requirements}
+
+From the user’s perspective, Echora shall enable safe and independent navigation in indoor and outdoor environments while wearing the smart glasses. Users shall receive continuous awareness of obstacles and open paths through intuitive audio and haptic feedback and be immediately alerted to dangerous situations such as stairs or approaching obstacles. The system shall allow natural movement without requiring the user to hold or aim a device.
+
+Users shall be able to locate and interact with common objects such as door handles and elevator buttons with minimal trial and error. Hand guidance shall be precise, with clear confirmation feedback when alignment is correct.
+
+The system shall provide access to environmental information including text, signs, and familiar individuals through audio output. Interaction shall be primarily automatic, supplemented by simple voice commands, and feedback shall remain clear, non-overlapping, and interruptible at any time.
+
+Comfort, trust, and safety are essential. The smart glasses shall remain comfortable for long-term wear, feedback shall not overwhelm the user, and the system shall always prioritize safety while handling personal and biometric data securely and privately.
+
+---
+
+\section{Non-Functional Requirements}
+
+Non-functional requirements address performance, security, reliability, safety, usability, maintainability, and operational constraints.
+
+The system shall meet strict real-time performance targets, including frame processing latency below 40 milliseconds, navigation feedback latency below 120 milliseconds, and danger alert latency below 100 milliseconds. Mode switching shall occur within 200 milliseconds, and audio and haptic outputs shall execute promptly without overlap.
+
+Security requirements mandate on-device processing, strong encryption of biometric data using AES-256, secure device pairing, and strict user consent for sensitive features. Privacy-by-design principles shall govern all data handling.
+
+The system shall achieve high reliability with a mean time between failures exceeding 10,000 hours and support graceful degradation and fallback modes. Availability during active use shall exceed 99.5\%.
+
+Safety requirements include limits on audio volume and haptic intensity, thermal and electrical safety compliance, fail-safe behavior, and adherence to medical device and electromagnetic compatibility standards.
+
+Usability requirements emphasize learnability, efficiency, accessibility compliance, voice control, and consistent multi-modal feedback. Maintainability requirements include modular design, over-the-air updates, diagnostic support, and long-term hardware serviceability.
+
+Operational requirements specify deployment procedures, environmental operating conditions, regulatory compliance, and end-of-life considerations including data migration, recycling, and long-term support commitments.

@@ -49,6 +49,7 @@ class ControlUnit:
         self._last_mode = MODE.NAVIGATION
         self._last_scene_desc = ""
         self._last_ocr_text = ""
+        self._last_ocr_announcement_at = 0.0
         self._last_face_name = ""
         self._last_denomination = ""
         self._banknote_announcement_complete: Optional[threading.Event] = None
@@ -185,6 +186,7 @@ class ControlUnit:
 
     def _reset_ocr_state(self):
         self._last_ocr_text    = ""
+        self._last_ocr_announcement_at = 0.0
         self._ocr_text_result  = None
         self._ocr_no_text_said = False
 
@@ -625,8 +627,11 @@ class ControlUnit:
         if self._ocr_text_result is not None:
             text = self._ocr_text_result.strip()
             self._ocr_text_result = None
-            if text and text != self._last_ocr_text:
+            now = time.monotonic()
+            if (text and (text != self._last_ocr_text
+                         or now - self._last_ocr_announcement_at >= settings.OCR_REPEAT_SAME_TEXT_SEC)):
                 self._last_ocr_text    = text
+                self._last_ocr_announcement_at = now
                 self._ocr_no_text_said = False
                 self._audio.announce_ocr(text)
                 logger.info(f"OCR result: '{text[:80]}'")
