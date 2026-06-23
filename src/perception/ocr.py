@@ -63,13 +63,13 @@ def _use_gpu() -> bool:
         logger.info("OCR: GPU disabled by configuration; using CPU.")
         return False
     try:
-        import paddle
-        if paddle.device.is_compiled_with_cuda():
-            logger.info("OCR: CUDA-capable Paddle detected; using GPU.")
+        import torch
+        if torch.cuda.is_available():
+            logger.info("OCR: CUDA-capable PyTorch detected; using GPU.")
             return True
     except Exception as e:
-        logger.warning(f"OCR: Paddle GPU check failed; using CPU. {e}")
-    logger.info("OCR: no CUDA-capable Paddle detected; using CPU.")
+        logger.warning(f"OCR: PyTorch GPU check failed; using CPU. {e}")
+    logger.info("OCR: no CUDA-capable PyTorch detected; using CPU.")
     return False
 
 
@@ -128,13 +128,10 @@ def _bbox_iou(b1: Tuple[int, int, int, int], b2: Tuple[int, int, int, int]) -> f
 
 class OCRReader:
     """
-    Reads Arabic and English text from camera frames using PaddleOCR PP-OCRv4.
+    Reads English text from camera frames using EasyOCR's PyTorch backend.
 
-    Two-model strategy:
-      - Arabic model (primary)  â€” covers Arabic and mixed Arabic/Latin content.
-      - English model (secondary) â€” adds Latin-only detections not found by Arabic.
-    Results are IoU-deduplicated so Arabic regions are never duplicated by the
-    English pass.
+    EasyOCR shares EchoRA's existing PyTorch/CUDA runtime with YOLO, avoiding
+    the Windows CUDA conflict produced by PaddleOCR and PyTorch together.
 
     Inference lock ensures only one PaddleOCR call runs at a time across
     the probe thread and the OCR-mode text thread.
@@ -149,6 +146,7 @@ class OCRReader:
 
         self._text_history:     deque = deque(maxlen=TEXT_STABILITY_FRAMES)
         self._last_spoken_text: str   = ""
+        self._last_spoken_at:   float = 0.0
 
         self._last_boxes:        List[Dict] = []
         self._last_inference_ts: float      = 0.0
@@ -165,89 +163,46 @@ class OCRReader:
     # â”€â”€ Lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     def load_model(self):
-        logger.info("Loading PaddleOCR PP-OCRv4...")
-        logger.info("  First run downloads model weights (~200 MB) automatically.")
-        t0      = time.time()
-        from paddleocr import PaddleOCR
-        use_gpu = _use_gpu()
-
-        _base = dict(
-            use_angle_cls=True,
-            use_gpu=use_gpu,
-            show_log=False,
-            det_db_unclip_ratio=1.6,
-            drop_score=settings.OCR_CONFIDENCE_THRESHOLD,
-            use_mp=False,
-        )
-
-        ar_custom_model = False
         if self._use_arabic:
-            ar_kwargs = dict(_base)
-            ar_kwargs["lang"] = "ar"
-            ar_custom_model = _valid_paddle_inference_dir(settings.OCR_CUSTOM_AR_MODEL)
-            if ar_custom_model:
-                ar_kwargs["rec_model_dir"] = _resolve_model_dir(settings.OCR_CUSTOM_AR_MODEL)
-                logger.info(f"  Arabic model: custom runtime model at {ar_kwargs['rec_model_dir']}")
-            else:
-                if settings.OCR_CUSTOM_AR_MODEL:
-                    logger.warning(
-                        f"  Arabic custom model not found or incomplete: "
-                        f"{_resolve_model_dir(settings.OCR_CUSTOM_AR_MODEL)}. Using PaddleOCR default."
-                    )
-                logger.info("  Arabic model: default PaddleOCR Arabic model")
+            raise RuntimeError("EasyOCR backend is configured for English-only OCR. Set OCR_MODE to 'en'.")
 
-            try:
-                self._ocr_ar = self._create_paddle_ocr(PaddleOCR, ar_kwargs, "Arabic")
-                logger.info(f"PaddleOCR Arabic model ready in {(time.time()-t0)*1000:.0f}ms.")
-            except Exception as e:
-                logger.error(f"PaddleOCR Arabic model failed to load: {e}")
-                raise
+        logger.info("Loading EasyOCR English model...")
+        logger.info("  First run downloads EasyOCR weights automatically.")
+        t0 = time.time()
+        from easyocr import Reader as EasyOCRReader
 
-        if self._use_english:
-            try:
-                t1 = time.time()
-                en_kwargs = dict(_base)
-                en_kwargs["lang"] = "en"
-                if _valid_paddle_inference_dir(settings.OCR_CUSTOM_EN_MODEL):
-                    en_kwargs["rec_model_dir"] = _resolve_model_dir(settings.OCR_CUSTOM_EN_MODEL)
-                    logger.info(f"  English model: custom runtime model at {en_kwargs['rec_model_dir']}")
-                elif settings.OCR_CUSTOM_EN_MODEL:
-                    logger.warning(
-                        f"  English custom model not found or incomplete: "
-                        f"{_resolve_model_dir(settings.OCR_CUSTOM_EN_MODEL)}. Using PaddleOCR default."
-                    )
-                self._ocr_en = self._create_paddle_ocr(PaddleOCR, en_kwargs, "English")
-                logger.info(f"PaddleOCR English model ready in {(time.time()-t1)*1000:.0f}ms.")
-            except Exception as e:
-                if not self._use_arabic:
-                    logger.error(f"PaddleOCR English model failed to load: {e}")
-                    raise
-                logger.warning(f"PaddleOCR English model failed ({e}) - Arabic-only mode.")
-                self._ocr_en = None
-
-        self._ready = self._ocr_ar is not None or self._ocr_en is not None
+        use_gpu = _use_gpu()
+        self._ocr_en = self._create_easyocr_reader(
+            EasyOCRReader,
+            {
+                "gpu": use_gpu,
+                "verbose": False,
+                "model_storage_directory": str(settings.ASSETS_DIR / "models" / "easyocr"),
+            },
+            "English",
+        )
+        self._ready = self._ocr_en is not None
         logger.info(
-            f"PaddleOCR ready. Total load: {(time.time()-t0)*1000:.0f}ms  "
-            f"gpu={use_gpu}  mode={self._ocr_mode}  "
-            f"arabic={'custom' if ar_custom_model else ('default' if self._ocr_ar else 'off')}  "
-            f"english={'yes' if self._ocr_en else 'no'}"
+            f"EasyOCR ready. Total load: {(time.time()-t0)*1000:.0f}ms  "
+            f"gpu={use_gpu}  mode={self._ocr_mode}  english={'yes' if self._ocr_en else 'no'}"
         )
 
     @staticmethod
-    def _create_paddle_ocr(PaddleOCR: Any, kwargs: Dict, label: str) -> Any:
+    def _create_easyocr_reader(EasyOCRReader: Any, kwargs: Dict, label: str) -> Any:
         try:
-            return PaddleOCR(**kwargs)
+            return EasyOCRReader(["en"], **kwargs)
         except Exception as e:
-            if kwargs.get("use_gpu"):
+            if kwargs.get("gpu"):
                 logger.warning(f"{label} OCR GPU load failed ({e}); retrying on CPU.")
                 cpu_kwargs = dict(kwargs)
-                cpu_kwargs["use_gpu"] = False
-                return PaddleOCR(**cpu_kwargs)
+                cpu_kwargs["gpu"] = False
+                return EasyOCRReader(["en"], **cpu_kwargs)
             raise
 
     def reset(self):
         self._text_history.clear()
         self._last_spoken_text = ""
+        self._last_spoken_at   = 0.0
         self._last_boxes       = []
         self._last_inference_ts = 0.0
         self._inference_generation = 0
@@ -308,10 +263,13 @@ class OCRReader:
         stable_text = self._stable_text()
         if not stable_text:
             return ""
-        if stable_text == self._last_spoken_text:
+        now = time.monotonic()
+        if (stable_text == self._last_spoken_text
+                and now - self._last_spoken_at < settings.OCR_REPEAT_SAME_TEXT_SEC):
             return ""
 
         self._last_spoken_text = stable_text
+        self._last_spoken_at   = now
         self._success_count   += 1
         elapsed = get_timestamp_ms() - t0
         self._avg_ocr_ms = self._avg_ocr_ms * 0.8 + elapsed * 0.2
@@ -361,45 +319,49 @@ class OCRReader:
                     (int(w * OCR_SCALE_FACTOR), int(h * OCR_SCALE_FACTOR)),
                 )
 
-            preprocessed   = self._preprocess(frame)
-            orig_shape     = frame.shape[:2]
+            orig_shape = frame.shape[:2]
+            if self._ocr_en is None:
+                return []
 
-            ar_dets = (
-                self._run_paddle_pass(self._ocr_ar, preprocessed, orig_shape)
-                if self._ocr_ar is not None else []
-            )
-            en_dets = (
-                self._run_paddle_pass(self._ocr_en, preprocessed, orig_shape)
-                if self._ocr_en is not None else []
-            )
+            # EasyOCR's detector is trained on natural camera images.  Run it
+            # on the original frame first; aggressive sharpening/rotation can
+            # otherwise erase weak real-world text.  Use enhancement only as a
+            # fallback when the original image yields no usable text.
+            detections = self._run_easyocr_pass(self._ocr_en, frame, orig_shape)
+            if detections:
+                return detections
 
-            if ar_dets and en_dets:
-                return self._merge_detections(ar_dets, en_dets)
-            return ar_dets or en_dets
+            enhanced = self._preprocess(frame.copy())
+            return self._run_easyocr_pass(self._ocr_en, enhanced, orig_shape)
 
         except Exception as e:
             logger.error(f"OCR frame error: {e}")
             return []
 
-    def _run_paddle_pass(
+    def _run_easyocr_pass(
         self,
         ocr:            Any,
         frame:          np.ndarray,
         original_shape: Tuple[int, int],
     ) -> List[Dict]:
         """
-        One PaddleOCR inference pass.
+        One EasyOCR inference pass.
         Normalises bbox coordinates back to original (pre-scale) dimensions,
         filters by confidence, size, and alphanumeric density.
 
-        PaddleOCR result layout:
-          result[0]  â€” first (only) page
-          result[0][i] â€” [quad_bbox_points, (text, confidence)]
+        EasyOCR result layout:
+          result[i] â€” [quad_bbox_points, text, confidence]
           quad_bbox_points â€” [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
         """
         try:
-            result = ocr.ocr(frame, cls=True)
-            if not result or result[0] is None:
+            result = ocr.readtext(
+                frame, detail=1, paragraph=False, min_size=6,
+                text_threshold=0.35, low_text=0.15, link_threshold=0.15,
+                mag_ratio=2.0, canvas_size=3200,
+                contrast_ths=0.05, adjust_contrast=0.7,
+            )
+            if not result:
+                logger.debug("EasyOCR detector returned no text regions.")
                 return []
 
             h_orig, w_orig = original_shape
@@ -408,11 +370,11 @@ class OCRReader:
             w_scale = w_orig / max(w_inp, 1)
 
             detections = []
-            for line in result[0]:
+            for line in result:
                 if line is None:
                     continue
 
-                bbox_points, (text, confidence) = line
+                bbox_points, text, confidence = line
 
                 text = text.strip()
                 if not text or len(text) < MIN_TEXT_LENGTH:
@@ -442,10 +404,12 @@ class OCRReader:
                     "bbox":       (x1, y1, x2, y2),
                 })
 
+            if not detections:
+                logger.debug("EasyOCR found %d region(s), but all were filtered.", len(result))
             return detections
 
         except Exception as e:
-            logger.error(f"PaddleOCR pass error: {e}")
+            logger.error(f"EasyOCR pass error: {e}")
             return []
 
     def _merge_detections(
@@ -481,7 +445,7 @@ class OCRReader:
           3. Unsharp mask sharpening for character edge crispness
           4. Bilateral denoising â€” preserves text edges unlike Gaussian blur
 
-        PaddleOCR handles its own grayscale conversion internally, so the
+        EasyOCR handles its own grayscale conversion internally, so the
         full-color BGR frame is passed through and color is preserved.
         """
         try:
@@ -752,7 +716,7 @@ class OCRReader:
     def get_stats(self) -> Dict:
         return {
             "ready":         self._ready,
-            "engine":        "PaddleOCR PP-OCRv4",
+            "engine":        "EasyOCR",
             "english_model": self._ocr_en is not None,
             "read_count":    self._read_count,
             "success_count": self._success_count,
