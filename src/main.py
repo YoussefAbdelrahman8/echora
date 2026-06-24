@@ -70,9 +70,9 @@ Examples:
     )
     parser.add_argument(
         "--ocr-mode",
-        choices = ["both", "ar", "arabic", "en", "english"],
+        choices = ["en", "english"],
         default = None,
-        help    = "OCR language mode: both, Arabic only, or English only"
+        help    = argparse.SUPPRESS,  # English-only; kept for backwards compat
     )
 
     return parser.parse_args()
@@ -202,8 +202,8 @@ def write_session_report(cu, start_time: float, exit_reason: str):
                         s = db.get_stats()
                         f.write("Database\n")
                         f.write("-" * 30 + "\n")
-                        f.write(f"Persons: {s.get('persons', 0)}\n")
-                        f.write(f"Events:  {s.get('events',  0)}\n\n")
+                        f.write(f"Persons: {s.get('persons_count', 0)}\n")
+                        f.write(f"Events:  {s.get('events_count',  0)}\n\n")
                 except Exception:
                     pass
             else:
@@ -233,11 +233,6 @@ def main():
         from src.core.config import settings
         settings.FACE_RECOGNITION_TOLERANCE = args.tolerance
         print(f"  Tolerance: {args.tolerance}")
-
-    if args.ocr_mode is not None:
-        from src.core.config import settings
-        settings.OCR_MODE = args.ocr_mode
-        print(f"  OCR mode:  {args.ocr_mode}")
 
     if args.debug:
         print("  Logging:   DEBUG")
@@ -269,14 +264,9 @@ def main():
                 def play_spatial_alert(self, *a, **kw):   pass
                 def stop_all(self, *a, **kw):              pass
                 def release(self):                        pass
-            _silence = True
-        else:
-            _silence = False
+            cu._audio = _SilentAudio()
 
         cu.startup()
-
-        if _silence:
-            cu._audio = _SilentAudio()
 
         cu.run()
         exit_reason = "user_quit"

@@ -64,7 +64,10 @@ class ControlUnit:
         self._ocr_text_running = False      # OCR-mode text-reading thread
         self._ocr_text_result: Optional[str] = None  # result from that thread
         self._ocr_scan_start: float = 0.0  # when OCR mode was entered
+        self._ocr_worker_started_at: float = 0.0  # wall-clock time the current OCR worker was spawned
         self._ocr_no_text_said: bool = False  # guard for "no text found" announcement
+        self._ocr_last_read_at: float = 0.0   # wall-clock time of last successful OCR read
+        self._ocr_last_saw_text_at: float = 0.0  # monotonic time OCR module last returned non-empty
         self._face_id_running = False
         self._face_id_result: Optional[Dict] = None
         self._face_register_mode: bool = False   # True while user is typing the name
@@ -74,7 +77,6 @@ class ControlUnit:
 
         self._last_haptic_danger: float = 0.0
         self._last_nav_announce_time: float = 0.0
-        self._last_clear_announce_time: float = 0.0
         self._path_was_blocked: bool = False
 
         self._auto_mode = not start_in_manual
@@ -178,17 +180,23 @@ class ControlUnit:
 
     def _on_enter_ocr(self):
         self._audio.stop_all()
-        self._ocr_scan_start   = time.time()
-        self._ocr_no_text_said = False
-        self._ocr_text_result  = None
-        self._audio.speak("Scanning for text.", priority=SpeechPriority.HIGH, ttl_sec=3.0)
+        self._ocr_scan_start  = time.time()
+        self._ocr_text_result = None
+        # If text was read within the last 20 seconds, this is almost certainly a
+        # re-entry after a brief movement (not a genuine "no text" situation).
+        # Skip the "no text found" timeout so the user isn't told to reposition.
+        recently_read = (time.time() - self._ocr_last_read_at) < 20.0
+        self._ocr_no_text_said = recently_read
+        if not recently_read:
+            self._audio.speak("Scanning for text.", priority=SpeechPriority.HIGH, ttl_sec=3.0)
         logger.info("OCR mode entered — scanning started.")
 
     def _reset_ocr_state(self):
-        self._last_ocr_text    = ""
+        self._last_ocr_text            = ""
         self._last_ocr_announcement_at = 0.0
-        self._ocr_text_result  = None
-        self._ocr_no_text_said = False
+        self._ocr_text_result          = None
+        self._ocr_no_text_said         = False
+        self._ocr_last_saw_text_at     = 0.0
 
     def _reset_face_state(self):
         self._last_face_name = ""
@@ -415,7 +423,14 @@ class ControlUnit:
                         self._audio.speak(text, priority=SpeechPriority.HIGH, ttl_sec=8.0)
                         logger.info(f"Face announced: {name} — {details}")
 
-            obstacle_result = self._detector.update(bundle)
+            # Skip YOLO in still modes so the GPU is free for OCR/face inference.
+            # PaddleOCR and InsightFace need GPU; running YOLO at 30 FPS simultaneously
+            # starves those calls. Use _last_mode (previous frame) — current_mode isn't computed yet.
+            _still_mode = self._last_mode in (MODE.OCR, MODE.FACE_ID, MODE.BANKNOTE)
+            if _still_mode:
+                obstacle_result = {"tracks": [], "obstacle_tracks": [], "clear": True}
+            else:
+                obstacle_result = self._detector.update(bundle)
 
             # Determine current mode first — needed by the probe guard below.
             current_mode = self._manual_mode
@@ -571,22 +586,19 @@ class ControlUnit:
 
         else:
             # ── CLEAR path ────────────────────────────────────────────
-            # Announce immediately when transitioning from blocked → clear,
-            # then repeat every 5 s as active reassurance while walking.
-            clear_cooldown = 0.0 if self._path_was_blocked else 5.0
-            self._path_was_blocked = False
-
-            if now - self._last_clear_announce_time >= clear_cooldown:
-                self._last_clear_announce_time = now
+            # Announce exactly once when transitioning from blocked → clear.
+            # Stay silent while the path remains clear; any obstacle resets the flag.
+            if self._path_was_blocked:
                 self._audio.speak(
                     "Path is clear. You can move forward.",
                     priority=SpeechPriority.NORMAL,
                     ttl_sec=4.0,
                 )
                 logger.info("Nav [CLEAR]: path is clear.")
+            self._path_was_blocked = False
 
-        # ── VLM scene context (only when path is clear) ───────────────
-        # Suppress VLM announcements while obstacles are present so they
+        # ── Scene context (only when path is clear) ──────────────────
+        # Suppress scene announcements while obstacles are present so they
         # don't compete with obstacle warnings.
         if not danger and not warning and not unknown:
             scene_desc = obstacle_result.get("scene_desc", "")
@@ -607,12 +619,24 @@ class ControlUnit:
         # ── Start background OCR thread if idle ───────────────────────
         # PaddleOCR takes ~50–100 ms on GPU, ~300 ms on CPU. Running it in
         # a daemon thread keeps the main loop at 30 FPS regardless.
+        # Safety valve: if the OCR worker has been running for >15 s it is hung
+        # (model load race, GPU OOM, etc.). Force-reset so the next frame spawns fresh.
+        OCR_WORKER_TIMEOUT_SEC = 15.0
+        if (self._ocr_text_running
+                and self._ocr_worker_started_at > 0
+                and time.time() - self._ocr_worker_started_at > OCR_WORKER_TIMEOUT_SEC):
+            logger.warning(
+                f"OCR worker timed out after {OCR_WORKER_TIMEOUT_SEC:.0f} s — forcing reset."
+            )
+            self._ocr_text_running = False
+
         should_read_this_frame = (
             settings.OCR_READ_EVERY_FRAMES <= 1
             or self._frame_count % settings.OCR_READ_EVERY_FRAMES == 0
         )
         if should_read_this_frame and not self._ocr_text_running:
             self._ocr_text_running = True
+            self._ocr_worker_started_at = time.time()
             def _ocr_worker(frame=bundle["rgb"].copy(), depth=bundle["depth"].copy()):
                 try:
                     self._ocr_text_result = ocr.read_text(frame, depth)
@@ -628,11 +652,27 @@ class ControlUnit:
             text = self._ocr_text_result.strip()
             self._ocr_text_result = None
             now = time.monotonic()
+
+            if text:
+                # OCR found something — update the "last seen" clock.
+                self._ocr_last_saw_text_at = now
+            elif (self._last_ocr_text
+                  and now - self._ocr_last_saw_text_at >= 2.0):
+                # Text has been absent for 2+ seconds (camera blocked, user looked
+                # away, etc.) — clear both the control-unit repeat guard AND the
+                # OCR reader's _last_spoken_text so the same text is re-announced
+                # the moment it comes back into view.
+                self._last_ocr_text            = ""
+                self._last_ocr_announcement_at = 0.0
+                self._ocr_no_text_said         = True  # suppress "no text found" — we already read once
+                ocr.reset_ocr()
+
             if (text and (text != self._last_ocr_text
                          or now - self._last_ocr_announcement_at >= settings.OCR_REPEAT_SAME_TEXT_SEC)):
-                self._last_ocr_text    = text
+                self._last_ocr_text            = text
                 self._last_ocr_announcement_at = now
-                self._ocr_no_text_said = False
+                self._ocr_no_text_said         = False
+                self._ocr_last_read_at         = time.time()
                 self._audio.announce_ocr(text)
                 logger.info(f"OCR result: '{text[:80]}'")
 
@@ -798,3 +838,7 @@ class ControlUnit:
 
         logger.info(f"ECHORA stopped. Frames: {self._frame_count} | Uptime: {time.time() - self._start_time:.1f}s | Slow:{self._slow_frames}")
         self._started = False
+        # Hard exit: bypasses Python GC and DepthAI's crash-dump collection
+        # which crashes on pipeline.stop(). All resources already released above.
+        import os
+        os._exit(0)

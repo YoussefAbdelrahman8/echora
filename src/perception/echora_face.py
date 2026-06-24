@@ -16,6 +16,7 @@ EMBEDDING_SIZE        = 512    # buffalo_sc ArcFace output dimensions
 RECOGNITION_THRESHOLD = settings.FACE_RECOGNITION_THRESHOLD  # cosine similarity
 DET_SIZE_FULL         = (640, 640)   # detection input for identification
 DET_SIZE_PROBE        = (320, 240)   # smaller input for the navigation probe
+FACE_ABSENCE_SEC      = 600.0        # 10 min absence before re-announcing a known person
 
 
 def _get_providers() -> List[str]:
@@ -45,6 +46,7 @@ class FaceRecognizer:
 
         self._name_history: deque = deque(maxlen=settings.FACE_STABILITY_FRAMES)
         self._last_spoken:  str   = ""
+        self._session_seen: Dict[str, float] = {}  # name → wall-clock time last announced
 
         self._detect_count:   int   = 0
         self._identify_count: int   = 0
@@ -184,15 +186,23 @@ class FaceRecognizer:
             self._name_history.append(name)
 
             stable = self._stable_result()
-            if not stable or stable == self._last_spoken:
+            if not stable:
                 return "", ""
 
+            now       = time.time()
+            last_seen = self._session_seen.get(stable, 0.0)
+            if now - last_seen < FACE_ABSENCE_SEC:
+                # Person seen within the last 10 min — stay silent
+                return "", ""
+
+            # Genuine new sighting: first time this session or back after 10+ min
+            self._session_seen[stable] = now
             self._last_spoken  = stable
             self._success_count += 1
 
             db = get_db()
             if db:
-                db.update_last_seen(stable)
+                db.update_last_seen(stable)   # increments seen_count only here
                 db.log_event("face_identified", {
                     "name":       stable,
                     "similarity": round(best_sim, 3),
@@ -316,85 +326,8 @@ class FaceRecognizer:
         """
         # buffalo_l and buffalo_sc produce embeddings in different spaces.
         # Persisting a buffalo_l embedding while recognition uses buffalo_sc makes
-        # cosine scores meaningless, so legacy callers use the compatible path.
+        # cosine scores meaningless, so use the compatible path.
         return self.register_face_samples(name, [frame])
-
-        logger.info(f"HQ registration for '{name}' — loading buffalo_l...")
-        logger.info("  First run will download ~500 MB of model weights automatically.")
-
-        hq_app = None
-        _loaded_hq = False
-        try:
-            hq_app = FaceAnalysis(name="buffalo_l", providers=_get_providers())
-            hq_app.prepare(ctx_id=0, det_size=DET_SIZE_FULL)
-            _loaded_hq = True
-            logger.info("buffalo_l loaded for registration.")
-        except Exception as e:
-            logger.warning(f"buffalo_l unavailable ({e}) — falling back to buffalo_sc.")
-            hq_app = self._app
-
-        try:
-            # Quality check on original frame
-            faces = hq_app.get(frame)
-            if not faces:
-                return False, "no_face"
-
-            best_face = max(faces, key=lambda f: f.det_score)
-            if best_face.det_score < settings.FACE_REGISTRATION_MIN_SCORE:
-                return False, f"low_quality:{best_face.det_score:.2f}"
-
-            # Collect embeddings from all photometric variants
-            embeddings = []
-            for variant in self._generate_augmentations(frame):
-                try:
-                    aug_faces = hq_app.get(variant)
-                    if not aug_faces:
-                        continue
-                    f = max(aug_faces, key=lambda f: f.det_score)
-                    if f.det_score < 0.50:
-                        continue
-                    emb = f.embedding.astype(np.float32)
-                    norm = np.linalg.norm(emb)
-                    if norm > 0:
-                        embeddings.append(emb / norm)
-                except Exception:
-                    continue
-
-            if not embeddings:
-                return False, "embedding_failed"
-
-            # Average and re-normalise into one final embedding
-            avg_emb = np.mean(embeddings, axis=0).astype(np.float32)
-            norm = np.linalg.norm(avg_emb)
-            if norm > 0:
-                avg_emb = avg_emb / norm
-
-            db = get_db()
-            if db is None:
-                return False, "db_unavailable"
-
-            success = db.add_person(name, avg_emb)
-            if success:
-                self.reload_embeddings()
-                db.log_event("face_registered_hq", {
-                    "name":       name,
-                    "model":      "buffalo_l" if _loaded_hq else "buffalo_sc",
-                    "variants":   len(embeddings),
-                    "det_score":  round(float(best_face.det_score), 3),
-                })
-                logger.info(
-                    f"HQ face registered: '{name}'  "
-                    f"model={'buffalo_l' if _loaded_hq else 'buffalo_sc'}  "
-                    f"variants={len(embeddings)}  det={best_face.det_score:.3f}"
-                )
-                return True, ""
-
-            return False, "db_error"
-
-        finally:
-            if _loaded_hq and hq_app is not None:
-                del hq_app
-                logger.info("buffalo_l released.")
 
     # ── Debug overlay ─────────────────────────────────────────────────
 
