@@ -122,9 +122,16 @@ class ObstacleDetector:
 
     def update(self, bundle: Dict) -> Dict:
         self._frame_count += 1
-        rgb_frame = bundle["rgb"]
-        depth_map = bundle["depth"]
-        timestamp = bundle["timestamp_ms"]
+        rgb_frame = bundle.get("rgb")
+        depth_map = bundle.get("depth")
+        timestamp = bundle.get("timestamp_ms", 0)
+        if rgb_frame is None or depth_map is None:
+            logger.warning("ObstacleDetector.update: incomplete bundle, skipping frame.")
+            return self._last_result or {
+                "tracks": [], "obstacle_tracks": [], "danger": [], "warning": [],
+                "safe": [], "unknown": [], "scene_desc": "", "frame_count": self._frame_count,
+                "timestamp_ms": timestamp,
+            }
 
         if self._det_limiter.should_run():
             confirmed_tracks = self.detect(rgb_frame, depth_map)

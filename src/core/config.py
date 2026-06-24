@@ -84,32 +84,23 @@ class EchoraConfig(BaseSettings):
     HAPTIC_ELECTRODE_COUNT: int = 8
     
     OCR_MIN_TEXT_HEIGHT_PX: int = 8
-    # EasyOCR runs a multi-frame stability check before speech, so accept weak
+    # PaddleOCR runs a multi-frame stability check before speech, so accept weak
     # camera text here and let repeated observations reject one-frame noise.
     OCR_CONFIDENCE_THRESHOLD: float = 0.25
-    OCR_LANGUAGE: List[str] = ["en"]
-    OCR_MODE: str = "en"  # choices: both, ar, en
     OCR_USE_GPU: bool = True
-    OCR_MAX_CHARS: int = 200
     OCR_TRIGGER_DIST_MM: int = 2000
-    OCR_BLUR_THRESHOLD: float = 20.0   # allow text detection on handheld camera frames
-    OCR_SKEW_CORRECTION: bool = True   # enable Hough-based skew correction in preprocessing
+    OCR_BLUR_THRESHOLD: float = 8.0
     OCR_READ_EVERY_FRAMES: int = 5
     # Avoid flooding speech while allowing a user to hear the same sign again
     # without leaving and re-entering OCR mode.
     OCR_REPEAT_SAME_TEXT_SEC: float = 6.0
-    # Fine-tuned model paths — leave empty to use default PP-OCRv4 models.
-    OCR_CUSTOM_AR_MODEL: str = ""
-    # Fine-tuned on TextOCR English.  This is a PaddleOCR inference export,
-    # not the training checkpoint, so it can be loaded directly at runtime.
-    OCR_CUSTOM_EN_MODEL: str = ""
     
     OBSTACLE_RUN_EVERY: int = 1
     OCR_RUN_EVERY: int = 10
     BANKNOTE_RUN_EVERY: int = 5
     FACE_RUN_EVERY: int = 15
     INTERACTION_RUN_EVERY: int = 2
-    VLM_RUN_EVERY: int = 30
+    VLM_RUN_EVERY: int = 15
     VLM_ENABLED: bool = True
     VLM_MODEL_NAME: str = "gemma4:e2b"
     VLM_MAX_FAILURES: int = 5

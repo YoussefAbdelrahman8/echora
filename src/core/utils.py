@@ -1,3 +1,4 @@
+import sys
 import cv2
 import numpy as np
 import time
@@ -5,6 +6,14 @@ import logging
 from typing import Dict, Tuple, Optional, List
 
 from src.core.config import settings
+
+# Windows console defaults to CP1252 which can't encode Arabic/CJK characters.
+# Reconfigure stdout to UTF-8 so log messages with non-Latin text don't crash.
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 logger = logging.getLogger("ECHORA")
 logger.setLevel(getattr(logging, settings.LOG_LEVEL))

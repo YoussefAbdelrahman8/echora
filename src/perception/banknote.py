@@ -142,7 +142,7 @@ class BanknoteDetector:
         x1, y1, x2, y2 = best["bbox"]
         d = depth_in_region(depth_map, x1, y1, x2, y2)
         if d <= 0:
-            return True   # no depth reading — assume in range
+            return False  # no valid depth reading — skip
         return d <= settings.BANKNOTE_MAX_DIST_MM
 
     # ── Core inference ────────────────────────────────────────────────
