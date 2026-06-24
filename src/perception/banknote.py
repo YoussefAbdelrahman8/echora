@@ -28,7 +28,6 @@ class BanknoteDetector:
         self._device: str            = "cpu"
         self._ready:  bool           = False
 
-        # Stability: keep last N results; require majority match
         self._history:                deque = deque(maxlen=settings.BANKNOTE_STABILITY_FRAMES)
         self._last_spoken:            str   = ""
         self._announced_denominations: set[str] = set()
@@ -96,7 +95,7 @@ class BanknoteDetector:
         dets = self._run_yolo_cached(frame)
 
         if not dets:
-            self._history.append("")
+            self._history.append(())
             return ""
 
         # Pick the highest-confidence detection
@@ -143,7 +142,7 @@ class BanknoteDetector:
         x1, y1, x2, y2 = best["bbox"]
         d = depth_in_region(depth_map, x1, y1, x2, y2)
         if d <= 0:
-            return True   # no depth reading — assume in range
+            return False  # no valid depth reading — skip
         return d <= settings.BANKNOTE_MAX_DIST_MM
 
     # ── Core inference ────────────────────────────────────────────────

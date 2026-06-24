@@ -19,10 +19,14 @@ from src.core.utils import (
 from src.perception.byte_tracker import ByteTracker
 
 VLM_PROMPT = (
-    "You are an assistant for a blind person. "
-    "Look at this image and describe in ONE short sentence "
-    "the most important obstacle or hazard they should know about. "
-    "Focus on objects in their direct path. Be very brief."
+    "You provide spoken scene awareness for a blind user. "
+    "Describe only what is clearly visible directly ahead, using one or two "
+    "short, natural sentences (maximum 25 words). "
+    "Prioritize useful navigation context: an open path, doorway, stairs, "
+    "nearby people, large furniture, or a notable landmark. "
+    "Use simple everyday words and say left, right, or ahead only when clear. "
+    "Do not mention the image, the camera, uncertainty, or your role. "
+    "Do not guess or invent details."
 )
 VLM_MODEL_NAME = "gemma4:e2b"
 
@@ -36,6 +40,7 @@ class ObstacleDetector:
 
     def __init__(self):
         self._yolo: Optional[YOLO] = None
+        self._coco_yolo: Optional[YOLO] = None
         self._tracker = ByteTracker(frame_width=settings.CAMERA_RGB_WIDTH)
         self._det_limiter = RateLimiter(run_every=settings.OBSTACLE_RUN_EVERY)
         self._vlm_limiter = RateLimiter(run_every=settings.VLM_RUN_EVERY)
@@ -49,6 +54,8 @@ class ObstacleDetector:
         self._last_confirmed: List[Dict] = []
         self._device: str = "cpu"
         self._relevant_class_ids: Optional[List[int]] = None
+        self._coco_relevant_class_ids: Optional[List[int]] = None
+        self._last_inference_ms: Dict[str, float] = {}
         self._vlm_failures: int = 0
         self._vlm_disabled: bool = not settings.VLM_ENABLED
 
@@ -57,9 +64,6 @@ class ObstacleDetector:
     def load_model(self):
         if not settings.YOLO_MODEL_PATH.exists():
             raise FileNotFoundError(f"YOLO model not found: {settings.YOLO_MODEL_PATH}")
-
-        self._yolo = YOLO(str(settings.YOLO_MODEL_PATH))
-        self._relevant_class_ids = self._get_relevant_class_ids()
 
         if torch.backends.mps.is_available():
             self._device = "mps"
@@ -71,34 +75,78 @@ class ObstacleDetector:
             self._device = "cpu"
             logger.info("YOLO running on CPU.")
 
+        self._yolo = YOLO(str(settings.YOLO_MODEL_PATH))
+        self._relevant_class_ids = self._get_relevant_class_ids(self._yolo)
+
+        if settings.COCO_YOLO_ENABLED:
+            if not settings.COCO_YOLO_MODEL_PATH.exists():
+                logger.warning(
+                    "COCO YOLO model not found at %s; continuing with the "
+                    "accessibility model only.", settings.COCO_YOLO_MODEL_PATH
+                )
+            else:
+                self._coco_yolo = YOLO(str(settings.COCO_YOLO_MODEL_PATH))
+                self._coco_relevant_class_ids = self._get_relevant_class_ids(
+                    self._coco_yolo
+                )
+
+        supported_labels = set(self._yolo.names.values())
+        if self._coco_yolo is not None:
+            supported_labels.update(self._coco_yolo.names.values())
+        unsupported_relevant = sorted(set(settings.RELEVANT_CLASSES) - supported_labels)
+        if unsupported_relevant:
+            logger.warning(
+                "No loaded YOLO model supports these configured relevant "
+                "classes: %s", ", ".join(unsupported_relevant)
+            )
+
         blank = np.zeros(
             (settings.YOLO_INPUT_HEIGHT, settings.YOLO_INPUT_WIDTH, 3), dtype=np.uint8
         )
-        for _ in range(3):
-            self._yolo(blank, verbose=False, device=self._device,
-                       half=(self._device == "cuda"))
+        models = [("accessibility", self._yolo)]
+        if self._coco_yolo is not None:
+            models.append(("coco", self._coco_yolo))
+        for name, model in models:
+            for _ in range(3):
+                model(blank, verbose=False, device=self._device,
+                      half=(self._device == "cuda"))
+            logger.info("YOLO %s model warmup complete.", name)
         logger.info(
-            f"YOLO warmup complete. Relevant classes: "
-            f"{len(self._relevant_class_ids or []) or 'all'}"
+            "Dual YOLO ready. Accessibility relevant classes: %s; "
+            "COCO relevant classes: %s",
+            len(self._relevant_class_ids or []),
+            len(self._coco_relevant_class_ids or []) if self._coco_yolo else 0,
         )
 
     # ── Main entry point ──────────────────────────────────────────────
 
     def update(self, bundle: Dict) -> Dict:
         self._frame_count += 1
-        rgb_frame = bundle["rgb"]
-        depth_map = bundle["depth"]
-        timestamp = bundle["timestamp_ms"]
+        rgb_frame = bundle.get("rgb")
+        depth_map = bundle.get("depth")
+        timestamp = bundle.get("timestamp_ms", 0)
+        if rgb_frame is None or depth_map is None:
+            logger.warning("ObstacleDetector.update: incomplete bundle, skipping frame.")
+            return self._last_result or {
+                "tracks": [], "obstacle_tracks": [], "danger": [], "warning": [],
+                "safe": [], "unknown": [], "scene_desc": "", "frame_count": self._frame_count,
+                "timestamp_ms": timestamp,
+            }
 
         if self._det_limiter.should_run():
             confirmed_tracks = self.detect(rgb_frame, depth_map)
         else:
             confirmed_tracks = self._tracker.get_confirmed_tracks()
 
-        danger_tracks  = [t for t in confirmed_tracks if t["urgency"] == "DANGER"]
-        warning_tracks = [t for t in confirmed_tracks if t["urgency"] == "WARNING"]
-        safe_tracks    = [t for t in confirmed_tracks if t["urgency"] == "SAFE"]
-        unknown_tracks = [t for t in confirmed_tracks if t["urgency"] == "UNKNOWN"]
+        # Keep every confirmed detection for interaction guidance, but do not
+        # expose interaction-only classes to the navigation/obstacle layer.
+        # They must not create obstacle alerts, haptics, mode overrides, or
+        # navigation bounding boxes.
+        obstacle_tracks = self._get_user_facing_obstacle_tracks(confirmed_tracks)
+        danger_tracks  = [t for t in obstacle_tracks if t["urgency"] == "DANGER"]
+        warning_tracks = [t for t in obstacle_tracks if t["urgency"] == "WARNING"]
+        safe_tracks    = [t for t in obstacle_tracks if t["urgency"] == "SAFE"]
+        unknown_tracks = [t for t in obstacle_tracks if t["urgency"] == "UNKNOWN"]
 
         if (
             not danger_tracks
@@ -111,7 +159,12 @@ class ObstacleDetector:
             scene_desc = self.latest_vlm_description
 
         result = {
+            # Full detector output, including interaction-only classes. This
+            # is intentionally consumed by InteractionDetector.
             "tracks":       confirmed_tracks,
+            # User-facing navigation output. Never contains interaction-only
+            # classes and is the only set used for obstacle feedback/UI.
+            "obstacle_tracks": obstacle_tracks,
             "danger":       danger_tracks,
             "warning":      warning_tracks,
             "safe":         safe_tracks,
@@ -123,10 +176,30 @@ class ObstacleDetector:
         self._last_result = result
         return result
 
+    @staticmethod
+    def _get_user_facing_obstacle_tracks(tracks: List[Dict]) -> List[Dict]:
+        """Exclude classes reserved solely for the interaction feature."""
+        interaction_only = set(settings.INTERACTABLE_CLASSES)
+        return [track for track in tracks if track.get("label") not in interaction_only]
+
     # ── Detection pipeline ────────────────────────────────────────────
 
     def detect(self, rgb_frame: np.ndarray, depth_map: np.ndarray) -> List[Dict]:
-        raw = self._run_yolo(rgb_frame)
+        raw = self._run_yolo(
+            self._yolo,
+            self._relevant_class_ids,
+            source="accessibility",
+            track_id_offset=1_000_000,
+            rgb_frame=rgb_frame,
+        )
+        if self._coco_yolo is not None:
+            raw.extend(self._run_yolo(
+                self._coco_yolo,
+                self._coco_relevant_class_ids,
+                source="coco",
+                track_id_offset=2_000_000,
+                rgb_frame=rgb_frame,
+            ))
         if not raw:
             return self._tracker.update([])
 
@@ -147,30 +220,39 @@ class ObstacleDetector:
         self._last_confirmed = confirmed
         return confirmed
 
-    def _get_relevant_class_ids(self) -> List[int]:
-        if self._yolo is None:
+    @staticmethod
+    def _get_relevant_class_ids(model: Optional[YOLO]) -> List[int]:
+        if model is None:
             return []
         return [
             idx
-            for idx, name in self._yolo.names.items()
+            for idx, name in model.names.items()
             if name in settings.RELEVANT_CLASSES
         ]
 
-    def _run_yolo(self, rgb_frame: np.ndarray) -> List[Dict]:
+    def _run_yolo(
+        self,
+        model: Optional[YOLO],
+        relevant_class_ids: Optional[List[int]],
+        source: str,
+        track_id_offset: int,
+        rgb_frame: np.ndarray,
+    ) -> List[Dict]:
         """
         Runs YOLO with ByteTrack enabled (persist=True keeps tracker state
         between calls). Returns raw detections with stable track IDs.
         """
-        if self._yolo is None:
+        if model is None:
             return []
+        started_at = time.perf_counter()
         try:
-            results = self._yolo.track(
+            results = model.track(
                 rgb_frame,
                 verbose=False,
                 persist=True,
                 tracker="bytetrack.yaml",
                 conf=settings.DETECTION_CONFIDENCE_THRESHOLD,
-                classes=self._relevant_class_ids or None,
+                classes=relevant_class_ids or None,
                 device=self._device,
                 half=(self._device == "cuda"),
                 imgsz=(settings.YOLO_INPUT_HEIGHT, settings.YOLO_INPUT_WIDTH),
@@ -189,12 +271,18 @@ class ObstacleDetector:
                     int(xyxy[0]), int(xyxy[1]), int(xyxy[2]), int(xyxy[3])
                 )
                 class_idx = int(box.cls.item())
-                label     = self._yolo.names[class_idx]
+                label     = model.names[class_idx]
                 # Negative IDs mark unassigned detections (tracker still cold)
-                track_id  = int(ids[i].item()) if ids is not None else -(i + 1)
+                raw_track_id = int(ids[i].item()) if ids is not None else -(i + 1)
+                track_id = (
+                    track_id_offset + raw_track_id
+                    if raw_track_id >= 0
+                    else -(track_id_offset + abs(raw_track_id))
+                )
 
                 detections.append({
                     "track_id":   track_id,
+                    "source":     source,
                     "label":      label,
                     "bbox":       (x1, y1, x2, y2),
                     "confidence": float(box.conf.item()),
@@ -203,8 +291,12 @@ class ObstacleDetector:
             return detections
 
         except Exception as e:
-            logger.error(f"ByteTrack inference error: {e}")
+            logger.error("%s YOLO inference error: %s", source, e)
             return []
+        finally:
+            self._last_inference_ms[source] = (
+                time.perf_counter() - started_at
+            ) * 1000.0
 
     def _get_depth(
         self,
@@ -357,7 +449,9 @@ class ObstacleDetector:
         return self._tracker.get_confirmed_tracks()
 
     def get_most_urgent_obstacle(self) -> Optional[Dict]:
-        confirmed = self._tracker.get_confirmed_tracks()
+        confirmed = self._get_user_facing_obstacle_tracks(
+            self._tracker.get_confirmed_tracks()
+        )
         if not confirmed:
             return None
         priority = {"DANGER": 0, "WARNING": 1, "SAFE": 2, "UNKNOWN": 3}
@@ -376,6 +470,7 @@ class ObstacleDetector:
             "vlm_running":     self._vlm_running,
             "vlm_disabled":    self._vlm_disabled,
             "vlm_failures":    self._vlm_failures,
+            "inference_ms":    dict(self._last_inference_ms),
             "tracker":         self._tracker.get_stats(),
             "last_scene_desc": desc[:80] + "..." if len(desc) > 80 else desc,
         }

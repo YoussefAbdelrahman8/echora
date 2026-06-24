@@ -17,7 +17,7 @@ class EchoraConfig(BaseSettings):
     FACE_REGISTRATION_CAPTURE_SEC: float = 2.0  # best-frame capture window duration (seconds)
     FACE_REGISTRATION_SAMPLE_COUNT: int = 5    # good live frames averaged per enrollment
     FACE_REGISTRATION_MIN_SAMPLES: int = 3     # reject an enrollment with too few usable frames
-    
+
     CAMERA_RGB_WIDTH: int = 1280
     CAMERA_RGB_HEIGHT: int = 800
     CAMERA_DEPTH_WIDTH: int = 1280
@@ -34,7 +34,9 @@ class EchoraConfig(BaseSettings):
     KALMAN_MAX_MISSED_FRAMES: int = 10
     
     DETECTION_CONFIDENCE_THRESHOLD: float = 0.5
-    YOLO_MODEL_PATH: Path = ASSETS_DIR / "models" / "yolov8s.pt"
+    YOLO_MODEL_PATH: Path = ASSETS_DIR / "models" / "yolov8s_accessibility.pt"
+    COCO_YOLO_MODEL_PATH: Path = ASSETS_DIR / "models" / "yolov8s.pt"
+    COCO_YOLO_ENABLED: bool = True
     YOLO_INPUT_WIDTH: int = 416
     YOLO_INPUT_HEIGHT: int = 256
     
@@ -42,14 +44,16 @@ class EchoraConfig(BaseSettings):
         "person", "bicycle", "car", "motorcycle", "bus", "truck", "chair", "couch",
         "dining table", "bed", "toilet", "sink", "door", "stairs", "potted plant",
         "dog", "cat", "bottle", "cup", "bowl", "laptop", "tv", "book", "clock",
-        "cell phone", "backpack", "umbrella", "bench", "fire hydrant", "stop sign", "traffic light",
+        "cell phone", "remote", "light switch", "backpack", "umbrella", "bench", "fire hydrant", "stop sign", "traffic light",
+        "door handle", "up", "updown", "close", "down", "open",
     ]
     DEPTH_BBOX_SCALE: float = 0.5
     UNKNOWN_OBSTACLE_MIN_AREA_RATIO: float = 0.08
-    
+
     INTERACTABLE_CLASSES: List[str] = [
-        "door handle", "cup", "bottle", "bowl", "cell phone", "remote",
-        "keyboard", "elevator button", "light switch", "door",
+        "cup", "bottle", "bowl", "cell phone", "remote",
+        "light switch", "door handle","up", "updown",
+        "close", "down", "open",
     ]
     INTERACTION_TRIGGER_DIST_MM: int = 800
     
@@ -70,7 +74,7 @@ class EchoraConfig(BaseSettings):
     BANKNOTE_MAX_DIST_MM: int = 500
     BANKNOTE_CURRENCY: str = "EGP"
     BANKNOTE_DETECTION_COOLDOWN_SEC: float = 3.0
-    
+
     BLE_SERVICE_UUID: str = "0000ffe0-0000-1000-8000-00805f9b34fb"
     BLE_CHARACTERISTIC_UUID: str = "0000ffe1-0000-1000-8000-00805f9b34fb"
     
@@ -79,31 +83,32 @@ class EchoraConfig(BaseSettings):
     HAPTIC_GUIDE_PATTERN:   List[int] = [100, 50]
     HAPTIC_ELECTRODE_COUNT: int = 8
     
-    OCR_MIN_TEXT_HEIGHT_PX: int = 20
-    OCR_CONFIDENCE_THRESHOLD: float = 0.7
-    OCR_LANGUAGE: List[str] = ["en", "ar"]
-    OCR_MODE: str = "both"  # choices: both, ar, en
+    OCR_MIN_TEXT_HEIGHT_PX: int = 8
+    # PaddleOCR runs a multi-frame stability check before speech, so accept weak
+    # camera text here and let repeated observations reject one-frame noise.
+    OCR_CONFIDENCE_THRESHOLD: float = 0.25
     OCR_USE_GPU: bool = True
-    OCR_MAX_CHARS: int = 200
     OCR_TRIGGER_DIST_MM: int = 2000
-    OCR_BLUR_THRESHOLD: float = 60.0   # Laplacian variance min; below = too blurry to OCR
-    OCR_SKEW_CORRECTION: bool = True   # enable Hough-based skew correction in preprocessing
+    OCR_BLUR_THRESHOLD: float = 8.0
     OCR_READ_EVERY_FRAMES: int = 5
-    # Fine-tuned model paths — leave empty to use default PP-OCRv4 models.
-    OCR_CUSTOM_AR_MODEL: str = "assets/models/ocr/arabic_rec"
-    OCR_CUSTOM_EN_MODEL: str = ""
+    # Avoid flooding speech while allowing a user to hear the same sign again
+    # without leaving and re-entering OCR mode.
+    OCR_REPEAT_SAME_TEXT_SEC: float = 6.0
     
     OBSTACLE_RUN_EVERY: int = 1
     OCR_RUN_EVERY: int = 10
     BANKNOTE_RUN_EVERY: int = 5
     FACE_RUN_EVERY: int = 15
     INTERACTION_RUN_EVERY: int = 2
-    VLM_RUN_EVERY: int = 30
+    VLM_RUN_EVERY: int = 15
     VLM_ENABLED: bool = True
     VLM_MODEL_NAME: str = "gemma4:e2b"
     VLM_MAX_FAILURES: int = 5
     
     ALERT_COOLDOWN_SEC: float = 2.0
+    CRITICAL_OBSTACLE_DIST_MM: int = 500
+    CRITICAL_ALERT_COOLDOWN_SEC: float = 1.0
+    NORMAL_ALERT_COOLDOWN_SEC: float = 5.0
     MAX_FRAME_TIME_MS: int = 50
     
     LOG_PATH: Path = ASSETS_DIR / "logs" / "echora.log"

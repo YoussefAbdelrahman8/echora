@@ -1,0 +1,10 @@
+==================================================
+ECHORA Session Report
+==================================================
+
+Date:        2026-06-23
+Start:       19:31:12
+Duration:    00:00:05
+Exit reason: error: ImportError
+
+System did not start successfully.

@@ -1,0 +1,174 @@
+% ============================================================
+% main.tex  — IEEE-like formatting for an SRS-style REPORT
+% (Keeps your chapter structure, but applies IEEE-style look:
+%  - 1 inch margins
+%  - Times-like font
+%  - single spacing
+%  - paragraph indent (no extra paragraph spacing)
+%  - IEEE-like caption styling
+%  - clean TOC + List of Figures
+%  - optional header logos (OFF by default)
+% ============================================================
+
+\documentclass[12pt]{report}
+
+% ----------------------------
+% Page layout (IEEE-like)
+% ----------------------------
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{microtype}
+
+% ----------------------------
+% Fonts (IEEE uses Times)
+% ----------------------------
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+% ----------------------------
+% Spacing & paragraph style (IEEE-like)
+% - IEEE: no extra paragraph spacing; first-line indent
+% ----------------------------
+\usepackage{setspace}
+\singlespacing
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{1em}
+
+% ----------------------------
+% Links (keep boxed links off)
+% ----------------------------
+\usepackage{hyperref}
+\hypersetup{
+  pdfborder={0 0 0},
+  colorlinks=false
+}
+
+% ----------------------------
+% Figures / tables
+% ----------------------------
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage[most]{tcolorbox}
+
+% IEEE-like captions: small font, bold label
+\usepackage[font=footnotesize,labelfont=bf]{caption}
+
+% ----------------------------
+% Hyphenation control (optional)
+% ----------------------------
+\usepackage[none]{hyphenat}
+
+% ----------------------------
+% Appendices + total pages
+% ----------------------------
+\usepackage{appendix}
+\usepackage{lastpage}
+
+% ----------------------------
+% TOC + List of Figures spacing tweaks
+% ----------------------------
+\usepackage{tocloft}
+% Move TOC title up (adjust value if you want higher/lower)
+\setlength{\cftbeforetoctitleskip}{-0.8cm}
+% Also apply similar effect to LOF title
+\setlength{\cftbeforeloftitleskip}{-0.8cm}
+
+% ----------------------------
+% Section/chapter title spacing (clean, IEEE-like)
+% ----------------------------
+\usepackage{titlesec}
+% Reduce whitespace around chapter titles
+\titlespacing*{\chapter}{0pt}{-0.2cm}{0.5cm}
+% Reduce whitespace around sections/subsections
+\titlespacing*{\section}{0pt}{0.7em}{0.4em}
+\titlespacing*{\subsection}{0pt}{0.6em}{0.3em}
+\titlespacing*{\subsubsection}{0pt}{0.5em}{0.2em}
+
+% ============================================================
+% OPTIONAL: Header logos (NOT IEEE standard, but sometimes required by uni)
+% Turn ON if you really want logos on every page except cover.
+% ============================================================
+\newif\ifheaderlogos
+\headerlogostrue   % <<< change to \headerlogostrue to enable
+
+\ifheaderlogos
+  \usepackage{fancyhdr}
+  \pagestyle{fancy}
+  \fancyhf{}
+  % Left header: Project logo
+  \fancyhead[L]{\includegraphics[height=0.65cm]{assets/Logo.png}}
+  % Right header: University logo (rename file to avoid spaces recommended)
+  \fancyhead[R]{\includegraphics[height=1.0cm]{assets/AAST logo.png}}
+  % Footer: page number
+  \fancyfoot[C]{\thepage}
+  % Remove header/footer rules
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+  % Prevent overlap
+  \setlength{\headheight}{20pt}
+\fi
+
+% If logos are OFF, keep a clean IEEE-like page number only
+\ifheaderlogos\else
+  \pagestyle{plain}
+\fi
+
+% ============================================================
+% Document begins
+% ============================================================
+\begin{document}
+
+% ----------------------------
+% Cover page
+% IMPORTANT: In cover.tex make sure you have:
+% \begin{titlepage}
+% \thispagestyle{empty}
+% ...
+% \end{titlepage}
+% ----------------------------
+\include{cover}
+\clearpage
+
+
+\include{declaration}
+\clearpage
+
+\include{Acknowledgement}
+\clearpage
+
+
+\include{abstract}
+\clearpage
+% ----------------------------
+% Front matter: TOC + List of Figures/Tables (IEEE-like)
+% ----------------------------
+\tableofcontents
+\clearpage
+
+\listoffigures
+\clearpage
+
+\listoftables
+\clearpage
+
+% ----------------------------
+% Main content
+% ----------------------------
+\include{chapters/Introduction}
+\include{chapters/Market Analysis and Related Work}
+\include{chapters/Methodology}
+\include{chapters/Requirements and System Analysis}
+\include{chapters/System Design}
+\include{chapters/Implementation}
+\include{chapters/Conclusion and the Future Work}
+
+% ----------------------------
+% Appendices
+% ----------------------------
+\begin{appendices}
+
+\end{appendices}
+
+\end{document}

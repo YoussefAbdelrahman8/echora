@@ -1,282 +1,154 @@
-﻿import numpy as np
-import cv2
-import os
 import time
 import threading
 from collections import deque, Counter
-from pathlib import Path
-from typing import Any, List, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional
+
+import cv2
+import numpy as np
 
 from src.core.config import settings
 from src.core.utils import logger, get_timestamp_ms, depth_in_region
 
-MIN_WORD_CONFIDENCE   = 0.4   # raised from EasyOCR's 0.3 â€” PaddleOCR is more precise
+# ── Tuning ──────────────────────────────────────────────────────────────
+MIN_WORD_CONFIDENCE   = 0.4
 MIN_TEXT_LENGTH       = 2
 MAX_SPEAK_CHARS       = 150
 TEXT_STABILITY_FRAMES = 3
-OCR_SCALE_FACTOR      = 1.0   # full resolution â€” GPU handles it (was 0.75 for CPU)
 BBOX_PADDING          = 8
-INFERENCE_CACHE_MS    = 200
-STALE_CACHE_MS        = 1000
-MERGE_IOU_THRESHOLD   = 0.3   # IoU above this â†’ duplicate; Arabic result wins
 
-# â”€â”€ Preprocessing tuning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-MAX_SKEW_DEG    = 15.0   # maximum tilt to auto-correct; beyond this PaddleOCR's
-                          # angle classifier takes over
-MIN_SKEW_DEG    = 0.8    # below this angle correction is noise â€” skip it
-HOUGH_MIN_VOTES = 80     # Hough accumulator threshold; higher = fewer but more
-                          # confident line detections
-OVEREXPOSURE_GAMMA = 0.7  # applied when mean brightness > 200; < 1.0 darkens
-                           # highlights and recovers text contrast in bright sun
-BILATERAL_D        = 5    # bilateral filter neighbourhood diameter
-BILATERAL_SIGMA    = 15   # colour and spatial sigma (kept low to preserve edges)
+DET_CACHE_MS      = 100   # probe cache TTL
+DET_STALE_MS      = 2000  # keep stale probe result instead of empty
+FULL_OCR_CACHE_MS = 300   # full-read cache TTL
 
-
-def _add_nvidia_dll_dirs():
-    """Make pip-installed CUDA/cuDNN DLLs visible to PaddleOCR on Windows."""
-    if os.name != "nt":
-        return
-    nvidia_dir = Path(os.sys.prefix) / "Lib" / "site-packages" / "nvidia"
-    dll_dirs = [
-        nvidia_dir / "cudnn" / "bin",
-        nvidia_dir / "cublas" / "bin",
-        nvidia_dir / "cuda_nvrtc" / "bin",
-    ]
-    existing_path = os.environ.get("PATH", "")
-    prepend = []
-    for dll_dir in dll_dirs:
-        if dll_dir.exists():
-            prepend.append(str(dll_dir))
-            try:
-                os.add_dll_directory(str(dll_dir))
-            except (AttributeError, OSError):
-                pass
-    if prepend:
-        os.environ["PATH"] = os.pathsep.join(prepend + [existing_path])
-
-
-_add_nvidia_dll_dirs()
+# Preprocessing
+OVEREXPOSURE_GAMMA = 0.7
+BILATERAL_D        = 5
+BILATERAL_SIGMA    = 15
 
 
 def _use_gpu() -> bool:
     if not settings.OCR_USE_GPU:
-        logger.info("OCR: GPU disabled by configuration; using CPU.")
         return False
     try:
-        import paddle
-        if paddle.device.is_compiled_with_cuda():
-            logger.info("OCR: CUDA-capable Paddle detected; using GPU.")
+        import torch
+        if torch.cuda.is_available():
+            logger.info("OCR: CUDA GPU available — using GPU.")
             return True
     except Exception as e:
-        logger.warning(f"OCR: Paddle GPU check failed; using CPU. {e}")
-    logger.info("OCR: no CUDA-capable Paddle detected; using CPU.")
+        logger.warning(f"OCR: GPU check failed ({e}); falling back to CPU.")
     return False
-
-
-def _get_ocr_gpu() -> bool:
-    return _use_gpu()
-
-
-def _resolve_model_dir(path_value: str) -> str:
-    path = Path(path_value)
-    if not path.is_absolute():
-        path = settings.BASE_DIR / path
-    return str(path)
-
-
-def _valid_paddle_inference_dir(path_value: str) -> bool:
-    if not path_value:
-        return False
-    path = Path(_resolve_model_dir(path_value))
-    required = ("inference.pdmodel", "inference.pdiparams")
-    return path.is_dir() and all((path / name).exists() for name in required)
-
-
-def _normalise_ocr_mode(mode: str) -> str:
-    normalised = (mode or "both").strip().lower()
-    aliases = {
-        "arabic": "ar",
-        "ara": "ar",
-        "english": "en",
-        "eng": "en",
-        "both": "both",
-        "all": "both",
-        "ar": "ar",
-        "en": "en",
-    }
-    if normalised not in aliases:
-        logger.warning(f"Unknown OCR_MODE '{mode}'. Falling back to both.")
-    return aliases.get(normalised, "both")
-
-
-def _enabled_ocr_languages(mode: str) -> Tuple[bool, bool]:
-    mode = _normalise_ocr_mode(mode)
-    return mode in ("both", "ar"), mode in ("both", "en")
-
-
-def _bbox_iou(b1: Tuple[int, int, int, int], b2: Tuple[int, int, int, int]) -> float:
-    """IoU for axis-aligned bounding boxes (x1, y1, x2, y2)."""
-    ix1 = max(b1[0], b2[0]);  iy1 = max(b1[1], b2[1])
-    ix2 = min(b1[2], b2[2]);  iy2 = min(b1[3], b2[3])
-    inter = max(0, ix2 - ix1) * max(0, iy2 - iy1)
-    if inter == 0:
-        return 0.0
-    a1 = max(1, (b1[2] - b1[0]) * (b1[3] - b1[1]))
-    a2 = max(1, (b2[2] - b2[0]) * (b2[3] - b2[1]))
-    return inter / (a1 + a2 - inter)
 
 
 class OCRReader:
     """
-    Reads Arabic and English text from camera frames using PaddleOCR PP-OCRv4.
+    English-only OCR using PaddleOCR PP-OCRv4 with a fine-tuned English
+    recognition model (TextOCR dataset).
 
-    Two-model strategy:
-      - Arabic model (primary)  â€” covers Arabic and mixed Arabic/Latin content.
-      - English model (secondary) â€” adds Latin-only detections not found by Arabic.
-    Results are IoU-deduplicated so Arabic regions are never duplicated by the
-    English pass.
-
-    Inference lock ensures only one PaddleOCR call runs at a time across
-    the probe thread and the OCR-mode text thread.
+    One model instance, two call modes:
+      - Probe  (get_text_distance): rec=False — ~20 ms, for state-machine trigger.
+      - Read   (read_text):         rec=True  — full det+cls+rec, for TTS output.
     """
 
     def __init__(self):
-        self._ocr_ar: Optional[Any] = None
-        self._ocr_en: Optional[Any] = None
-        self._ready:  bool = False
-        self._ocr_mode: str = _normalise_ocr_mode(settings.OCR_MODE)
-        self._use_arabic, self._use_english = _enabled_ocr_languages(self._ocr_mode)
+        self._ocr:     Optional[Any] = None
+        self._ready:   bool = False
+        self._use_gpu: bool = False
 
         self._text_history:     deque = deque(maxlen=TEXT_STABILITY_FRAMES)
         self._last_spoken_text: str   = ""
 
-        self._last_boxes:        List[Dict] = []
-        self._last_inference_ts: float      = 0.0
-        self._last_dist_mm:      float      = 0.0
+        # Probe cache (det-only)
+        self._det_boxes:        List  = []
+        self._det_inference_ts: float = 0.0
+        self._det_last_dist_mm: float = 0.0
+
+        # Full-read cache
+        self._full_boxes:        List[Dict] = []
+        self._full_inference_ts: float      = 0.0
 
         self._read_count:    int   = 0
         self._success_count: int   = 0
         self._avg_ocr_ms:    float = 0.0
 
-        self._inference_lock = threading.Lock()
+        self._lock = threading.Lock()
 
-    # â”€â”€ Lifecycle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Lifecycle ──────────────────────────────────────────────────────
 
     def load_model(self):
-        logger.info("Loading PaddleOCR PP-OCRv4...")
-        logger.info("  First run downloads model weights (~200 MB) automatically.")
-        t0      = time.time()
-        from paddleocr import PaddleOCR
-        use_gpu = _use_gpu()
+        logger.info("Loading PaddleOCR PP-OCRv4 (English, fine-tuned rec model)...")
+        t0 = time.time()
+        self._use_gpu = _use_gpu()
 
-        _base = dict(
-            use_angle_cls=True,
-            use_gpu=use_gpu,
-            show_log=False,
-            det_db_unclip_ratio=1.6,
-            drop_score=settings.OCR_CONFIDENCE_THRESHOLD,
-            use_mp=False,
-        )
+        rec_dir = settings.BASE_DIR / "assets" / "models" / "ocr" / "textocr_en_rec"
+        if not rec_dir.exists():
+            logger.warning(f"OCR: fine-tuned rec model not found at {rec_dir} — using default EN rec.")
+            rec_dir_str = None
+        else:
+            rec_dir_str = str(rec_dir)
+            logger.info(f"OCR rec model: {rec_dir}")
 
-        ar_custom_model = False
-        if self._use_arabic:
-            ar_kwargs = dict(_base)
-            ar_kwargs["lang"] = "ar"
-            ar_custom_model = _valid_paddle_inference_dir(settings.OCR_CUSTOM_AR_MODEL)
-            if ar_custom_model:
-                ar_kwargs["rec_model_dir"] = _resolve_model_dir(settings.OCR_CUSTOM_AR_MODEL)
-                logger.info(f"  Arabic model: custom runtime model at {ar_kwargs['rec_model_dir']}")
-            else:
-                if settings.OCR_CUSTOM_AR_MODEL:
-                    logger.warning(
-                        f"  Arabic custom model not found or incomplete: "
-                        f"{_resolve_model_dir(settings.OCR_CUSTOM_AR_MODEL)}. Using PaddleOCR default."
-                    )
-                logger.info("  Arabic model: default PaddleOCR Arabic model")
-
-            try:
-                self._ocr_ar = self._create_paddle_ocr(PaddleOCR, ar_kwargs, "Arabic")
-                logger.info(f"PaddleOCR Arabic model ready in {(time.time()-t0)*1000:.0f}ms.")
-            except Exception as e:
-                logger.error(f"PaddleOCR Arabic model failed to load: {e}")
-                raise
-
-        if self._use_english:
-            try:
-                t1 = time.time()
-                en_kwargs = dict(_base)
-                en_kwargs["lang"] = "en"
-                if _valid_paddle_inference_dir(settings.OCR_CUSTOM_EN_MODEL):
-                    en_kwargs["rec_model_dir"] = _resolve_model_dir(settings.OCR_CUSTOM_EN_MODEL)
-                    logger.info(f"  English model: custom runtime model at {en_kwargs['rec_model_dir']}")
-                elif settings.OCR_CUSTOM_EN_MODEL:
-                    logger.warning(
-                        f"  English custom model not found or incomplete: "
-                        f"{_resolve_model_dir(settings.OCR_CUSTOM_EN_MODEL)}. Using PaddleOCR default."
-                    )
-                self._ocr_en = self._create_paddle_ocr(PaddleOCR, en_kwargs, "English")
-                logger.info(f"PaddleOCR English model ready in {(time.time()-t1)*1000:.0f}ms.")
-            except Exception as e:
-                if not self._use_arabic:
-                    logger.error(f"PaddleOCR English model failed to load: {e}")
-                    raise
-                logger.warning(f"PaddleOCR English model failed ({e}) - Arabic-only mode.")
-                self._ocr_en = None
-
-        self._ready = self._ocr_ar is not None or self._ocr_en is not None
-        logger.info(
-            f"PaddleOCR ready. Total load: {(time.time()-t0)*1000:.0f}ms  "
-            f"gpu={use_gpu}  mode={self._ocr_mode}  "
-            f"arabic={'custom' if ar_custom_model else ('default' if self._ocr_ar else 'off')}  "
-            f"english={'yes' if self._ocr_en else 'no'}"
-        )
-
-    @staticmethod
-    def _create_paddle_ocr(PaddleOCR: Any, kwargs: Dict, label: str) -> Any:
         try:
-            return PaddleOCR(**kwargs)
+            from paddleocr import PaddleOCR
+            kwargs: Dict[str, Any] = dict(
+                use_angle_cls=True,
+                lang="en",
+                use_gpu=self._use_gpu,
+                show_log=False,
+                det_db_unclip_ratio=1.6,
+                det_db_thresh=0.3,
+                det_db_box_thresh=0.5,
+                drop_score=MIN_WORD_CONFIDENCE,
+                use_mp=False,
+            )
+            if rec_dir_str is not None:
+                kwargs["rec_model_dir"] = rec_dir_str
+
+            self._ocr = PaddleOCR(**kwargs)
+            self._ready = True
+            logger.info(
+                f"PaddleOCR ready in {(time.time() - t0) * 1000:.0f} ms  "
+                f"gpu={self._use_gpu}  "
+                f"rec={'fine-tuned' if rec_dir_str else 'default'}"
+            )
         except Exception as e:
-            if kwargs.get("use_gpu"):
-                logger.warning(f"{label} OCR GPU load failed ({e}); retrying on CPU.")
-                cpu_kwargs = dict(kwargs)
-                cpu_kwargs["use_gpu"] = False
-                return PaddleOCR(**cpu_kwargs)
+            logger.error(f"PaddleOCR failed to load: {e}")
             raise
 
     def reset(self):
         self._text_history.clear()
-        self._last_spoken_text = ""
-        self._last_boxes       = []
-        self._last_inference_ts = 0.0
+        self._last_spoken_text  = ""
+        self._det_boxes         = []
+        self._det_inference_ts  = 0.0
+        self._full_boxes        = []
+        self._full_inference_ts = 0.0
 
-    # â”€â”€ Public API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Public API ─────────────────────────────────────────────────────
 
     def get_text_distance(self, frame: np.ndarray, depth_map: np.ndarray) -> float:
         """
-        Lightweight probe: returns depth (mm) of the nearest text region.
-        Used by the state machine to decide whether to enter OCR mode.
+        Fast probe: depth (mm) of the nearest detected text region.
+        Uses det-only PaddleOCR (rec=False) — ~20 ms.
+        Returns 0.0 when no text found.
         """
-        detections = self._run_ocr_cached(frame)
-        self._last_dist_mm = 0.0
-
-        if not detections:
+        boxes = self._run_det_cached(frame)
+        if not boxes:
+            self._det_last_dist_mm = 0.0
             return 0.0
 
         min_dist = float("inf")
-        for det in detections:
-            x1, y1, x2, y2 = det["bbox"]
+        for x1, y1, x2, y2 in boxes:
             d = depth_in_region(depth_map, x1, y1, x2, y2)
             if 0 < d < min_dist:
                 min_dist = d
 
-        self._last_dist_mm = 0.0 if min_dist == float("inf") else min_dist
-        return self._last_dist_mm
+        self._det_last_dist_mm = 0.0 if min_dist == float("inf") else min_dist
+        return self._det_last_dist_mm
 
     def read_text(self, frame: np.ndarray, depth_map: Optional[np.ndarray] = None) -> str:
         """
-        Full OCR pass: run inference (or use cache), apply stability filter,
-        return the cleaned text string ready for TTS.
-        Returns "" when text is not yet stable or unchanged since last call.
+        Full OCR using the fine-tuned English recognition model.
+        Returns stable text once TEXT_STABILITY_FRAMES consecutive reads agree;
+        returns "" when text is unstable or identical to the last spoken text.
         """
         if not self._ready:
             return ""
@@ -284,142 +156,132 @@ class OCRReader:
         self._read_count += 1
         t0 = get_timestamp_ms()
 
-        detections = self._run_ocr_cached(frame)
+        detections = self._run_full_ocr_cached(frame)
 
         if not detections:
             self._text_history.append("")
             return ""
 
-        h, w      = frame.shape[:2]
-        detections = self._prioritise(detections, w, h, depth_map=depth_map)
-        combined  = self._clean_text([d["text"] for d in detections])
+        h, w       = frame.shape[:2]
+        detections = self._prioritise(detections, w, h)
+        combined   = self._clean_text([d["text"] for d in detections])
 
         self._text_history.append(combined)
 
-        stable_text = self._stable_text()
-        if not stable_text:
+        stable = self._stable_text()
+        if not stable:
             return ""
-        if stable_text == self._last_spoken_text:
+        if stable == self._last_spoken_text:
             return ""
 
-        self._last_spoken_text = stable_text
+        self._last_spoken_text = stable
         self._success_count   += 1
         elapsed = get_timestamp_ms() - t0
         self._avg_ocr_ms = self._avg_ocr_ms * 0.8 + elapsed * 0.2
-        logger.info(f"OCR confirmed: '{stable_text[:80]}'")
-        return stable_text
+        logger.info(f"OCR confirmed: '{stable[:80]}'")
+        return stable
 
-    # â”€â”€ Core inference â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Probe: detection-only ─────────────────────────────────────────
 
-    def _run_ocr_cached(self, frame: np.ndarray) -> List[Dict]:
-        """
-        Returns cached inference result if younger than INFERENCE_CACHE_MS.
-        Blurry frames (motion blur while walking) skip inference entirely and
-        return the previous cache unchanged â€” avoids garbage results mid-stride.
-        Double-checked locking prevents redundant inference when two threads race.
-        """
-        age = get_timestamp_ms() - self._last_inference_ts
-        if age < INFERENCE_CACHE_MS and self._last_boxes:
-            return self._last_boxes
+    def _run_det_cached(self, frame: np.ndarray) -> List[tuple]:
+        age = get_timestamp_ms() - self._det_inference_ts
+        if age < DET_CACHE_MS:
+            return self._det_boxes
 
-        # Blur gate: check BEFORE acquiring the lock so we don't block the
-        # inference thread on a frame that won't produce useful results anyway.
         if not self._is_frame_sharp_enough(frame):
-            if age < STALE_CACHE_MS:
-                return self._last_boxes
-            self._last_boxes = []
-            return []
+            return self._det_boxes if age < DET_STALE_MS else []
 
-        with self._inference_lock:
-            age = get_timestamp_ms() - self._last_inference_ts
-            if age < INFERENCE_CACHE_MS and self._last_boxes:
-                return self._last_boxes
+        with self._lock:
+            age = get_timestamp_ms() - self._det_inference_ts
+            if age < DET_CACHE_MS:
+                return self._det_boxes
 
-            detections = self._run_ocr_on_frame(frame)
-            self._last_boxes        = detections
-            self._last_inference_ts = get_timestamp_ms()
-            return detections
+            boxes = self._run_det_on_frame(frame)
+            self._det_boxes        = boxes
+            self._det_inference_ts = get_timestamp_ms()
+            return boxes
 
-    def _run_ocr_on_frame(self, frame: np.ndarray) -> List[Dict]:
-        if not self._ready:
+    def _run_det_on_frame(self, frame: np.ndarray) -> List[tuple]:
+        if self._ocr is None:
             return []
         try:
+            result = self._ocr.ocr(frame, rec=False, cls=False)
+            if not result:
+                return []
+            items = result[0]
+            if items is None or (hasattr(items, "__len__") and len(items) == 0):
+                return []
+
             h, w = frame.shape[:2]
-            if OCR_SCALE_FACTOR != 1.0:
-                frame = cv2.resize(
-                    frame,
-                    (int(w * OCR_SCALE_FACTOR), int(h * OCR_SCALE_FACTOR)),
-                )
-
-            preprocessed   = self._preprocess(frame)
-            orig_shape     = frame.shape[:2]
-
-            ar_dets = (
-                self._run_paddle_pass(self._ocr_ar, preprocessed, orig_shape)
-                if self._ocr_ar is not None else []
-            )
-            en_dets = (
-                self._run_paddle_pass(self._ocr_en, preprocessed, orig_shape)
-                if self._ocr_en is not None else []
-            )
-
-            if ar_dets and en_dets:
-                return self._merge_detections(ar_dets, en_dets)
-            return ar_dets or en_dets
+            boxes = []
+            for item in items:
+                quad = item[0] if (isinstance(item, (list, tuple)) and len(item) == 1) else item
+                xs = [int(pt[0]) for pt in quad]
+                ys = [int(pt[1]) for pt in quad]
+                x1 = max(0, min(xs) - BBOX_PADDING)
+                y1 = max(0, min(ys) - BBOX_PADDING)
+                x2 = min(w, max(xs) + BBOX_PADDING)
+                y2 = min(h, max(ys) + BBOX_PADDING)
+                if x2 > x1 and y2 > y1 and (y2 - y1) >= settings.OCR_MIN_TEXT_HEIGHT_PX:
+                    boxes.append((x1, y1, x2, y2))
+            return boxes
 
         except Exception as e:
-            logger.error(f"OCR frame error: {e}")
+            logger.error(f"OCR det pass error: {e}")
             return []
 
-    def _run_paddle_pass(
-        self,
-        ocr:            Any,
-        frame:          np.ndarray,
-        original_shape: Tuple[int, int],
-    ) -> List[Dict]:
-        """
-        One PaddleOCR inference pass.
-        Normalises bbox coordinates back to original (pre-scale) dimensions,
-        filters by confidence, size, and alphanumeric density.
+    # ── Full OCR: det + cls + rec ─────────────────────────────────────
 
-        PaddleOCR result layout:
-          result[0]  â€” first (only) page
-          result[0][i] â€” [quad_bbox_points, (text, confidence)]
-          quad_bbox_points â€” [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
-        """
+    def _run_full_ocr_cached(self, frame: np.ndarray) -> List[Dict]:
+        age = get_timestamp_ms() - self._full_inference_ts
+        if age < FULL_OCR_CACHE_MS and self._full_boxes:
+            return self._full_boxes
+
+        if not self._is_frame_sharp_enough(frame):
+            return self._full_boxes
+
+        with self._lock:
+            age = get_timestamp_ms() - self._full_inference_ts
+            if age < FULL_OCR_CACHE_MS and self._full_boxes:
+                return self._full_boxes
+
+            detections = self._run_full_ocr_on_frame(frame)
+            self._full_boxes        = detections
+            self._full_inference_ts = get_timestamp_ms()
+            return detections
+
+    def _run_full_ocr_on_frame(self, frame: np.ndarray) -> List[Dict]:
+        if self._ocr is None:
+            return []
         try:
-            result = ocr.ocr(frame, cls=True)
+            preprocessed = self._preprocess(frame)
+            result = self._ocr.ocr(preprocessed, rec=True, cls=True)
             if not result or result[0] is None:
                 return []
 
-            h_orig, w_orig = original_shape
-            h_inp,  w_inp  = frame.shape[:2]
-            h_scale = h_orig / max(h_inp, 1)
-            w_scale = w_orig / max(w_inp, 1)
-
+            h, w = frame.shape[:2]
             detections = []
             for line in result[0]:
                 if line is None:
                     continue
 
                 bbox_points, (text, confidence) = line
-
                 text = text.strip()
                 if not text or len(text) < MIN_TEXT_LENGTH:
                     continue
-                if float(confidence) < settings.OCR_CONFIDENCE_THRESHOLD:
+                if confidence < MIN_WORD_CONFIDENCE:
                     continue
 
                 alpha = sum(1 for c in text if c.isalnum())
                 if alpha / max(len(text), 1) < 0.4:
                     continue
 
-                xs = [int(pt[0] * w_scale) for pt in bbox_points]
-                ys = [int(pt[1] * h_scale) for pt in bbox_points]
-                x1 = max(0,      min(xs) - BBOX_PADDING)
-                y1 = max(0,      min(ys) - BBOX_PADDING)
-                x2 = min(w_orig, max(xs) + BBOX_PADDING)
-                y2 = min(h_orig, max(ys) + BBOX_PADDING)
+                xs = [int(pt[0]) for pt in bbox_points]
+                ys = [int(pt[1]) for pt in bbox_points]
+                x1 = max(0, min(xs) - BBOX_PADDING)
+                y1 = max(0, min(ys) - BBOX_PADDING)
+                x2 = min(w, max(xs) + BBOX_PADDING)
+                y2 = min(h, max(ys) + BBOX_PADDING)
 
                 if x2 <= x1 or y2 <= y1:
                     continue
@@ -435,66 +297,27 @@ class OCRReader:
             return detections
 
         except Exception as e:
-            logger.error(f"PaddleOCR pass error: {e}")
+            logger.error(f"OCR full pass error: {e}")
             return []
 
-    def _merge_detections(
-        self, primary: List[Dict], secondary: List[Dict]
-    ) -> List[Dict]:
-        """
-        Merge Arabic (primary) and English (secondary) detection lists.
-        A secondary detection is included only when it does not substantially
-        overlap any primary detection (IoU â‰¤ MERGE_IOU_THRESHOLD).
-        """
-        if not secondary:
-            return primary
-
-        merged = list(primary)
-        for sec in secondary:
-            if not any(
-                _bbox_iou(sec["bbox"], p["bbox"]) > MERGE_IOU_THRESHOLD
-                for p in primary
-            ):
-                merged.append(sec)
-        return merged
-
-    # â”€â”€ Preprocessing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Preprocessing ──────────────────────────────────────────────────
 
     def _preprocess(self, frame: np.ndarray) -> np.ndarray:
-        """
-        Full preprocessing pipeline for camera-captured text.
-
-        Step order (each step degrades gracefully on failure):
-          1. Brightness-adaptive contrast via LAB CLAHE (dark images)
-             or gamma LUT (overexposed/bright-sun images)
-          2. Conservative skew correction via Hough lines (if enabled)
-          3. Unsharp mask sharpening for character edge crispness
-          4. Bilateral denoising â€” preserves text edges unlike Gaussian blur
-
-        PaddleOCR handles its own grayscale conversion internally, so the
-        full-color BGR frame is passed through and color is preserved.
-        """
         try:
             gray            = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             mean_brightness = float(np.mean(gray))
 
-            # â”€â”€ 1. Contrast / exposure correction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             if mean_brightness < 60:
-                # Very dark â€” aggressive CLAHE on L channel
                 lab   = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
                 clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(8, 8))
                 lab[:, :, 0] = clahe.apply(lab[:, :, 0])
                 frame = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
-
             elif mean_brightness < 100:
-                # Moderately dark â€” lighter CLAHE
                 lab   = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
                 clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
                 lab[:, :, 0] = clahe.apply(lab[:, :, 0])
                 frame = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
-
             elif mean_brightness > 200:
-                # Overexposed (bright outdoor sun) â€” gamma LUT to recover contrast
                 lut   = np.array(
                     [int(((i / 255.0) ** (1.0 / OVEREXPOSURE_GAMMA)) * 255)
                      for i in range(256)],
@@ -502,123 +325,36 @@ class OCRReader:
                 )
                 frame = cv2.LUT(frame, lut)
 
-            # â”€â”€ 2. Skew correction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            if settings.OCR_SKEW_CORRECTION:
-                frame = self._correct_skew(frame)
-
-            # â”€â”€ 3. Unsharp mask sharpening â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
             blurred   = cv2.GaussianBlur(frame, (0, 0), sigmaX=1.5)
             sharpened = cv2.addWeighted(frame, 1.3, blurred, -0.3, 0)
-
-            # â”€â”€ 4. Edge-preserving denoising â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-            # bilateralFilter preserves character edges; Gaussian does not.
-            denoised = cv2.bilateralFilter(
-                sharpened, BILATERAL_D, BILATERAL_SIGMA, BILATERAL_SIGMA
-            )
+            denoised  = cv2.bilateralFilter(sharpened, BILATERAL_D, BILATERAL_SIGMA, BILATERAL_SIGMA)
             return denoised
 
         except Exception as e:
-            logger.warning(f"OCR preprocessing failed â€” using original: {e}")
+            logger.warning(f"OCR preprocessing failed — using original: {e}")
             return frame
 
     def _is_frame_sharp_enough(self, frame: np.ndarray) -> bool:
-        """
-        Laplacian variance blur metric.
-        Sharp images have high variance; motion-blurred images have low variance.
-        Returns False when variance < OCR_BLUR_THRESHOLD so the caller can
-        skip inference and return the last good cached result instead.
-        """
         try:
             gray     = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             variance = cv2.Laplacian(gray, cv2.CV_64F).var()
             if variance < settings.OCR_BLUR_THRESHOLD:
-                logger.debug(
-                    f"OCR: frame too blurry "
-                    f"(var={variance:.1f} < {settings.OCR_BLUR_THRESHOLD}) â€” skipping."
-                )
+                logger.debug(f"OCR: blurry frame (var={variance:.1f}) — skipped.")
                 return False
             return True
         except Exception:
-            return True  # on any error, don't block inference
+            return True
 
-    def _correct_skew(self, frame: np.ndarray) -> np.ndarray:
-        """
-        Detect and correct image skew using Hough line transform.
-
-        Only angles in [MIN_SKEW_DEG, MAX_SKEW_DEG] are corrected:
-          - Below MIN_SKEW_DEG: correction is smaller than noise â€” skip.
-          - Above MAX_SKEW_DEG: PaddleOCR's angle classifier handles it.
-        Requires â‰¥ 5 agreeing lines for enough confidence to apply rotation.
-        Falls back to the original frame on any error or insufficient evidence.
-        """
-        try:
-            gray  = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            edges = cv2.Canny(gray, 50, 150, apertureSize=3)
-            lines = cv2.HoughLines(edges, 1, np.pi / 180, HOUGH_MIN_VOTES)
-
-            if lines is None or len(lines) < 5:
-                return frame
-
-            # theta is the angle of the perpendicular to the line.
-            # For a horizontal line theta = Ï€/2, so line angle = theta - Ï€/2 = 0.
-            # We collect only angles within the correctable skew range.
-            angles = []
-            for line in lines[:40]:
-                theta = float(line[0][1])
-                angle = np.degrees(theta) - 90.0  # deviation from horizontal
-                if MIN_SKEW_DEG <= abs(angle) <= MAX_SKEW_DEG:
-                    angles.append(angle)
-
-            if len(angles) < 5:
-                return frame
-
-            skew = float(np.median(angles))
-
-            # Rotate by -skew to straighten: a +5Â° CCW tilt needs -5Â° (CW) correction.
-            h, w    = frame.shape[:2]
-            M       = cv2.getRotationMatrix2D((w / 2.0, h / 2.0), -skew, 1.0)
-            rotated = cv2.warpAffine(
-                frame, M, (w, h),
-                flags=cv2.INTER_CUBIC,
-                borderMode=cv2.BORDER_REPLICATE,
-            )
-            logger.debug(f"OCR skew corrected: {skew:+.1f}Â°")
-            return rotated
-
-        except Exception as e:
-            logger.debug(f"OCR skew correction skipped: {e}")
-            return frame
-
-    # â”€â”€ Text processing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Text processing ────────────────────────────────────────────────
 
     def _stable_text(self) -> str:
-        """
-        Returns the most-common non-empty text in history when it appears in
-        at least 2 of TEXT_STABILITY_FRAMES frames.
-        More robust than requiring all frames to match identically â€” PaddleOCR,
-        like EasyOCR, can produce minor character-level variance across frames.
-        """
         if len(self._text_history) < TEXT_STABILITY_FRAMES:
             return ""
         non_empty = [t for t in self._text_history if t]
         if not non_empty:
             return ""
-        normalised = [self._normalise_for_stability(t) for t in non_empty]
-        candidates = [t for t in normalised if t]
-        if not candidates:
-            return ""
-        most_common, count = Counter(candidates).most_common(1)[0]
-        if count < 2:
-            return ""
-        for original in reversed(non_empty):
-            if self._normalise_for_stability(original) == most_common:
-                return original
-        return ""
-
-    @staticmethod
-    def _normalise_for_stability(text: str) -> str:
-        text = " ".join(text.lower().split())
-        return "".join(c for c in text if c.isalnum() or c.isspace())
+        most_common, count = Counter(non_empty).most_common(1)[0]
+        return most_common if count >= 2 else ""
 
     def _clean_text(self, text_blocks: List[str]) -> str:
         cleaned = []
@@ -634,10 +370,6 @@ class OCRReader:
         if not cleaned:
             return ""
 
-        # Arabic is RTL â€” reverse block order so TTS speaks in the correct sequence
-        if self._is_predominantly_arabic(" ".join(cleaned)):
-            cleaned = list(reversed(cleaned))
-
         unique   = list(dict.fromkeys(cleaned))
         combined = " ".join(unique)
 
@@ -652,71 +384,66 @@ class OCRReader:
 
         return combined.strip()
 
-    @staticmethod
-    def _is_predominantly_arabic(text: str) -> bool:
-        """True when more than 40% of characters are in the Arabic Unicode block."""
-        if not text:
-            return False
-        letters = [c for c in text if c.isalpha()]
-        if not letters:
-            return False
-        arabic = sum(1 for c in letters if OCRReader._is_arabic_char(c))
-        return arabic / len(letters) > 0.4
-
-    @staticmethod
-    def _is_arabic_char(char: str) -> bool:
-        code = ord(char)
-        return (
-            0x0600 <= code <= 0x06FF or
-            0x0750 <= code <= 0x077F or
-            0x08A0 <= code <= 0x08FF or
-            0xFB50 <= code <= 0xFDFF or
-            0xFE70 <= code <= 0xFEFF
-        )
-
     def _prioritise(
-        self,
-        detections: List[Dict],
-        frame_width: int,
-        frame_height: int,
-        depth_map: Optional[np.ndarray] = None,
+        self, detections: List[Dict], frame_width: int, frame_height: int
     ) -> List[Dict]:
-        """Sort by proximity, size, and optional depth."""
         cx = frame_width  // 2
         cy = frame_height // 2
         fd = (frame_width**2 + frame_height**2) ** 0.5
 
         def score(d: Dict) -> float:
             x1, y1, x2, y2 = d["bbox"]
-            rx, ry = (x1 + x2) // 2, (y1 + y2) // 2
-            ndist  = ((rx - cx)**2 + (ry - cy)**2) ** 0.5 / fd
-            narea  = 1.0 - ((x2 - x1) * (y2 - y1)) / (frame_width * frame_height)
-            depth_score = 0.5
-            if depth_map is not None:
-                depth = depth_in_region(depth_map, x1, y1, x2, y2)
-                if depth > 0:
-                    depth_score = min(depth / max(settings.OCR_TRIGGER_DIST_MM, 1), 1.0)
-            return ndist * 0.55 + narea * 0.25 + depth_score * 0.20
+            rx = (x1 + x2) // 2
+            ry = (y1 + y2) // 2
+            ndist = ((rx - cx)**2 + (ry - cy)**2) ** 0.5 / fd
+            narea = 1.0 - ((x2 - x1) * (y2 - y1)) / (frame_width * frame_height)
+            return ndist * 0.7 + narea * 0.3
 
         return sorted(detections, key=score)
 
-    # â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # ── Debug overlay ──────────────────────────────────────────────────
+
+    def draw_debug_overlay(self, frame: np.ndarray) -> np.ndarray:
+        if not self._ready:
+            cv2.putText(frame, "OCR: not loaded",
+                        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (60, 60, 60), 1)
+            return frame
+
+        for x1, y1, x2, y2 in self._det_boxes:
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 255), 2)
+
+        dist_str = (
+            f"Text: {self._det_last_dist_mm:.0f} mm"
+            if self._det_last_dist_mm > 0 else "No text nearby"
+        )
+        cv2.putText(frame, dist_str, (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
+
+        if self._last_spoken_text:
+            cv2.putText(
+                frame,
+                f"'{self._last_spoken_text[:60]}'",
+                (10, frame.shape[0] - 20),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2,
+            )
+        return frame
+
+    # ── Stats ──────────────────────────────────────────────────────────
 
     def get_stats(self) -> Dict:
         return {
             "ready":         self._ready,
-            "engine":        "PaddleOCR PP-OCRv4",
-            "english_model": self._ocr_en is not None,
+            "engine":        "PaddleOCR PP-OCRv4 (fine-tuned EN rec)",
             "read_count":    self._read_count,
             "success_count": self._success_count,
             "avg_ocr_ms":    round(self._avg_ocr_ms, 1),
             "history_len":   len(self._text_history),
             "last_text":     self._last_spoken_text[:50],
-            "last_dist_mm":  round(self._last_dist_mm, 0),
+            "last_dist_mm":  round(self._det_last_dist_mm, 0),
         }
 
 
-# â”€â”€ Module-level singleton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Module-level singleton ───────────────────────────────────────────────
 
 _ocr_reader: Optional[OCRReader] = None
 

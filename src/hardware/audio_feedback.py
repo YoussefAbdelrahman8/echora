@@ -440,7 +440,11 @@ class AudioFeedback:
     def announce_scene(self, description: str):
         if not description or not description.strip():
             return
-        self.speak(description, priority=SpeechPriority.NORMAL, ttl_sec=4.0)
+        self.speak(
+            f"Scene: {description.strip()}",
+            priority=SpeechPriority.NORMAL,
+            ttl_sec=6.0,
+        )
 
     def announce_ocr(self, text: str):
         if not text or not text.strip():
@@ -490,17 +494,13 @@ class AudioFeedback:
         self.speak(phrase, priority=SpeechPriority.NORMAL, ttl_sec=2.0)
 
     def _angle_to_direction(self, angle_deg: float) -> str:
-
         abs_angle = abs(angle_deg)
-
         if abs_angle <= 5:
-            return "straight ahead"
-        elif abs_angle <= 15:
-            return "slightly left"  if angle_deg < 0 else "slightly right"
-        elif abs_angle <= 30:
-            return "turn left"      if angle_deg < 0 else "turn right"
+            return "straight ahead, move back"
+        elif abs_angle <= 20:
+            return "on your left, move slightly right" if angle_deg < 0 else "on your right, move slightly left"
         else:
-            return "sharp left"     if angle_deg < 0 else "sharp right"
+            return "on your left, move right" if angle_deg < 0 else "on your right, move left"
 
     def stop_all(self):
 
