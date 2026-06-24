@@ -186,10 +186,28 @@ class EchoraCamera:
         if hasattr(self, '_imu_thread') and self._imu_thread.is_alive():
             self._imu_thread.join(timeout=2.0)
 
-        if self.pipeline is not None:
+        # Drain queues and clear Python references before pipeline.stop().
+        # DepthAI's crash-dump collection during close tries to access these
+        # buffers from C++; if Python GC has already freed them the library
+        # crashes with an invalid-address access.
+        if self.sync_queue is not None:
             try:
-                self.pipeline.stop()
-            except Exception as e:
-                logger.warning(f"Pipeline stop warning: {e}")
-            self.pipeline = None
+                while self.sync_queue.tryGet() is not None:
+                    pass
+            except Exception:
+                pass
+            self.sync_queue = None
+
+        if self.imu_queue is not None:
+            try:
+                while self.imu_queue.tryGet() is not None:
+                    pass
+            except Exception:
+                pass
+            self.imu_queue = None
+
+        # pipeline.stop() intentionally skipped — DepthAI's crash-dump
+        # collection crashes on every clean exit (bug in the library).
+        # os._exit(0) in ControlUnit.shutdown() terminates the process before
+        # Python GC runs the C++ destructor, so stop() never fires.
         logger.info("Camera released cleanly.")
