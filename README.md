@@ -1,4 +1,4 @@
-# ECHORA AI
+/bt# ECHORA AI
 AI-Powered Sensory Substitution System for everyday navigation and interaction.
 
 ## Architecture & Project Structure
@@ -18,9 +18,9 @@ echora/
 │   │   ├── obstacle_detection.py# YOLO-based obstacle detection logic
 │   │   ├── interaction_detection.py # Hands/Objects scanning for interaction
 │   │   ├── ocr.py               # Optical Character Recognition logic
-│   │   ├── banknote.py          # YOLO Banknote classification model
+│   │   ├── banknote.py          # YOLO Egyptian-banknote (EGP) detection model
 │   │   ├── echora_face.py       # Face embedding recognition engine
-│   │   └── kalman_tracker.py    # Temporal smoothing for bounding boxes
+│   │   └── byte_tracker.py      # ByteTrack track lifecycle + approach-speed estimation
 │   ├── hardware/
 │   │   ├── camera.py            # DepthAI / OAK-D interaction wrapping
 │   │   ├── audio_feedback.py    # pyttsx3 Text-To-Speech queues and panning
@@ -29,9 +29,11 @@ echora/
 │       ├── database.py          # SQLite interactions
 │       └── register_face.py     # Face registration script
 ├── tests/                       # Standalone regression and function tests
-├── models/                      # ML models (.pt, .blob)
-├── database/                    # Local DB storage (.db)
-├── sounds/                      # Audial .wav alerts
+├── assets/
+│   ├── models/                  # ML models (.pt)
+│   ├── database/                # Local SQLite DB storage (.db) + face data
+│   ├── sounds/                  # Audial .wav alerts
+│   └── logs/                    # Runtime logs
 ├── requirements.txt
 ├── run_tests.sh
 └── Dockerfile
@@ -43,7 +45,7 @@ ECHORA operates within an infinite loop defined in **`control_unit.py`**. The ov
 
 1. **Information Capture**: It begins in `src/hardware/camera.py`, where RGB frames and synchronized spatial Depth-Maps are acquired directly from the connected hardware camera.
 2. **Analysis Routing**: Based on the active mode (defined by the `state_machine.py`), `control_unit.py` delegates this unified data bundle to various sub-engines within `src/perception/`.
-    * **Obstacle Detection** triggers via YOLO on every frame, classifying dynamic distance zones via the `kalman_tracker`. 
+    * **Obstacle Detection** triggers via YOLO on every frame, classifying dynamic distance zones, while the `byte_tracker` manages track lifecycle (DETECTED→CONFIRMED) and approach-speed estimation. 
     * **Faces, Banknotes, and Interactions** are evaluated at defined sub-frame tick rates (e.g., once every 5-15 frames) to offset operational load.
 3. **Decisions State**: Based on the perception results, `state_machine.py` decides if the system needs to switch modes. For instance, if an OCR-readable billboard crosses a specific depth threshold, the state machine fires a callback forcing the system into `OCR` mode.
 4. **Output Dispatch**: Finally, actions are fed into `src/hardware/`. 

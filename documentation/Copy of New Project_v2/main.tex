@@ -1,0 +1,231 @@
+% ============================================================
+% main.tex  — IEEE-like formatting for an SRS-style REPORT
+% (Keeps your chapter structure, but applies IEEE-style look:
+%  - 1 inch margins
+%  - Times-like font
+%  - single spacing
+%  - paragraph indent (no extra paragraph spacing)
+%  - IEEE-like caption styling
+%  - clean TOC + List of Figures
+%  - optional header logos (OFF by default)
+% ============================================================
+
+\documentclass[12pt]{report}
+
+% ----------------------------
+% Page layout (IEEE-like)
+% ----------------------------
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{silence}
+\WarningFilter{latex}{Overfull \hbox}
+\WarningFilter{latex}{Overfull \vbox}
+\WarningFilter{latex}{Underfull \hbox}
+\WarningFilter{latex}{Underfull \vbox}
+
+% ----------------------------
+% Fonts (IEEE uses Times)
+% ----------------------------
+\usepackage{iftex}
+\ifPDFTeX
+\else
+  \usepackage{fontspec}
+  \newfontfamily\arabicfont[Path=assets/fonts/,Script=Arabic]{NotoNaskhArabic-Regular.ttf}
+\fi
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+
+% ----------------------------
+% Spacing & paragraph style (IEEE-like)
+% - IEEE: no extra paragraph spacing; first-line indent
+% ----------------------------
+\usepackage{setspace}
+\singlespacing
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{1em}
+\setlength{\hfuzz}{10000pt}
+\setlength{\vfuzz}{10000pt}
+\hbadness=10000
+\vbadness=10000
+\AtBeginDocument{\hfuzz=10000pt\vfuzz=10000pt\hbadness=10000\vbadness=10000\emergencystretch=3em}
+
+% ----------------------------
+% Links (keep boxed links off)
+% ----------------------------
+\usepackage{hyperref}
+\hypersetup{
+  pdfborder={0 0 0},
+  colorlinks=false
+}
+
+% ----------------------------
+% Figures / tables
+% ----------------------------
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage[most]{tcolorbox}
+
+% IEEE-like captions: small font, bold label
+\usepackage[font=footnotesize,labelfont=bf]{caption}
+
+% ----------------------------
+% Hyphenation control (optional)
+% ----------------------------
+\usepackage[none]{hyphenat}
+
+% ----------------------------
+% Appendices + total pages
+% ----------------------------
+\usepackage{appendix}
+\usepackage{lastpage}
+
+% ----------------------------
+% TOC + List of Figures spacing tweaks
+% ----------------------------
+\usepackage{tocloft}
+% Move TOC title up (adjust value if you want higher/lower)
+\setlength{\cftbeforetoctitleskip}{-0.8cm}
+% Also apply similar effect to LOF title
+\setlength{\cftbeforeloftitleskip}{-0.8cm}
+
+% ----------------------------
+% Section/chapter title spacing (clean, IEEE-like)
+% ----------------------------
+\usepackage{titlesec}
+% Reduce whitespace around chapter titles
+\titlespacing*{\chapter}{0pt}{-0.2cm}{0.5cm}
+% Reduce whitespace around sections/subsections
+\titlespacing*{\section}{0pt}{0.7em}{0.4em}
+\titlespacing*{\subsection}{0pt}{0.6em}{0.3em}
+\titlespacing*{\subsubsection}{0pt}{0.5em}{0.2em}
+
+% ============================================================
+% OPTIONAL: Header logos (NOT IEEE standard, but sometimes required by uni)
+% Turn ON if you really want logos on every page except cover.
+% ============================================================
+\newif\ifheaderlogos
+\headerlogostrue   % <<< change to \headerlogostrue to enable
+
+\ifheaderlogos
+  \usepackage{fancyhdr}
+  \pagestyle{fancy}
+  \fancyhf{}
+  % Left header: Project logo
+  \fancyhead[L]{\includegraphics[height=0.65cm]{assets/Logo.png}}
+  % Right header: University logo (rename file to avoid spaces recommended)
+  \fancyhead[R]{\includegraphics[height=1.0cm]{assets/AAST logo.png}}
+  % Footer: page number
+  \fancyfoot[C]{\thepage}
+  % Remove header/footer rules
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+  % Prevent overlap
+  \setlength{\headheight}{33pt}
+\fi
+
+% If logos are OFF, keep a clean IEEE-like page number only
+\ifheaderlogos\else
+  \pagestyle{plain}
+\fi
+
+
+% ----------------------------
+% Arabic font for the Arabic abstract (compile with XeLaTeX)
+% ----------------------------
+
+% ============================================================
+% Document begins
+% ============================================================
+\begin{document}
+
+% ----------------------------
+% Cover page
+% IMPORTANT: In cover.tex make sure you have:
+% \begin{titlepage}
+% \thispagestyle{empty}
+% ...
+% \end{titlepage}
+% ----------------------------
+\include{cover}
+\clearpage
+
+
+\include{declaration}
+\clearpage
+
+\include{Acknowledgement}
+\clearpage
+
+
+\include{abstract}
+\clearpage
+% ----------------------------
+% Front matter: TOC + List of Figures/Tables (IEEE-like)
+% ----------------------------
+\tableofcontents
+\clearpage
+
+\listoffigures
+\clearpage
+
+\listoftables
+\clearpage
+
+% ----------------------------
+% Main content
+% ----------------------------
+\include{chapters/Introduction}
+\include{chapters/Market Analysis and Related Work}
+\include{chapters/Methodology}
+\include{chapters/Requirements and System Analysis}
+\include{chapters/System Design}
+\include{chapters/Implementation}
+\include{chapters/Conclusion and the Future Work}
+
+\clearpage
+\chapter*{References}
+\addcontentsline{toc}{chapter}{References}
+
+\begin{enumerate}
+    \item Envision Glasses. \url{https://www.letsenvision.com/glasses/home}
+    \item Seleste Glasses. \url{https://www.seleste.co/}
+    \item OrCam MyEye. \url{https://www.orcam.com/en-ie/orcam-myeye}
+    \item WeWALK Smart Cane. \url{https://wewalk.io/}
+    \item Sunu Band mobility aid. \url{https://device.report/manual/1594812}
+    \item EchoSee: An Assistive Mobile Application for Real-Time 3D Environment Reconstruction and Sonification Supporting Enhanced Navigation for People with Vision Impairments. \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC11351581/}
+    \item Easy-Access SoundView: Navigation aid for blind persons by visual-to-auditory sensory substitution. \url{https://pdfs.semanticscholar.org/52b5/248fd69f8f6b944e03c30fa17cec2569ca78.pdf}
+    \item Dense real-time mapping of object-class semantics from RGB-D video. \url{https://www.microsoft.com/en-us/research/publication/dense-real-time-mapping-of-object-class-semantics-from-rgb-d-video/}
+    \item Haptic wearables as sensory replacement, sensory augmentation and trainer: a review. \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC4506766/}
+    \item Seeing With the Hands: A Sensory Substitution That Supports Manual Interactions. \url{https://seeingwiththehands.com/}
+    \item Smart-glasses OCR-based assistance and practical constraints. \url{https://support.letsenvision.com/hc/en-us/article_attachments/34626027065361}
+    \item Deep-learning wearable recognition systems combining vision-based perception and sensors. \url{https://www.mdpi.com/2075-1702/10/10/892}
+    \item Ultralytics YOLO tracking with ByteTrack. \url{https://docs.ultralytics.com/modes/track/}
+    \item Door and Handles Detection dataset (Roboflow Universe). \url{https://universe.roboflow.com/uaeu/door-and-handles-detection}
+    \item Elevator Button Recognition dataset (Roboflow Universe). \url{https://universe.roboflow.com/sun-moon-university/elevator-button-recognition}
+    \item Egyptian Banknote YOLOv8 dataset (authors' own dataset, Roboflow). \url{https://app.roboflow.com/youssef-abdelrahman/egyptian_-banknote_yolov8/train}
+    \item TextOCR --- Text Extraction from Images Dataset (Kaggle). \url{https://www.kaggle.com/datasets/robikscube/textocr-text-extraction-from-images-dataset}
+    \item Luxonis DepthAI and the OAK-D depth camera. \url{https://docs.luxonis.com/}
+    \item PaddleOCR (PP-OCR) optical character recognition toolkit. \url{https://github.com/PaddlePaddle/PaddleOCR}
+    \item InsightFace (RetinaFace detection and ArcFace recognition). \url{https://github.com/deepinsight/insightface}
+    \item Google MediaPipe (Hands landmark tracking). \url{https://github.com/google-ai-edge/mediapipe}
+    \item Ollama local large-language-model runtime. \url{https://ollama.com/}
+    \item Gemma open models. \url{https://ai.google.dev/gemma}
+    \item OpenCV computer-vision library. \url{https://opencv.org/}
+    \item PyTorch deep-learning framework. \url{https://pytorch.org/}
+    \item pyttsx3 offline text-to-speech library. \url{https://github.com/nateshmbhat/pyttsx3}
+    \item pygame multimedia library. \url{https://www.pygame.org/}
+    \item SQLAlchemy SQL toolkit and ORM. \url{https://www.sqlalchemy.org/}
+\end{enumerate}
+
+% ----------------------------
+% Appendices
+% ----------------------------
+\begin{appendices}
+\include{chapters/glossary}
+\end{appendices}
+
+\end{document}

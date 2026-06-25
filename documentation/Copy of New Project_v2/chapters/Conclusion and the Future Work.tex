@@ -1,0 +1,23 @@
+\chapter{Conclusion and the Future Work}
+
+This project presented the design and implementation of \textit{Echora}, a PC-processing-centered assistive system aimed at enhancing object recognition, text access, and guided interaction for Blind and Low Vision (BLV) users. The system was developed with a strong emphasis on real-time performance, privacy preservation, and usability in everyday environments.
+
+Echora integrates RGB-D vision and PC-local artificial intelligence to provide object interaction assistance, text recognition, and safety-related feedback. All perception and decision-making processes are executed locally on a PC, eliminating reliance on cloud-based services and ensuring low latency, robustness, and user data privacy. Haptic feedback is delivered exclusively through a wrist-mounted actuator, while audio cues complement tactile feedback to reduce cognitive load and improve interaction understanding.
+
+The system architecture was carefully designed to balance functionality with hardware constraints, leveraging lightweight machine learning models optimized for PC deployment. A PC-based processing application was developed to unify sensing, perception, feedback generation, and user interaction within a single, accessible interface. The implemented prototype demonstrates that modern PCs are capable of supporting advanced assistive technologies without the need for specialized external infrastructure.
+
+Throughout development, several challenges were encountered, including real-time performance optimization, sensor synchronization, and feedback prioritization. These challenges were addressed through efficient model selection, modular system design, and adaptive feedback strategies. The resulting system validates the feasibility of delivering multimodal sensory substitution using vision-based perception and wearable haptic feedback.
+
+In conclusion, Echora demonstrates a practical and scalable approach to assistive technology that enhances autonomy and safety for BLV users. The project establishes a solid foundation for future work, including extended user evaluations, usability studies, and incremental feature expansion, while maintaining its core principles of PC-local processing, simplicity, and user-centered design.
+
+\section{Future Work}
+
+While the current prototype validates the core Echora perception and feedback pipeline, several capabilities described in the system design are targeted for subsequent development iterations:
+
+\begin{itemize}
+    \item \textbf{Wireless wearable sensing link.} The present prototype acquires synchronized RGB and depth frames from a directly connected RGB-D camera. Future work will move sensing onto the wearable smart glasses and stream depth and visual data to the PC over a wireless link (Wi-Fi / Wi-Fi Direct), removing the physical tether while preserving the real-time latency targets defined in the requirements.
+    \item \textbf{Encryption of biometric data at rest.} Facial embeddings are currently stored locally in a structured on-device database. Future work will add AES-256 encryption at rest for all biometric and sensitive data, fully realizing the privacy-by-design requirement.
+    \item \textbf{Active acoustic sensing.} Integration of an active acoustic sensing modality to complement depth- and vision-based perception, improving robustness in low-texture, low-light, or otherwise challenging conditions.
+    \item \textbf{Traffic and warning sign interpretation.} The text-reading pipeline currently extracts and announces printed text via OCR. Future work will add semantic classification of traffic, warning, and informational signs so that their meaning can be interpreted and announced directly, rather than only their literal text.
+    \item \textbf{Explicit consent workflow.} A formal, explicit user-consent step for enabling facial recognition and for managing, reviewing, and deleting stored identities, strengthening the system's privacy and ethical guarantees.
+\end{itemize}
