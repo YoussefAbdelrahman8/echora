@@ -1,0 +1,134 @@
+[
+  {
+    "model": "Accessibility (doors/handles/elevator)",
+    "num_classes": 7,
+    "mAP50": 0.726,
+    "mAP50_95": 0.5319,
+    "precision": 0.858,
+    "recall": 0.6917,
+    "save_dir": "C:\\Users\\TAMER\\PycharmProjects\\echora\\assets\\eval\\accessibility",
+    "per_class": {
+      "door": {
+        "precision": 0.8661,
+        "recall": 0.8743,
+        "mAP50": 0.9132,
+        "mAP50_95": 0.7407
+      },
+      "door handle": {
+        "precision": 0.7871,
+        "recall": 0.7576,
+        "mAP50": 0.7928,
+        "mAP50_95": 0.4435
+      },
+      "up": {
+        "precision": 0.8118,
+        "recall": 0.7549,
+        "mAP50": 0.7744,
+        "mAP50_95": 0.6234
+      },
+      "updown": {
+        "precision": 1.0,
+        "recall": 0.0,
+        "mAP50": 0.0,
+        "mAP50_95": 0.0
+      },
+      "close": {
+        "precision": 0.8876,
+        "recall": 0.8274,
+        "mAP50": 0.8945,
+        "mAP50_95": 0.6637
+      },
+      "down": {
+        "precision": 0.8326,
+        "recall": 0.7771,
+        "mAP50": 0.8118,
+        "mAP50_95": 0.5984
+      },
+      "open": {
+        "precision": 0.8207,
+        "recall": 0.8509,
+        "mAP50": 0.8953,
+        "mAP50_95": 0.6535
+      }
+    },
+    "confusion_matrix": "C:\\Users\\TAMER\\PycharmProjects\\echora\\documentation\\Copy of New Project\\assets\\implementation\\cm_accessibility.png"
+  },
+  {
+    "model": "Banknote (EGP)",
+    "num_classes": 11,
+    "mAP50": 0.9914,
+    "mAP50_95": 0.9794,
+    "precision": 0.9972,
+    "recall": 0.9964,
+    "save_dir": "C:\\Users\\TAMER\\PycharmProjects\\echora\\assets\\eval\\banknote",
+    "per_class": {
+      "100_EGP": {
+        "precision": 0.9952,
+        "recall": 1.0,
+        "mAP50": 0.995,
+        "mAP50_95": 0.995
+      },
+      "10_EGP": {
+        "precision": 0.9943,
+        "recall": 1.0,
+        "mAP50": 0.995,
+        "mAP50_95": 0.9894
+      },
+      "1_EGP": {
+        "precision": 0.9943,
+        "recall": 1.0,
+        "mAP50": 0.995,
+        "mAP50_95": 0.9808
+      },
+      "1_EGP_coin": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "mAP50": 0.995,
+        "mAP50_95": 0.9858
+      },
+      "200_EGP": {
+        "precision": 0.9965,
+        "recall": 0.96,
+        "mAP50": 0.955,
+        "mAP50_95": 0.9364
+      },
+      "20_EGP": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "mAP50": 0.995,
+        "mAP50_95": 0.9745
+      },
+      "50_EGP": {
+        "precision": 0.9955,
+        "recall": 1.0,
+        "mAP50": 0.995,
+        "mAP50_95": 0.9843
+      },
+      "50_piastres": {
+        "precision": 0.9961,
+        "recall": 1.0,
+        "mAP50": 0.995,
+        "mAP50_95": 0.9901
+      },
+      "5_EGP": {
+        "precision": 0.9973,
+        "recall": 1.0,
+        "mAP50": 0.995,
+        "mAP50_95": 0.982
+      },
+      "new_10_EGP": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "mAP50": 0.995,
+        "mAP50_95": 0.9816
+      },
+      "new_20_EGP": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "mAP50": 0.995,
+        "mAP50_95": 0.9738
+      }
+    },
+    "confusion_matrix": "C:\\Users\\TAMER\\PycharmProjects\\echora\\documentation\\Copy of New Project\\assets\\implementation\\cm_banknote.png"
+  }
+]

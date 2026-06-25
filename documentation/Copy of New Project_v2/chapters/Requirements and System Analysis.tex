@@ -1,0 +1,122 @@
+\chapter{Requirements and System Analysis}
+
+\section{System Features \& Functional Requirements}
+
+\subsection{Feature 1: Continuous Object Awareness \& Audio Guidance}
+
+\subsubsection{Description \& Priority}
+
+This feature provides continuous, real-time awareness of nearby objects in the surrounding environment, including walls, furniture, and usable interaction areas. It operates by processing depth sensor data to support a stable understanding of the user’s immediate surroundings. The feature enables safe and intuitive walking by generating audio cues that communicate the direction, distance, and proximity of objects and open space. Due to its fundamental role in user safety and recognition, this feature is classified as a Critical (Live) priority.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{0.45\textwidth}|p{0.45\textwidth}|}
+        \hline
+        \textbf{Stimulus} & \textbf{Response} \\
+        \hline
+        The user is walking in a corridor or open space. &
+        The PC processes incoming depth frames and camera information to generate audio cues whose pitch, tone, and intensity dynamically change based on the distance and identity of nearby objects and open areas. \\
+        \hline
+    \end{tabular}
+    \caption{Stimulus-Response for Continuous Object Awareness}
+\end{table}
+
+\subsubsection{Functional Requirements}
+
+The system shall continuously acquire and fuse sensor data by streaming low-resolution depth frames and camera information from the smart glasses to the PC using Wi-Fi Direct. All incoming sensor data shall be timestamped and buffered to maintain synchronized processing between depth and visual streams. Object detection association shall be managed using ByteTrack through YOLO's built-in tracking pipeline, with an additional lifecycle manager layered on top of ByteTrack. ByteTrack shall handle detection association and short-occlusion recovery using its two-stage matching strategy, while the lifecycle manager shall promote tracks from DETECTED to CONFIRMED after MIN\_HITS\_TO\_CONFIRM consecutive frames, automatically delete tracks after a configured maximum number of consecutive missed frames, estimate per-track approach speed in millimeters per second, and maintain a last-known-state cache so system components can query track states between detection frames. If sensor data latency exceeds 150 milliseconds, the system shall temporarily switch to simplified recognition until depth data resumes. In the event that more than five consecutive depth frames are lost, the system shall attempt automatic reconnection without interrupting user operation.
+
+The PC shall perform real-time object detection using a lightweight vision model capable of identifying nearby objects and usable interaction areas. The system shall compute object distance, direction, and relative motion with respect to the user and classify detected elements into predefined categories including walls, furniture, humans, and open space. Detection updates shall occur at a minimum rate of 15 frames per second to maintain smooth object feedback. If detection confidence drops below a defined threshold, the system shall gracefully degrade by reducing feedback detail.
+
+To ensure real-time performance, the system shall downsample distant depth data beyond three meters to prioritize computation near the user while preserving full-resolution processing within the one-to-three-meter safety range. Processing time per frame shall not exceed 40 milliseconds to prevent perceptible audio delays. The system shall dynamically adjust computational load based on CPU and GPU temperature and fall back to simplified detection pipelines during performance spikes.
+
+Audio feedback shall be generated to indicate the direction and distance of walls, furniture, and open spaces. Audio cues shall adapt pitch, tone, and intensity based on proximity, with critical objects within 1.5 meters triggering stronger and more urgent signals. Audio output shall be managed to prevent overlapping cues, and newly detected hazards shall immediately interrupt ongoing non-critical audio.
+
+The recognition feature shall activate automatically when the user is detected to be walking continuously for more than two seconds. Manual activation shall also be supported through a simple user command. When the user enters a safe, open area, audio intensity shall be reduced to prevent fatigue. Guidance shall pause automatically when the user stops moving and resume once motion is detected again.
+
+From a safety perspective, if depth data is lost for more than 200 milliseconds, the system shall trigger a strong wrist-based haptic alert and switch to fallback recognition while announcing “Depth unavailable. Switching to fallback recognition.” If sensor data becomes unstable, recognition guidance shall be halted entirely and the user shall be prompted to adjust the glasses. All error notifications shall be delivered without blocking critical safety cues, and error events shall be logged for debugging and system optimization.
+
+Object detection shall operate at a minimum of 15 frames per second and preferably above 24 frames per second. Total end-to-end latency from depth acquisition to audio output shall not exceed 120 milliseconds. All processing shall occur fully on the PC without reliance on cloud services, and power consumption shall remain within defined limits to preserve battery life.
+
+\par\medskip\noindent\rule{\linewidth}{0.4pt}\par\medskip
+
+\subsection{Feature 2: Text and Sign Detection}
+
+\subsubsection{Description \& Priority}
+
+This feature enables the detection and recognition of text and signs present in the environment, including printed or handwritten text as well as traffic signs, warning signs, icons, and logos. It integrates optical character recognition with object detection and semantic classification to identify text regions, extract their content, and interpret sign meaning. The feature operates entirely through PC-local processing and is assigned a High priority due to its importance in information access rather than immediate safety.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{0.45\textwidth}|p{0.45\textwidth}|}
+        \hline
+        \textbf{Stimulus} & \textbf{Response} \\
+        \hline
+        A region containing text is detected. &
+        The system extracts the text using OCR and reads it aloud using text-to-speech. \\
+        \hline
+        A traffic or warning sign is detected. &
+        The system classifies the sign and verbally announces its meaning to the user. \\
+        \hline
+    \end{tabular}
+    \caption{Stimulus-Response for Text and Sign Detection}
+\end{table}
+
+\subsubsection{Functional Requirements}
+
+The smart glasses shall stream camera frames to the PC continuously, and the system shall handle temporary frame loss by retrying or using the most recent valid frame. A real-time text detection model shall identify candidate text regions, filtering out non-text elements based on confidence thresholds. If no text is detected within one second, the system shall announce “No text found” without blocking subsequent detection attempts.
+
+Detected text regions shall be processed using an PC-local OCR engine, with preprocessing steps applied to handle noise, skew, and low-light conditions. OCR results below a defined confidence threshold shall be discarded, and the system shall request new frames. Recognized text shall be converted into speech using an PC-local text-to-speech engine, with audio playback managed through a non-overlapping queue. If new text appears during playback, the system shall interrupt the current output and read the new content.
+
+The feature shall activate automatically when the user holds an object or sign within approximately 70 centimeters of the camera, and it shall also support manual activation through a simple user command. Error conditions such as camera unavailability, insufficient lighting, or incomplete text visibility shall trigger appropriate user feedback messages.
+
+OCR processing shall operate at a minimum of 10 frames per second, with an ideal target above 20 frames per second. Total latency from detection to spoken output shall not exceed one second.
+
+\par\medskip\noindent\rule{\linewidth}{0.4pt}\par\medskip
+
+\section{System Requirements}
+
+This section defines the system-level requirements for Project Echora, describing the functional and operational capabilities required to satisfy user needs. The system architecture consists of wearable smart glasses, haptic feedback devices, and a PC-based processing unit.
+
+The wearable system shall consist of smart glasses that are comfortable for extended daily use and integrate depth sensing and RGB imaging capabilities. Sensor data shall be streamed continuously to a paired PC using wireless communication. The system shall include wearable haptic actuators, such as a wrist-mounted device, to deliver tactile feedback.
+
+From a perception standpoint, the system shall perform real-time sensor fusion using depth and RGB data to support continuous awareness of nearby objects. It shall detect objects, usable interaction areas, and environmental hazards within a safe recognition range while analyzing proximity, direction, and relative motion.
+
+Interaction assistance shall be delivered using continuous audio cues that adapt dynamically as the user moves. Safety alerts shall always be prioritized above all other system outputs, and normal recognition shall operate in a hands-free manner.
+
+For object interaction, the system shall detect interactive objects such as door handles and elevator panels, estimate their spatial identity, track the user’s hand in real time, and guide hand movement using haptic feedback. Confirmation feedback shall be provided once correct alignment is achieved.
+
+The system shall support recognition of text, signs, and known individuals, converting recognized information into speech. Facial recognition functionality shall operate only with explicit user consent and shall associate identities with user-defined names.
+
+Automatic mode switching shall manage transitions between recognition, interaction, OCR, and hand guidance modes while preventing unstable or rapid switching. Users shall retain the ability to manually override modes using simple commands.
+
+All sensitive data shall be processed locally, encrypted at rest, and manageable by the user. The system shall support degraded operation when sensors fail, revert to safe interaction modes during critical failures, and immediately notify the user of any safety-impacting errors.
+
+\par\medskip\noindent\rule{\linewidth}{0.4pt}\par\medskip
+
+\section{User Requirements}
+
+From the user’s perspective, Echora shall enable safe and independent recognition in indoor and outdoor environments while wearing the smart glasses. Users shall receive continuous awareness of objects and open paths through intuitive audio and haptic feedback and be immediately alerted to dangerous situations such as stairs or approaching objects. The system shall allow natural movement without requiring the user to hold or aim a device.
+
+Users shall be able to identify and interact with common objects such as handles, buttons, and readable labels with minimal trial and error. Hand guidance shall be precise, with clear confirmation feedback when alignment is correct.
+
+The system shall provide access to environmental information including text, signs, and familiar individuals through audio output. Interaction shall be primarily automatic, supplemented by simple user commands, and feedback shall remain clear, non-overlapping, and interruptible at any time.
+
+Comfort, trust, and safety are essential. The smart glasses shall remain comfortable for long-term wear, feedback shall not overwhelm the user, and the system shall always prioritize safety while handling personal and biometric data securely and privately.
+
+\par\medskip\noindent\rule{\linewidth}{0.4pt}\par\medskip
+
+\section{Non-Functional Requirements}
+
+Non-functional requirements address performance, security, reliability, safety, usability, maintainability, and operational constraints.
+
+The system shall meet strict real-time performance targets, including frame processing latency below 40 milliseconds, recognition feedback latency below 120 milliseconds, and danger alert latency below 100 milliseconds. Mode switching shall occur within 200 milliseconds, and audio and haptic outputs shall execute promptly without overlap.
+
+Security requirements mandate PC-local processing, strong encryption of biometric data using AES-256, secure device pairing, and strict user consent for sensitive features. Privacy-by-design principles shall govern all data handling.
+
+The system shall achieve high reliability with a mean time between failures exceeding 10,000 hours and support graceful degradation and fallback modes. Availability during active use shall exceed 99.5\%.
+
+Safety requirements include limits on audio volume and haptic intensity, thermal and electrical safety compliance, fail-safe behavior, and adherence to medical device and electromagnetic compatibility standards.
+
+Usability requirements emphasize learnability, efficiency, accessibility compliance, voice control, and consistent multi-modal feedback. Maintainability requirements include modular design, over-the-air updates, diagnostic support, and long-term hardware serviceability.
+
+Operational requirements specify deployment procedures, environmental operating conditions, regulatory compliance, and end-of-life considerations including data migration, recycling, and long-term support commitments.
