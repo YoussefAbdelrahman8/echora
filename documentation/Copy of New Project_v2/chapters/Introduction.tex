@@ -148,7 +148,7 @@ The PC-based processing software serves as the central processing unit of the sy
 
 The Echora system employs wireless communication to support real-time data exchange between the wearable hardware and the PC processing software. The communication design prioritizes low latency, reliability, and power efficiency to support continuous operation.
 
-A combination of Wi-Fi and Bluetooth Low Energy (BLE) is used to achieve this balance. Wi-Fi communication is utilized for transmitting high-bandwidth data such as depth frames and visual information, while BLE is used for low-bandwidth, low-power data exchange including sensor readings, control signals, and haptic commands. The wearable device transmits raw sensor data, including depth measurements and camera information, to the PC for processing. In return, the PC sends control instructions to the wearable device, such as haptic feedback commands, mode changes, and warning signals. All communication is designed to operate in real time with minimal delay to ensure responsive and reliable user feedback.
+The wearable haptic module communicates with the PC over Wi-Fi. The module exposes a lightweight network interface around its ESP32 controller, and the PC sends it control instructions --- haptic feedback commands (direction, intensity, and confirmation patterns), mode changes, and warning signals --- in real time. High-bandwidth visual and depth data are handled on the PC directly from the OAK-D camera, so the wireless link carries only compact, low-latency control messages. All communication is designed to operate with minimal delay to ensure responsive and reliable user feedback.
 
 \subsection{In-Scope Features}
 \label{subsubsec:in_scope_features}
@@ -200,7 +200,7 @@ From a user experience perspective, learnability remains a key challenge, as use
 
 \begin{table}[H]
 \centering
-\includegraphics[width=\textwidth]{assets/Risks.png}
+\includegraphics[width=\textwidth]{assets/Risks.jpg}
 \caption{List of Risks}
 \label{tab:risks}
 \end{table}
@@ -220,7 +220,7 @@ From a user experience perspective, learnability remains a key challenge, as use
 
 \begin{table}[H]
 \centering
-\includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{assets/Constraints.png}
+\includegraphics[width=\textwidth,height=0.75\textheight,keepaspectratio]{assets/Constraints.jpg}
 \caption{List of Constraints}
 \label{tab:constraints}
 \end{table}

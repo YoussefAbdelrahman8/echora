@@ -1,3 +1,5 @@
+% !TEX program = xelatex
+% !TEX TS-program = xelatex
 % ============================================================
 % main.tex  — IEEE-like formatting for an SRS-style REPORT
 % (Keeps your chapter structure, but applies IEEE-style look:
@@ -30,7 +32,8 @@
 \ifPDFTeX
 \else
   \usepackage{fontspec}
-  \newfontfamily\arabicfont[Path=assets/fonts/,Script=Arabic]{NotoNaskhArabic-Regular.ttf}
+  % Arabic font + RTL support are set up at the END of the preamble (polyglossia/bidi
+  % must be loaded last). See the "Arabic support" block before \begin{document}.
 \fi
 \usepackage{newtxtext}
 \usepackage{newtxmath}
@@ -42,8 +45,9 @@
 % ----------------------------
 \usepackage{setspace}
 \singlespacing
-\setlength{\parskip}{0pt}
-\setlength{\parindent}{1em}
+% Match reference document: ~6pt space after paragraphs + ~0.5cm first-line indent
+\setlength{\parskip}{6pt plus 1pt}
+\setlength{\parindent}{0.5cm}
 \setlength{\hfuzz}{10000pt}
 \setlength{\vfuzz}{10000pt}
 \hbadness=10000
@@ -69,8 +73,10 @@
 \usepackage[table]{xcolor}
 \usepackage[most]{tcolorbox}
 
-% IEEE-like captions: small font, bold label
-\usepackage[font=footnotesize,labelfont=bf]{caption}
+% Captions: 9pt to match the reference document, bold label
+\usepackage{caption}
+\DeclareCaptionFont{ninept}{\fontsize{9}{11}\selectfont}
+\captionsetup{font=ninept,labelfont=bf}
 
 % ----------------------------
 % Hyphenation control (optional)
@@ -103,6 +109,19 @@
 \titlespacing*{\subsection}{0pt}{0.6em}{0.3em}
 \titlespacing*{\subsubsection}{0pt}{0.5em}{0.2em}
 
+% Heading sizes matched to the reference document (Word-style, Times bold, black):
+% chapter 16pt (centered), section 14pt, subsection 13pt, subsubsection 12pt
+\titleformat{\chapter}[display]
+  {\normalfont\centering\bfseries\fontsize{16}{19}\selectfont}
+  {\chaptertitlename\ \thechapter}{6pt}
+  {\fontsize{16}{19}\selectfont}
+\titleformat{\section}
+  {\normalfont\bfseries\fontsize{14}{17}\selectfont}{\thesection}{0.6em}{}
+\titleformat{\subsection}
+  {\normalfont\bfseries\fontsize{13}{16}\selectfont}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}
+  {\normalfont\bfseries\fontsize{12}{15}\selectfont}{\thesubsubsection}{0.6em}{}
+
 % ============================================================
 % OPTIONAL: Header logos (NOT IEEE standard, but sometimes required by uni)
 % Turn ON if you really want logos on every page except cover.
@@ -134,8 +153,16 @@
 
 
 % ----------------------------
-% Arabic font for the Arabic abstract (compile with XeLaTeX)
+% Arabic support for the Arabic abstract (XeLaTeX/LuaLaTeX only).
+% Loaded LAST on purpose: polyglossia pulls in the bidi package, which must be
+% the last package loaded. This gives proper right-to-left Arabic.
 % ----------------------------
+\ifPDFTeX\else
+  \usepackage{polyglossia}
+  \setmainlanguage{english}
+  \setotherlanguage{arabic}
+  \newfontfamily\arabicfont[Path=assets/fonts/,Script=Arabic]{NotoNaskhArabic-Regular.ttf}
+\fi
 
 % ============================================================
 % Document begins
@@ -166,6 +193,9 @@
 % ----------------------------
 % Front matter: TOC + List of Figures/Tables (IEEE-like)
 % ----------------------------
+% Keep the auto-generated lists tight (the 6pt body \parskip would loosen them)
+\begingroup
+\setlength{\parskip}{0pt}
 \tableofcontents
 \clearpage
 
@@ -174,6 +204,7 @@
 
 \listoftables
 \clearpage
+\endgroup
 
 % ----------------------------
 % Main content
@@ -190,36 +221,70 @@
 \chapter*{References}
 \addcontentsline{toc}{chapter}{References}
 
-\begin{enumerate}
-    \item Envision Glasses. \url{https://www.letsenvision.com/glasses/home}
-    \item Seleste Glasses. \url{https://www.seleste.co/}
-    \item OrCam MyEye. \url{https://www.orcam.com/en-ie/orcam-myeye}
-    \item WeWALK Smart Cane. \url{https://wewalk.io/}
-    \item Sunu Band mobility aid. \url{https://device.report/manual/1594812}
-    \item EchoSee: An Assistive Mobile Application for Real-Time 3D Environment Reconstruction and Sonification Supporting Enhanced Navigation for People with Vision Impairments. \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC11351581/}
-    \item Easy-Access SoundView: Navigation aid for blind persons by visual-to-auditory sensory substitution. \url{https://pdfs.semanticscholar.org/52b5/248fd69f8f6b944e03c30fa17cec2569ca78.pdf}
-    \item Dense real-time mapping of object-class semantics from RGB-D video. \url{https://www.microsoft.com/en-us/research/publication/dense-real-time-mapping-of-object-class-semantics-from-rgb-d-video/}
-    \item Haptic wearables as sensory replacement, sensory augmentation and trainer: a review. \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC4506766/}
-    \item Seeing With the Hands: A Sensory Substitution That Supports Manual Interactions. \url{https://seeingwiththehands.com/}
-    \item Smart-glasses OCR-based assistance and practical constraints. \url{https://support.letsenvision.com/hc/en-us/article_attachments/34626027065361}
-    \item Deep-learning wearable recognition systems combining vision-based perception and sensors. \url{https://www.mdpi.com/2075-1702/10/10/892}
-    \item Ultralytics YOLO tracking with ByteTrack. \url{https://docs.ultralytics.com/modes/track/}
-    \item Door and Handles Detection dataset (Roboflow Universe). \url{https://universe.roboflow.com/uaeu/door-and-handles-detection}
-    \item Elevator Button Recognition dataset (Roboflow Universe). \url{https://universe.roboflow.com/sun-moon-university/elevator-button-recognition}
-    \item Egyptian Banknote YOLOv8 dataset (authors' own dataset, Roboflow). \url{https://app.roboflow.com/youssef-abdelrahman/egyptian_-banknote_yolov8/train}
-    \item TextOCR --- Text Extraction from Images Dataset (Kaggle). \url{https://www.kaggle.com/datasets/robikscube/textocr-text-extraction-from-images-dataset}
-    \item Luxonis DepthAI and the OAK-D depth camera. \url{https://docs.luxonis.com/}
-    \item PaddleOCR (PP-OCR) optical character recognition toolkit. \url{https://github.com/PaddlePaddle/PaddleOCR}
-    \item InsightFace (RetinaFace detection and ArcFace recognition). \url{https://github.com/deepinsight/insightface}
-    \item Google MediaPipe (Hands landmark tracking). \url{https://github.com/google-ai-edge/mediapipe}
-    \item Ollama local large-language-model runtime. \url{https://ollama.com/}
-    \item Gemma open models. \url{https://ai.google.dev/gemma}
-    \item OpenCV computer-vision library. \url{https://opencv.org/}
-    \item PyTorch deep-learning framework. \url{https://pytorch.org/}
-    \item pyttsx3 offline text-to-speech library. \url{https://github.com/nateshmbhat/pyttsx3}
-    \item pygame multimedia library. \url{https://www.pygame.org/}
-    \item SQLAlchemy SQL toolkit and ORM. \url{https://www.sqlalchemy.org/}
-\end{enumerate}
+% APA-style reference list: alphabetical, unnumbered, hanging indent (matches reference document)
+\begingroup
+\setlength{\parindent}{0pt}%
+\setlength{\parskip}{6pt plus 1pt}%
+\newcommand{\refent}[1]{\par\hangindent=1.27cm\hangafter=1 #1}
+
+\refent{Abdelrahman, Y. (n.d.). \emph{Egyptian banknote YOLOv8} [Data set]. Roboflow. \url{https://app.roboflow.com/youssef-abdelrahman/egyptian_-banknote_yolov8/train}}
+
+\refent{Bhat, N. M. (n.d.). \emph{pyttsx3} [Computer software]. GitHub. \url{https://github.com/nateshmbhat/pyttsx3}}
+
+\refent{DeepInsight. (n.d.). \emph{InsightFace: RetinaFace detection and ArcFace recognition} [Computer software]. GitHub. \url{https://github.com/deepinsight/insightface}}
+
+\refent{Deep-learning wearable recognition systems combining vision-based perception and sensors. (n.d.). \emph{Machines, 10}(10), 892. \url{https://www.mdpi.com/2075-1702/10/10/892}}
+
+\refent{Dense real-time mapping of object-class semantics from RGB-D video. (n.d.). Microsoft Research. \url{https://www.microsoft.com/en-us/research/publication/dense-real-time-mapping-of-object-class-semantics-from-rgb-d-video/}}
+
+\refent{Easy-access SoundView: Navigation aid for blind persons by visual-to-auditory sensory substitution. (n.d.). Semantic Scholar. \url{https://pdfs.semanticscholar.org/52b5/248fd69f8f6b944e03c30fa17cec2569ca78.pdf}}
+
+\refent{EchoSee: An assistive mobile application for real-time 3D environment reconstruction and sonification supporting enhanced navigation for people with vision impairments. (n.d.). PubMed Central. \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC11351581/}}
+
+\refent{Envision. (n.d.-a). \emph{Envision Glasses}. \url{https://www.letsenvision.com/glasses/home}}
+
+\refent{Envision. (n.d.-b). \emph{Smart-glasses OCR-based assistance and practical constraints}. \url{https://support.letsenvision.com/hc/en-us/article_attachments/34626027065361}}
+
+\refent{Google. (n.d.-a). \emph{Gemma open models}. \url{https://ai.google.dev/gemma}}
+
+\refent{Google. (n.d.-b). \emph{MediaPipe} [Computer software]. GitHub. \url{https://github.com/google-ai-edge/mediapipe}}
+
+\refent{Haptic wearables as sensory replacement, sensory augmentation and trainer: A review. (n.d.). PubMed Central. \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC4506766/}}
+
+\refent{Luxonis. (n.d.). \emph{DepthAI documentation and the OAK-D depth camera}. \url{https://docs.luxonis.com/}}
+
+\refent{Ollama. (n.d.). \emph{Ollama} [Computer software]. \url{https://ollama.com/}}
+
+\refent{OpenCV. (n.d.). \emph{OpenCV} [Computer software]. \url{https://opencv.org/}}
+
+\refent{OrCam Technologies. (n.d.). \emph{OrCam MyEye}. \url{https://www.orcam.com/en-ie/orcam-myeye}}
+
+\refent{PaddlePaddle. (n.d.). \emph{PaddleOCR (PP-OCR)} [Computer software]. GitHub. \url{https://github.com/PaddlePaddle/PaddleOCR}}
+
+\refent{Pygame. (n.d.). \emph{pygame} [Computer software]. \url{https://www.pygame.org/}}
+
+\refent{PyTorch. (n.d.). \emph{PyTorch} [Computer software]. \url{https://pytorch.org/}}
+
+\refent{RobikScube. (n.d.). \emph{TextOCR --- Text extraction from images dataset} [Data set]. Kaggle. \url{https://www.kaggle.com/datasets/robikscube/textocr-text-extraction-from-images-dataset}}
+
+\refent{Seeing with the hands: A sensory substitution that supports manual interactions. (n.d.). \url{https://seeingwiththehands.com/}}
+
+\refent{Seleste. (n.d.). \emph{Seleste glasses}. \url{https://www.seleste.co/}}
+
+\refent{SQLAlchemy. (n.d.). \emph{SQLAlchemy} [Computer software]. \url{https://www.sqlalchemy.org/}}
+
+\refent{Sun Moon University. (n.d.). \emph{Elevator button recognition} [Data set]. Roboflow Universe. \url{https://universe.roboflow.com/sun-moon-university/elevator-button-recognition}}
+
+\refent{Sunu. (n.d.). \emph{Sunu Band mobility aid} [User manual]. \url{https://device.report/manual/1594812}}
+
+\refent{UAEU. (n.d.). \emph{Door and handles detection} [Data set]. Roboflow Universe. \url{https://universe.roboflow.com/uaeu/door-and-handles-detection}}
+
+\refent{Ultralytics. (n.d.). \emph{Track mode with ByteTrack}. Ultralytics YOLO documentation. \url{https://docs.ultralytics.com/modes/track/}}
+
+\refent{WeWALK. (n.d.). \emph{WeWALK smart cane}. \url{https://wewalk.io/}}
+
+\par
+\endgroup
 
 % ----------------------------
 % Appendices
