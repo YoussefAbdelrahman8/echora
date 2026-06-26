@@ -100,7 +100,7 @@ Currency recognition is implemented with a custom YOLOv8 detection model trained
 
 Fine-grained interaction is implemented by combining MediaPipe Hands with the existing YOLO detections. MediaPipe provides 21 hand landmarks; the fingertip landmark is taken as the user's pointer, while the target object is selected from the YOLO detections restricted to interactable classes (such as handles and elevator controls). The system computes the three-dimensional offset between the fingertip and the target center --- horizontal and vertical displacement in pixels and depth difference in millimeters --- and drives a guidance state machine with phases \texttt{IDLE}, \texttt{GUIDANCE}, \texttt{EDGE}, and \texttt{SUCCESS} as the hand converges on the target.
 
-The resulting direction (left, right, up, down, forward) and intensity are encoded onto a wrist-worn electro-tactile actuator grid, with intensity scaling as the hand approaches the target and a distinct confirmation pattern fired on success. The encoded commands are transmitted to the wearable wrist device over Bluetooth Low Energy.
+The resulting direction (left, right, up, down, forward) and intensity are encoded as vibration patterns across the wearable haptic module's array of vibration motors, with intensity scaling as the hand approaches the target and a distinct confirmation pattern fired on success. The encoded commands are transmitted over Wi-Fi to the module's ESP32 controller, which activates the corresponding motors.
 
 \section{Datasets and Model Training}
 \label{sec:datasets}
@@ -164,7 +164,7 @@ Audio is implemented as a priority-driven, non-blocking speech and alert system.
 
 \subsection{Haptic Feedback}
 
-Haptic feedback drives a wrist-worn actuator. Directional and proximity patterns --- and a dedicated success confirmation pattern --- are generated for the hand-guidance and danger workflows and transmitted to the wearable device over Bluetooth Low Energy. Pattern generation runs on background threads so that haptic output never blocks the perception loop.
+Haptic feedback is delivered through a wearable module built around an ESP32 microcontroller that drives an array of coin vibration motors. To control many motors from only a few GPIO pins, the ESP32 cascades three 74LS595 shift registers whose outputs feed three ULN2803A Darlington driver arrays, each capable of switching the motor current; the control logic and the motors run on separate power rails (5\,V logic and a 3.7\,V Li-ion motor rail that share only a common ground) so that motor current spikes cannot brown out the controller. Directional and proximity patterns --- and a dedicated success confirmation pattern --- are generated for the hand-guidance and danger workflows and transmitted to the module over Wi-Fi. Pattern generation runs on background threads so that haptic output never blocks the perception loop.
 
 \section{State Machine and Control Unit}
 
@@ -184,6 +184,178 @@ The control unit implements the real-time loop. On each iteration it retrieves a
 Persistence is implemented with SQLite through SQLAlchemy. The schema stores registered people (name, 512-dimensional embedding, first-seen and last-seen timestamps, and a sighting counter), user preferences, and an event log for recognitions and registrations. Embeddings are validated by size on load so that only compatible vectors are used.
 
 Face registration is implemented as an interactive capture workflow: the operator enters a name, the system captures multiple frames over a short window, enforces quality gates (a minimum detection score and a minimum number of sharp frames), averages the best embeddings into a single normalized vector, and stores it against the provided name. Providing a name during this deliberate registration step constitutes the user's consent to store that identity.
+
+\section{Prototype Build Walkthrough}
+\label{sec:walkthrough}
+
+Beyond the software, Echora was realized as a physical, wearable prototype. This section walks through the hardware build in the order it was carried out, from the initial computer-aided design of the headset to the fabrication of the custom haptic-feedback module. The two devices were built in parallel: the head-worn unit that carries the OAK-D camera and electronics, and the wearable haptic module --- an ESP32-driven array of vibration motors --- that delivers the directional guidance and confirmation cues described in the Feedback Subsystem.
+
+% Helper for laying walkthrough photos out in a tidy grid (3 per row).
+\newcommand{\wtcell}[1]{%
+  \begin{minipage}[t]{0.31\textwidth}\centering
+  \includegraphics[width=\linewidth,height=4.4cm,keepaspectratio]{assets/implementation/walkthrough/#1}%
+  \end{minipage}}
+
+\subsection{Wearable Headset}
+
+The head unit began as a 3D model. The enclosure, camera mount, and head strap were modeled and assembled in SolidWorks against a reference head so that fit, weight balance, and the camera's field of view could be validated before any material was printed (Figure~\ref{fig:wt_cad}).
+
+\begin{figure}[H]
+\centering
+\wtcell{g01.jpeg}\hfill\wtcell{g02.jpeg}\hfill\wtcell{g03.jpeg}\\[4pt]
+\wtcell{g04.jpeg}
+\caption{Step 1 --- CAD design: the headset enclosure, camera bezel, and strap modeled and assembled in SolidWorks on a reference head to verify ergonomics and camera placement.}
+\label{fig:wt_cad}
+\end{figure}
+
+The validated model was 3D printed in several parts. The printed shells house the OAK-D camera behind a front bezel and a pair of 18650 lithium cells with their wiring and power switch, while a cushioned strap provides a comfortable fit (Figure~\ref{fig:wt_print}).
+
+\begin{figure}[H]
+\centering
+\wtcell{g05.jpeg}\hfill\wtcell{g06.jpeg}\hfill\wtcell{g07.jpeg}\\[4pt]
+\wtcell{g08.jpeg}\hfill\wtcell{g09.jpeg}\hfill\wtcell{g10.jpeg}\\[4pt]
+\wtcell{g11.jpeg}\hfill\wtcell{g12.jpeg}\hfill\wtcell{g13.jpeg}\\[4pt]
+\wtcell{g14.jpeg}
+\caption{Step 2 --- 3D printing and internal components: the printed enclosure shells, the camera front bezel, the 18650 battery cells with wiring and power switch, and the head strap.}
+\label{fig:wt_print}
+\end{figure}
+
+Raw printed parts carry visible layer lines, so each surface was filled and wet-sanded with body filler to a smooth finish ready for paint (Figure~\ref{fig:wt_sanding}).
+
+\begin{figure}[H]
+\centering
+\wtcell{g15.jpeg}\hfill\wtcell{g16.jpeg}\hfill\wtcell{g17.jpeg}\\[4pt]
+\wtcell{g18.jpeg}\hfill\wtcell{g19.jpeg}\hfill\wtcell{g20.jpeg}\\[4pt]
+\wtcell{g21.jpeg}
+\caption{Step 3 --- Surface finishing: applying body filler and progressively wet-sanding the printed shells to remove layer lines.}
+\label{fig:wt_sanding}
+\end{figure}
+
+The finished shells were then primed and spray-painted in a makeshift booth, building up even coats for a uniform, professional-looking surface (Figure~\ref{fig:wt_paint}).
+
+\begin{figure}[H]
+\centering
+\wtcell{g22.jpeg}\hfill\wtcell{g23.jpeg}\hfill\wtcell{g24.jpeg}\\[4pt]
+\wtcell{g25.jpeg}\hfill\wtcell{g26.jpeg}\hfill\wtcell{g27.jpeg}
+\caption{Step 4 --- Painting: priming and spray-painting the enclosure parts in a ventilated cardboard booth.}
+\label{fig:wt_paint}
+\end{figure}
+
+In parallel, the Echora brand mark and the front-face decal were designed as vector artwork, ready to be applied to the painted shell (Figure~\ref{fig:wt_brand}).
+
+\begin{figure}[H]
+\centering
+\wtcell{g28.jpeg}\hfill\wtcell{g29.jpeg}\hfill\wtcell{g30.jpeg}
+\caption{Step 5 --- Branding: designing the Echora logo and front-face decal as vector graphics.}
+\label{fig:wt_brand}
+\end{figure}
+
+The painted shells, electronics, battery, switch, and cushioned strap were then assembled into a working unit and bench-tested (Figure~\ref{fig:wt_assembly}).
+
+\begin{figure}[H]
+\centering
+\wtcell{g31.jpeg}\hfill\wtcell{g32.jpeg}
+\caption{Step 6 --- Assembly: integrating the painted enclosure, battery, power button, and head strap into the working head unit.}
+\label{fig:wt_assembly}
+\end{figure}
+
+The result is the finished Echora headset: a glossy, branded enclosure with the front camera array and a padded, adjustable strap (Figure~\ref{fig:wt_final}).
+
+\newcommand{\wtside}[1]{\includegraphics[width=\linewidth,height=3.4cm,keepaspectratio]{assets/implementation/walkthrough/#1}}
+\begin{figure}[H]
+\centering
+\begin{minipage}[c]{0.24\textwidth}\centering
+  \wtside{g33.jpeg}\\[6pt]
+  \wtside{g34.jpeg}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.47\textwidth}\centering
+  \includegraphics[width=\linewidth,height=7.4cm,keepaspectratio]{assets/implementation/walkthrough/g36.jpeg}
+\end{minipage}\hfill
+\begin{minipage}[c]{0.24\textwidth}\centering
+  \wtside{g35.jpeg}\\[6pt]
+  \wtside{g37.jpeg}
+\end{minipage}
+\caption{Step 7 --- Finished headset: the completed Echora head unit (center) showing the front camera array, branding, and adjustable cushioned strap, with additional views around it.}
+\label{fig:wt_final}
+\end{figure}
+
+\subsection{Haptic Feedback Module}
+
+The wearable haptic module was developed as a separate hardware track. Starting from the target concept of a microcontroller-driven array of vibration motors, the circuit was first prototyped on a breadboard before being committed to a custom printed circuit board (Figure~\ref{fig:wt_haptic_proto}).
+
+\begin{figure}[H]
+\centering
+\wtcell{h01.jpeg}\hfill\wtcell{h02.jpeg}\hfill\wtcell{h03.jpeg}\\[4pt]
+\wtcell{h04.jpeg}\hfill\wtcell{h05.jpeg}
+\caption{Haptic build, Step 1 --- Concept and prototyping: the target wearable vibration-motor array, the prototyping kit and components, and the driver circuit wired up on a breadboard.}
+\label{fig:wt_haptic_proto}
+\end{figure}
+
+Once the breadboard circuit was validated, the driver electronics were laid out as a custom PCB --- an ESP32 controller, three 74LS595 shift registers cascaded into three ULN2803A Darlington driver arrays, and power-conditioning stages --- and then fabricated and populated (Figure~\ref{fig:wt_haptic_pcb}).
+
+\begin{figure}[H]
+\centering
+\wtcell{h06.jpeg}\hfill\wtcell{h07.png}\hfill\wtcell{h08.jpeg}\\[4pt]
+\wtcell{h09.jpeg}
+\caption{Haptic build, Step 2 --- Custom PCB: the routed board layout, followed by the fabricated and populated driver board carrying the ESP32, the shift-register and Darlington-driver ICs, and the power stages.}
+\label{fig:wt_haptic_pcb}
+\end{figure}
+
+The populated board was then wired to the vibration motors and the 18650 battery pack and integrated into the complete, self-contained haptic module shown in Figure~\ref{fig:wt_haptic_final}. The ESP32 drives twenty coin vibration motors through the cascaded shift registers and driver arrays, while a buck-converter stage and an inline switch feed the separate 3.7\,V motor rail from the battery pack.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.62\textwidth,height=8cm,keepaspectratio]{assets/implementation/walkthrough/h10.jpeg}
+\caption{Haptic build, Step 3 --- Assembled module: the custom driver board wired to the fan-out of coin vibration motors, with the ESP32, buck-converter power stage, inline switch, and the 18650 battery pack.}
+\label{fig:wt_haptic_final}
+\end{figure}
+
+\subsubsection{Bill of Materials}
+
+Table~\ref{tab:haptic_bom} lists the components used to build the haptic module. The design controls twenty motors from only three ESP32 GPIO pins by cascading three 74LS595 shift registers into three ULN2803A driver arrays, and keeps the 5\,V control logic and the 3.7\,V motor supply on separate rails that share only a common ground.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|p{0.32\textwidth}|c|p{0.40\textwidth}|}
+\hline
+\textbf{\#} & \textbf{Component} & \textbf{Qty} & \textbf{Notes} \\
+\hline
+1 & ESP32 development board & 1 & ESP32-WROOM-32 with Wi-Fi (e.g.\ DevKit V1) \\
+\hline
+2 & 74LS595 / 74HC595 shift register & 3 & DIP-16, 5\,V logic; cascaded to expand outputs \\
+\hline
+3 & ULN2803A Darlington driver array & 3 & DIP-18; switches the motor current \\
+\hline
+4 & Coin vibration motors & 20 & 3--5\,V, $\sim$80\,mA each, 8--10\,mm diameter \\
+\hline
+5 & 18650 Li-ion cell & 1 & 3.7\,V, protected cell preferred \\
+\hline
+6 & 18650 battery holder & 1 & With wire leads \\
+\hline
+7 & SPST slide switch & 1 & Inline on the battery (+) line \\
+\hline
+8 & DIP-16 IC sockets & 3 & For the shift registers \\
+\hline
+9 & DIP-18 IC sockets & 3 & For the driver arrays \\
+\hline
+10 & 100\,nF ceramic capacitors & 6 & Decoupling, one near each IC \\
+\hline
+11 & $10\,\mu$F electrolytic capacitors & 2 & Bulk decoupling, one per power rail \\
+\hline
+12 & Perfboard / custom PCB & 1 & $\sim$50$\times$70\,mm \\
+\hline
+13 & Male header pins (strip) & 1 & For the ESP32 connection \\
+\hline
+14 & Ribbon cable (22-conductor) & 30\,cm & Motor lines plus ground \\
+\hline
+15 & Solder, flux, hookup wire & --- & Standard supplies \\
+\hline
+\end{tabular}
+\caption{Bill of materials for the wearable haptic feedback module.}
+\label{tab:haptic_bom}
+\end{table}
+
+A DC--DC buck converter feeds the ESP32, and an inline switch isolates the battery from the motor rail when the module is not in use; the two supplies are never bridged, so motor switching transients cannot brown out the controller.
 
 \section{Evaluation and Testing}
 
@@ -304,6 +476,59 @@ Audio feedback (runtime) & 1 & Pass \\
 \label{tab:sw_tests}
 \end{table}
 
+\subsection{System Integration and End-to-End Testing}
+
+The tests in the previous subsection validate each engine and each perception model in isolation. To validate Echora \emph{as a whole}, a further level of testing exercised the fully integrated application --- the control unit driving the complete RGB-D $\rightarrow$ perception $\rightarrow$ state-machine $\rightarrow$ feedback loop --- rather than any single function or model. The objective was to confirm that the independently working components cooperate correctly, switch modes sensibly, respect the safety priority, and sustain real-time performance.
+
+\paragraph{Test method.} Two complementary methods were used:
+\begin{itemize}
+    \item \textbf{Headless integration tests of the orchestration logic.} The context-aware state machine is the component that fuses the outputs of all engines into a single behavior, so it was driven through scripted multi-frame scenarios: synthetic RGB-D/IMU bundles and perception results are fed to the real \texttt{StateMachine}, and the resulting mode is asserted after each step. These scenarios deliberately target the cross-engine interactions --- transition debouncing, minimum dwell time, the IMU motion gate, and the danger override --- that no single-engine test can exercise.
+    \item \textbf{Live end-to-end field runs.} The complete system was run on the OAK-D in furnished indoor environments while a user moved through the scene, triggering each of the five modes and the transitions between them. Correct operation was confirmed through the real-time debug visualization window --- which overlays every detection with its class, distance, and bearing, the assigned proximity zone, the active mode, and the live frame rate --- and through the per-frame timing reports written for every session.
+\end{itemize}
+
+\paragraph{Scenario results.} Table~\ref{tab:system_tests} summarizes the system-level state-machine scenarios and their outcomes. Every scenario produced the expected end-to-end behavior. In particular, a danger-zone obstacle always forced an immediate return to NAVIGATION regardless of the active mode, confirming that the safety path takes precedence over all other features.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|p{0.40\textwidth}|p{0.30\textwidth}|c|}
+\hline
+\textbf{\#} & \textbf{Scenario (integrated behavior)} & \textbf{Expected outcome} & \textbf{Result} \\
+\hline
+1 & No active triggers (idle scene) & Remain in NAVIGATION (default) & Pass \\
+\hline
+2 & Readable text visible for a single frame & No switch (debounce) & Pass \\
+\hline
+3 & Stable text, user nearly still, dwell elapsed & Switch to OCR & Pass \\
+\hline
+4 & Danger-zone obstacle appears while in OCR & Immediate override to NAVIGATION & Pass \\
+\hline
+5 & Readable text visible while user walks fast & Remain in NAVIGATION (motion gate) & Pass \\
+\hline
+6 & Stable, confident face detected & Switch to FACE\_ID & Pass \\
+\hline
+7 & Every mode change recorded in history/stats & Transition logged & Pass \\
+\hline
+\end{tabular}
+\caption{System-level integration scenarios exercising the end-to-end state-machine behavior, with expected and observed outcomes.}
+\label{tab:system_tests}
+\end{table}
+
+\paragraph{Live operation.} During the live runs the integrated system sustained real-time operation at approximately 20--21 frames per second while simultaneously detecting and tracking several obstacles, estimating each object's distance and bearing, and classifying it into a safe, warning, or danger zone. Figure~\ref{fig:debug_overlay} shows two representative frames. In the first, several chairs and a couch are tracked in the warning zone, each annotated with its distance and bearing; in the second, a chair that has entered the danger corridor is flagged in red while a more distant couch remains in the safe (green) zone. The on-screen mode, frame counter, frame rate, and per-zone object counts confirm that the entire pipeline --- acquisition, detection and tracking, depth-based zoning, state evaluation, and feedback dispatch --- runs together in real time.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.49\textwidth}\centering
+  \includegraphics[width=\linewidth,keepaspectratio]{assets/implementation/debug_nav_warning.jpg}\\[2pt]{\footnotesize (a) Multiple obstacles in the warning zone}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}\centering
+  \includegraphics[width=\linewidth,keepaspectratio]{assets/implementation/debug_nav_danger.jpg}\\[2pt]{\footnotesize (b) Danger-zone obstacle (red) vs.\ safe couch (green)}
+\end{minipage}
+\caption{Live end-to-end operation of the integrated system in NAVIGATION mode, captured from the real-time debug window. Each detection is annotated with its class, distance, and bearing and colored by proximity zone; the heads-up display reports the active mode, frame rate ($\sim$20\,FPS), and per-zone object counts.}
+\label{fig:debug_overlay}
+\end{figure}
+
+Together with the component-level evaluation and the passing automated suite, these end-to-end results demonstrate that Echora functions correctly as an integrated, real-time system --- and not merely as a collection of independently working models.
+
 \section{Summary}
 
-This chapter presented the concrete implementation of Echora: the technology stack, the modular software architecture, the RGB-D sensing pipeline, the perception engines (obstacle detection with ByteTrack lifecycle management, OCR, face recognition, banknote detection, and hand-guidance interaction), the audio and haptic feedback subsystems, and the context-aware control loop. It also documented the three custom-trained models and the datasets behind them --- the combined accessibility-control dataset, the custom Egyptian banknote dataset, and the TextOCR fine-tuning corpus --- and reported the model evaluation (the accessibility detector reaching mAP@0.5 of 0.726 on its test split, and the banknote detector reaching mAP@0.5 of 0.991 on its labeled test set) together with the passing automated test suite. Together these components realize the design described in the previous chapters as a working, PC-local assistive prototype.
+This chapter presented the concrete implementation of Echora: the technology stack, the modular software architecture, the RGB-D sensing pipeline, the perception engines (obstacle detection with ByteTrack lifecycle management, OCR, face recognition, banknote detection, and hand-guidance interaction), the audio and haptic feedback subsystems, and the context-aware control loop. It also documented the three custom-trained models and the datasets behind them --- the combined accessibility-control dataset, the custom Egyptian banknote dataset, and the TextOCR fine-tuning corpus --- and reported the model evaluation (the accessibility detector reaching mAP@0.5 of 0.726 on its test split, and the banknote detector reaching mAP@0.5 of 0.991 on its labeled test set) together with the passing automated test suite and the end-to-end system integration testing that confirmed correct real-time operation of the whole pipeline. Together these components realize the design described in the previous chapters as a working, PC-local assistive prototype.
