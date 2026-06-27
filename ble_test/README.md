@@ -1,45 +1,45 @@
-# BLE wristband test (isolated — does not touch the main app)
+# BLE wristband tester (isolated — does not touch the main app)
 
-Goal: prove the laptop can talk to the ESP32 haptic wristband over Bluetooth
-(BLE) before changing anything in `src/`. If this passes, we wire the same
-settings into `src/hardware/haptic_feedback.py`.
+Goal: talk to the ESP32 haptic wristband over Bluetooth (BLE) from one
+simple window, before changing anything in `src/`.
 
-## What's here
+Grid is **4 rows × 5 cols = 20 electrodes**. Each BLE packet is **20 bytes**,
+one per electrode, value `0` (off) to `255` (full).
+
+## Files
 - `echora_wristband_ble/echora_wristband_ble.ino` — firmware to **upload to the ESP32**.
-- `test_ble_wristband.py` — script to **run on the laptop** that connects and sends test patterns.
-
-The data format is simple: each packet is **30 bytes**, one per electrode
-(5 rows × 6 cols), value `0` (off) to `255` (full). Both files already agree
-on this, plus the BLE name and UUIDs.
+- `wristband_gui.py` — the **one app you run on the laptop**. It scans, connects, and lets you click electrodes/patterns live.
 
 ## Steps
 
-### 1. Upload firmware to the ESP32
+### 1. Upload firmware to the ESP32 (one time)
 Open `echora_wristband_ble/echora_wristband_ble.ino` in the Arduino IDE and
-follow the upload instructions in the comment at the top of the file. Then
-open the Serial Monitor at **115200 baud** — you should see
+follow the upload instructions in the comment at the top of the file. Then open
+the Serial Monitor at **115200 baud** — you should see
 `Advertising as 'ECHORA-Wristband'. Waiting for the laptop...`.
 
-### 2. Install the BLE library on the laptop
+### 2. Install the BLE library (one time)
 ```
 pip install bleak
 ```
+(Tkinter, the GUI, already ships with Python on Windows.)
 
-### 3. Run the test
+### 3. Run the app
 ```
-python ble_test/test_ble_wristband.py
+python ble_test/wristband_gui.py
 ```
-You should see the script connect, then the ESP32 Serial Monitor should print
-each packet it receives (and the onboard LED blinks when electrodes are
-"active"). That means BLE works.
+- Click **Scan & Connect** — it finds `ECHORA-Wristband` and connects (retries 3×).
+- Click electrode buttons to toggle them, or use the pattern buttons.
+- Each click sends instantly; watch the ESP32 Serial Monitor + onboard LED.
 
-If it can't find the device, first list everything nearby:
-```
-python ble_test/test_ble_wristband.py --scan
-```
-and confirm `ECHORA-Wristband` is in the list.
+## If "Scan & Connect" fails
+Most common fix on Windows:
+1. Settings → Bluetooth & devices → if `ECHORA-Wristband` is listed, **Remove device**.
+2. Toggle Bluetooth **off/on**.
+3. Press **EN/reset** on the ESP32 so it advertises fresh.
+4. Click Scan & Connect again. The real error prints in the terminal.
 
 ## After it works
-Once the test passes, we implement `_connect_ble()` / `_send_ble()` in
-`src/hardware/haptic_feedback.py` using the exact same name/UUIDs and set
+Once this works, we implement `_connect_ble()` / `_send_ble()` in
+`src/hardware/haptic_feedback.py` using the same name/UUIDs and set
 `HAPTIC_PROTOCOL = "BLE"`. The project's `config.py` already has these UUIDs.
