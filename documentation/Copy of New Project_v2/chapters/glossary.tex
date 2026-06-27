@@ -1,3 +1,85 @@
 \chapter{Glossary}
 
-No glossary entries are currently defined.
+This glossary lists the acronyms and technical terms used throughout this document, with brief definitions in the context of the Echora system.
+
+\begin{description}
+
+  \item[18650] A standard cylindrical lithium-ion rechargeable battery cell (18\,mm $\times$ 65\,mm) used to power Echora's wearable hardware.
+
+  \item[74LS595] A shift-register integrated circuit used in the haptic module to expand the ESP32's few output pins into many motor-control lines.
+
+  \item[API (Application Programming Interface)] A defined set of functions through which software components communicate; for example, the DepthAI pipeline API.
+
+  \item[ArcFace] A deep-learning face-recognition model (part of InsightFace) that maps a face to a 512-dimensional embedding used for identity comparison.
+
+  \item[BLV (Blind and Low-Vision)] People who are blind or have low vision; the target users of Echora.
+
+  \item[BOM (Bill of Materials)] The itemised list of components required to build a hardware module.
+
+  \item[ByteTrack] A multi-object tracking algorithm that associates detections across frames and recovers from short occlusions; layered on top of YOLO for obstacle tracking.
+
+  \item[CAD (Computer-Aided Design)] Software-based 3D modelling, used to design the headset enclosure in SolidWorks.
+
+  \item[CLAHE (Contrast-Limited Adaptive Histogram Equalization)] An image-enhancement technique applied to dark scenes before optical character recognition.
+
+  \item[CPU (Central Processing Unit)] The general-purpose processor that runs the system when no GPU is available.
+
+  \item[CUDA] NVIDIA's parallel-computing platform that enables GPU-accelerated deep-learning inference.
+
+  \item[DepthAI] The Luxonis software development kit and pipeline API used to drive the OAK-D camera.
+
+  \item[EGP (Egyptian Pound)] The national currency of Egypt, whose denominations are recognised by the banknote detector.
+
+  \item[ESP32] A low-cost Wi-Fi-enabled microcontroller that drives the wearable haptic feedback module.
+
+  \item[FPS (Frames Per Second)] The number of camera frames processed per second; a measure of real-time performance.
+
+  \item[GPIO (General-Purpose Input/Output)] Configurable digital pins on a microcontroller such as the ESP32.
+
+  \item[GPU (Graphics Processing Unit)] Hardware used to accelerate deep-learning model inference.
+
+  \item[IMU (Inertial Measurement Unit)] The on-board accelerometer and gyroscope sensor used to estimate whether the user is stationary or moving.
+
+  \item[InsightFace] The face-analysis library that provides RetinaFace detection and ArcFace recognition.
+
+  \item[IoU (Intersection over Union)] An overlap measure between a predicted and a ground-truth bounding box, used when computing detection accuracy.
+
+  \item[mAP (mean Average Precision)] The standard object-detection accuracy metric, reported here at an IoU of 0.5 (mAP@0.5) and averaged over IoU thresholds 0.5--0.95.
+
+  \item[MediaPipe] Google's framework providing real-time hand and fingertip landmark tracking for the hand-guidance feature.
+
+  \item[OAK-D (OpenCV AI Kit with Depth)] The stereo-depth camera that supplies synchronised RGB and depth frames together with an on-board IMU.
+
+  \item[OCR (Optical Character Recognition)] The conversion of text appearing in images into machine-readable text; Echora's text-reading feature.
+
+  \item[Ollama] A local runtime for large language and vision-language models, used to run Gemma on the PC.
+
+  \item[ONNX (Open Neural Network Exchange)] A portable neural-network model format and runtime used by InsightFace.
+
+  \item[ORM (Object-Relational Mapping)] A technique for accessing a relational database through programming objects; provided by SQLAlchemy.
+
+  \item[PaddleOCR / PP-OCRv4] The optical-character-recognition toolkit and the detection/recognition model version used for the text-reading feature.
+
+  \item[PCB (Printed Circuit Board)] The custom board that carries the haptic module's electronics.
+
+  \item[RetinaFace] A face-detection model (part of InsightFace) that locates faces within an image.
+
+  \item[RGB-D (Red--Green--Blue + Depth)] A colour image paired with a per-pixel depth map, the basic input to the perception pipeline.
+
+  \item[SAPI (Speech Application Programming Interface)] The Windows speech engine used as a direct text-to-speech fallback.
+
+  \item[SQLAlchemy] A Python SQL toolkit and ORM used for local data persistence.
+
+  \item[SQLite] The lightweight local database storing registered face identities, user preferences, and event logs.
+
+  \item[TTS (Text-to-Speech)] The synthesis of spoken audio from text, used for audio feedback.
+
+  \item[ULN2803A] A Darlington-array driver integrated circuit that switches the vibration-motor currents in the haptic module.
+
+  \item[VLM (Vision-Language Model)] A model that produces natural-language descriptions of images; the role played by Gemma for background scene description.
+
+  \item[Wi-Fi] The wireless link that carries control and haptic commands between the PC and the ESP32-based haptic module.
+
+  \item[YOLO / YOLOv8 (You Only Look Once)] A real-time object-detection model family used for obstacle, accessibility-control, and banknote detection.
+
+\end{description}
