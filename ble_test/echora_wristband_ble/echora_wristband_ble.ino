@@ -4,7 +4,7 @@
  * This sketch turns the ESP32 into a BLE device that the laptop test
  * script (ble_test/test_ble_wristband.py) can connect to.
  *
- * It receives a 30-byte packet (one byte per electrode, 0-255) and,
+ * It receives a 20-byte packet (one byte per electrode, 0-255) and,
  * for this TEST, just prints what it got over the USB serial monitor
  * and blinks the onboard LED so you can SEE that data arrived. Driving
  * the real 30 electrodes comes later (see the TODO near onWrite()).
@@ -36,7 +36,7 @@
 #define SERVICE_UUID         "0000ffe0-0000-1000-8000-00805f9b34fb"
 #define CHARACTERISTIC_UUID  "0000ffe1-0000-1000-8000-00805f9b34fb"
 
-#define N_ELECTRODES 30          // 5 rows x 6 cols
+#define N_ELECTRODES 20          // 4 rows x 5 cols
 
 // Onboard LED pin. Many ESP32 boards use GPIO 2; some ESP32-S3 boards
 // don't have one wired — if it never blinks, that's fine, watch serial.

@@ -1,3 +1,4 @@
+
 """
 Simple GUI to interact with the ECHORA haptic wristband over BLE.
 
@@ -28,8 +29,8 @@ from bleak import BleakScanner, BleakClient
 DEVICE_NAME         = "ECHORA-Wristband"
 CHARACTERISTIC_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb"
 
-ROWS, COLS = 5, 6
-N = ROWS * COLS
+ROWS, COLS = 4, 5
+N = ROWS * COLS   # 20
 
 # ---------------------------------------------------------------------------
 # BLE runs on its own asyncio loop in a background thread, because Tkinter is
@@ -66,7 +67,7 @@ class WristbandGUI:
         top = ttk.Frame(root, padding=10)
         top.grid(row=0, column=0, sticky="ew")
 
-        self.connect_btn = ttk.Button(top, text="Connect", command=self.on_connect)
+        self.connect_btn = ttk.Button(top, text="Scan & Connect", command=self.on_connect)
         self.connect_btn.grid(row=0, column=0, padx=(0, 10))
 
         self.status = tk.StringVar(value="Disconnected")
@@ -122,9 +123,20 @@ class WristbandGUI:
             if device is None:
                 self.set_status(f"Not found: {DEVICE_NAME}")
                 return
-            _client = BleakClient(device)
-            await _client.connect()
-            self.set_status(f"Connected ({_client.mtu_size}B MTU)")
+            # The first connect after a scan often fails on Windows; retry a few times.
+            last_err = None
+            for attempt in range(1, 4):
+                try:
+                    self.set_status(f"Connecting... (try {attempt}/3)")
+                    _client = BleakClient(device)
+                    await _client.connect()
+                    self.set_status(f"Connected ({_client.mtu_size}B MTU)")
+                    return
+                except Exception as e:
+                    last_err = e
+                    print(f"connect attempt {attempt} failed: {e!r}")
+                    await asyncio.sleep(1.5)
+            self.set_status(f"Failed: {last_err}")
         except Exception as e:
             self.set_status(f"Error: {e}")
 
@@ -167,10 +179,10 @@ class WristbandGUI:
     def all_on(self):  self.set_all(lambda r, c: self._v())
     def all_off(self): self.set_all(lambda r, c: 0)
     def left(self):    self.set_all(lambda r, c: self._v() if c in (0, 1) else 0)
-    def right(self):   self.set_all(lambda r, c: self._v() if c in (4, 5) else 0)
+    def right(self):   self.set_all(lambda r, c: self._v() if c in (COLS - 2, COLS - 1) else 0)
     def up(self):      self.set_all(lambda r, c: self._v() if r in (0, 1) else 0)
-    def down(self):    self.set_all(lambda r, c: self._v() if r in (3, 4) else 0)
-    def center(self):  self.set_all(lambda r, c: self._v() if r == 2 else 0)
+    def down(self):    self.set_all(lambda r, c: self._v() if r in (ROWS - 2, ROWS - 1) else 0)
+    def center(self):  self.set_all(lambda r, c: self._v() if r in (1, 2) else 0)
     def danger(self):  self.set_all(lambda r, c: self._v() if (r + c) % 2 == 0 else 0)
 
     # ---- shutdown --------------------------------------------------------
