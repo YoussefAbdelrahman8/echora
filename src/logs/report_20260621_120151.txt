@@ -1,0 +1,10 @@
+==================================================
+ECHORA Session Report
+==================================================
+
+Date:        2026-06-21
+Start:       12:01:38
+Duration:    00:00:13
+Exit reason: error: RuntimeError
+
+System did not start successfully.
