@@ -9,7 +9,7 @@ from pathlib import Path
 from src.core.config import settings
 from src.core.utils import logger
 
-HAPTIC_PROTOCOL = "STUB"
+HAPTIC_PROTOCOL = "HTTP"      # STUB | HTTP | SERIAL | BLE | WIFI
 
 SERIAL_PORT     = "COM3"       # Windows: "COM3", "COM4" etc.
 SERIAL_BAUDRATE = 115200       # must match ESP32 firmware setting
@@ -18,6 +18,15 @@ BLE_DEVICE_NAME           = "ECHORA-Wristband"
 
 WIFI_ESP32_IP   = "192.168.1.100"   # IP address of ESP32 on local network
 WIFI_ESP32_PORT = 5005              # UDP port to send patterns to
+
+# ── HTTP (ESP32 built-in web server) ──────────────────────────────────
+# The ESP32 firmware exposes a single endpoint that drives the 20 motors:
+#       GET http://<ESP32_IP>/set?bits=<20-char 0/1 string>
+# This is the exact call the old Flask web GUI made — now issued straight
+# from the driver, with no Flask/HTTP middleman in between.
+HTTP_ESP32_IP   = "192.168.100.200"  # ESP32 web-server IP on the local network
+HTTP_TIMEOUT    = 0.4                 # short so a slow link never stalls the camera loop
+HTTP_MAX_INFLIGHT = 4                 # cap concurrent requests so they can't pile up
 
 def pattern_all_on(intensity: float = 1.0) -> np.ndarray:
     """All 30 electrodes on — used for SUCCESS feedback."""
@@ -77,10 +86,10 @@ class HapticFeedback:
     """
     Manages all communication with the ESP32-S3 haptic wristband.
 
-    Currently operates in STUB mode — logs all patterns without
-    transmitting to hardware. When ESP32 hardware and firmware are
-    ready, change HAPTIC_PROTOCOL and fill in the appropriate
-    connection method.
+    Default transport is HTTP — it drives the ESP32's built-in web server
+    directly via  GET http://<ESP32_IP>/set?bits=<20 chars>  (the same call
+    the old Flask GUI made, with no Flask in the path).  Set HAPTIC_PROTOCOL
+    to STUB (log-only), SERIAL, BLE or WIFI to use a different link.
 
     The 5x6 electrode grid:
         Col:  0    1    2    3    4    5
@@ -114,6 +123,10 @@ class HapticFeedback:
 
         self._lock = threading.Lock()
 
+        # HTTP transport bookkeeping (used only when HAPTIC_PROTOCOL == "HTTP")
+        self._http_lock = threading.Lock()
+        self._http_inflight: int = 0
+
         self._send_count:  int = 0
         self._error_count: int = 0
 
@@ -141,6 +154,9 @@ class HapticFeedback:
             self._connected = True
             return True
 
+        elif HAPTIC_PROTOCOL == "HTTP":
+            return self._connect_http()
+
         elif HAPTIC_PROTOCOL == "SERIAL":
             return self._connect_serial()
 
@@ -152,6 +168,49 @@ class HapticFeedback:
 
         else:
             logger.error(f"Unknown protocol: {HAPTIC_PROTOCOL}")
+            return False
+
+    def _connect_http(self) -> bool:
+        """
+        Connects to the ESP32's built-in web server.
+
+        The ESP32 firmware exposes one endpoint that drives all 20 motors:
+            GET http://<ESP32_IP>/set?bits=<20-char 0/1 string>
+
+        This is the same request the old Flask web GUI issued — we now send
+        it straight from the driver, no Flask in the path.  We test
+        reachability (and clear the wristband) with a single all-off call.
+        Failure is non-fatal: the app keeps running and patterns are simply
+        dropped until the ESP32 comes online.
+        """
+        try:
+            import requests   # pip install requests
+        except ImportError:
+            logger.error("requests not installed. Run: pip install requests")
+            self._connected = False
+            return False
+
+        try:
+            self._connection = requests.Session()
+            self._http_inflight = 0
+            self._connection.get(
+                f"http://{HTTP_ESP32_IP}/set",
+                params={"bits": "0" * (settings.HAPTIC_ROWS * settings.HAPTIC_COLS)},
+                timeout=2.0,
+            )
+            self._connected = True
+            logger.info(
+                f"HapticFeedback: HTTP connected to ESP32 at "
+                f"{HTTP_ESP32_IP} (GET /set?bits=)."
+            )
+            return True
+
+        except Exception as e:
+            self._connected = False
+            logger.warning(
+                f"HapticFeedback: ESP32 at {HTTP_ESP32_IP} unreachable ({e}). "
+                f"Haptics will be dropped until it is online."
+            )
             return False
 
     def _connect_serial(self) -> bool:
@@ -271,6 +330,9 @@ class HapticFeedback:
             if HAPTIC_PROTOCOL == "STUB":
                 return self._send_stub(flat)
 
+            elif HAPTIC_PROTOCOL == "HTTP":
+                return self._send_http(flat)
+
             elif HAPTIC_PROTOCOL == "SERIAL":
                 return self._send_serial(flat)
 
@@ -296,6 +358,47 @@ class HapticFeedback:
             f"Haptic STUB #{self._send_count}: "
             f"{n_active}/30 electrodes active — {active_indices}"
         )
+        return True
+
+    def _send_http(self, flat: np.ndarray) -> bool:
+        """
+        Sends the pattern to the ESP32 web server:
+            GET http://<ESP32_IP>/set?bits=<20 chars>
+
+        The request runs on a short-lived daemon thread so network latency
+        never blocks the camera loop, and concurrent requests are capped
+        (HTTP_MAX_INFLIGHT) so a slow/offline link can't pile up threads.
+
+        bits ordering matches grid.flatten() (row-major): index = row*COLS + col,
+        which is the same layout the ESP32 / old GUI used.
+        """
+        if self._connection is None:
+            return False
+
+        bits = "".join("1" if v > 0.5 else "0" for v in flat)
+
+        with self._http_lock:
+            if self._http_inflight >= HTTP_MAX_INFLIGHT:
+                self._error_count += 1
+                return False
+            self._http_inflight += 1
+
+        def _worker():
+            try:
+                self._connection.get(
+                    f"http://{HTTP_ESP32_IP}/set",
+                    params={"bits": bits},
+                    timeout=HTTP_TIMEOUT,
+                )
+            except Exception as e:
+                self._error_count += 1
+                if self._error_count % 10 == 1:   # avoid log spam
+                    logger.warning(f"HTTP send failed: {e}")
+            finally:
+                with self._http_lock:
+                    self._http_inflight -= 1
+
+        threading.Thread(target=_worker, daemon=True).start()
         return True
 
     def _send_serial(self, flat: np.ndarray) -> bool:

@@ -120,7 +120,14 @@ class ObstacleDetector:
 
     # ── Main entry point ──────────────────────────────────────────────
 
-    def update(self, bundle: Dict) -> Dict:
+    def update(self, bundle: Dict, allow_vlm: bool = True) -> Dict:
+        """
+        Run the obstacle pipeline for one frame.
+
+        allow_vlm: when False, the periodic Gemma/Ollama scene-description call
+        is suppressed. The scene description is only used in NAVIGATION, so the
+        caller passes False in other modes (e.g. INTERACTION) to free the GPU.
+        """
         self._frame_count += 1
         rgb_frame = bundle.get("rgb")
         depth_map = bundle.get("depth")
@@ -149,7 +156,8 @@ class ObstacleDetector:
         unknown_tracks = [t for t in obstacle_tracks if t["urgency"] == "UNKNOWN"]
 
         if (
-            not danger_tracks
+            allow_vlm
+            and not danger_tracks
             and not warning_tracks
             and self._should_run_vlm()
         ):

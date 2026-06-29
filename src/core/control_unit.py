@@ -59,6 +59,7 @@ class ControlUnit:
         self._last_face_conf = 0.0
         self._last_note_visible = False
         self._last_interact_dist = 0.0
+        self._last_interaction_result = None   # full result from _handle_interaction (debug overlay)
 
         self._ocr_running = False          # probe thread (distance check)
         self._ocr_text_running = False      # OCR-mode text-reading thread
@@ -225,6 +226,7 @@ class ControlUnit:
         return time.monotonic() < self._banknote_cooldown_until
 
     def _reset_interaction_state(self):
+        self._last_interaction_result = None
         if self._interaction_detector:
             self._interaction_detector.reset()
 
@@ -430,7 +432,11 @@ class ControlUnit:
             if _still_mode:
                 obstacle_result = {"tracks": [], "obstacle_tracks": [], "clear": True}
             else:
-                obstacle_result = self._detector.update(bundle)
+                # The Gemma/Ollama scene description is only used in NAVIGATION,
+                # so suppress it in other modes (e.g. INTERACTION) to free the GPU.
+                obstacle_result = self._detector.update(
+                    bundle, allow_vlm=(self._last_mode == MODE.NAVIGATION)
+                )
 
             # Determine current mode first — needed by the probe guard below.
             current_mode = self._manual_mode
@@ -443,30 +449,39 @@ class ControlUnit:
                 if current_mode != self._last_mode:
                     logger.info(f"Mode: {self._last_mode} -> {current_mode} [AUTO]")
                     self._last_mode = current_mode
+            else:
+                # Manual mode: keep _last_mode in sync so the still-mode YOLO
+                # skip and the probe guard above behave correctly.
+                if current_mode != self._last_mode:
+                    logger.info(f"Mode: {self._last_mode} -> {current_mode} [MANUAL]")
+                    self._last_mode = current_mode
 
-            # OCR probe — skip when already in OCR mode to prevent concurrent
-            # PaddleOCR calls (it is not thread-safe).
-            if (current_mode != MODE.OCR
-                    and self._frame_count % 20 == 0
-                    and not self._ocr_running):
-                self._ocr_running = True
-                def _ocr_worker(f=rgb_frame.copy(), d=depth_map.copy()):
-                    try:
-                        self._last_ocr_dist = ocr.get_text_distance(f, d)
-                    except Exception as e:
-                        logger.error(f"OCR probe worker error: {e}")
-                        self._last_ocr_dist = 0.0
-                    finally:
-                        self._ocr_running = False
-                threading.Thread(target=_ocr_worker, daemon=True).start()
+            # Auto-switch probes (OCR / face / banknote) only make sense while
+            # NAVIGATION is active — it is the only mode that switches away. Running
+            # them in INTERACTION/OCR/FACE_ID/BANKNOTE just starves the GPU and
+            # makes those modes lag (e.g. MediaPipe + InsightFace + YOLO at once).
+            if current_mode == MODE.NAVIGATION:
 
-            if (not self._face_registration_active
-                    and self._frame_count % 5 == 0 and self._last_mode != MODE.FACE_ID):
-                self._last_face_conf = face_recognition.detect_face(rgb_frame)
+                # OCR probe — PaddleOCR is not thread-safe, so guard with a flag.
+                if self._frame_count % 20 == 0 and not self._ocr_running:
+                    self._ocr_running = True
+                    def _ocr_worker(f=rgb_frame.copy(), d=depth_map.copy()):
+                        try:
+                            self._last_ocr_dist = ocr.get_text_distance(f, d)
+                        except Exception as e:
+                            logger.error(f"OCR probe worker error: {e}")
+                            self._last_ocr_dist = 0.0
+                        finally:
+                            self._ocr_running = False
+                    threading.Thread(target=_ocr_worker, daemon=True).start()
 
-            if (self._frame_count % 5 == 0
-                    and not self._banknote_detection_paused()):
-                self._last_note_visible = banknote.detect_banknote(rgb_frame)
+                if (not self._face_registration_active
+                        and self._frame_count % 5 == 0):
+                    self._last_face_conf = face_recognition.detect_face(rgb_frame)
+
+                if (self._frame_count % 5 == 0
+                        and not self._banknote_detection_paused()):
+                    self._last_note_visible = banknote.detect_banknote(rgb_frame)
 
             if self._frame_count % 5 == 0:
                 self._last_interact_dist = self._interaction_detector.scan_for_interactables(
@@ -692,10 +707,11 @@ class ControlUnit:
 
     def _handle_interaction(self, bundle: Dict, obstacle_result: Dict):
         result = self._interaction_detector.update(
-            bundle["rgb"], 
-            bundle["depth"], 
+            bundle["rgb"],
+            bundle["depth"],
             obstacle_result.get("tracks", [])
         )
+        self._last_interaction_result = result   # used by the debug overlay
         if result.get("on_target"):
             self._audio.speak("Object reached.", priority=SpeechPriority.HIGH)
             logger.info("Interaction SUCCESS.")

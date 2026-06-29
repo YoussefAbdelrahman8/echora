@@ -14,7 +14,7 @@ Pipeline per frame (INTERACTION mode only):
   4. 3-D geometry     → dx_px, dy_px (image plane) | dz_mm (depth axis)
   5. Phase logic      → IDLE / GUIDANCE / EDGE / SUCCESS
   6. ElectrodeGridBuilder → 4×5 numpy grid
-  7. HapticBridge     → 20-bit string → HTTP GET → ESP32 wristband
+  7. HapticBridge     → 4×5 grid / 20-bit string → HapticFeedback driver → ESP32 wristband
 
 scan_for_interactables() is kept as a lightweight probe called by the
 ControlUnit/StateMachine while in NAVIGATION mode to decide whether to
@@ -29,7 +29,6 @@ from typing import Dict, List, Optional, Tuple
 import cv2
 import mediapipe as mp
 import numpy as np
-import requests
 import torch
 from ultralytics import YOLO
 
@@ -41,13 +40,11 @@ from src.core.utils import (
     get_timestamp_ms,
     logger,
 )
+from src.hardware.haptic_feedback import HapticFeedback, get_haptic, init_haptic
 
 # ─────────────────────────────────────────────────────────────────────
 # Hardware constants – match your ESP32 wristband
 # ─────────────────────────────────────────────────────────────────────
-GUI_IP        : str   = "127.0.0.1"
-GUI_PORT      : int   = 8000
-GUI_TIMEOUT   : float = 0.5      # seconds – low so it never blocks the loop
 GRID_ROWS     : int   = 4        # physical rows on the wristband
 GRID_COLS     : int   = 5        # physical cols on the wristband  (4×5 = 20 electrodes)
 
@@ -76,107 +73,109 @@ class InteractionPhase:
 # ══════════════════════════════════════════════════════════════════════
 class HapticBridge:
     """
-    Converts a 4×5 numpy float grid into a 20-character bit string and
-    sends it to the Flask Web GUI via:
+    Adapter that turns the interaction module's 4×5 grid / 20-bit patterns
+    into calls on the shared HapticFeedback hardware driver
+    (``src/hardware/haptic_feedback.py``).
 
-        POST http://127.0.0.1:8000/api/pattern  {"bits": "..."}
-
-    Degrades gracefully to STUB mode (log-only) when the GUI is
-    unreachable so the rest of the pipeline can still be tested on a PC.
+    The actual transport — STUB / SERIAL / BLE / WIFI — is selected there
+    via ``HAPTIC_PROTOCOL``.  There is no Flask and no HTTP: ``send_grid()``
+    / ``send_bits()`` go straight to the wristband driver that the
+    ControlUnit already owns (it calls ``init_haptic()`` at startup and
+    ``disconnect()`` at shutdown).  All calls are exception-safe — a haptic
+    failure must never crash the navigation loop.
     """
 
-    def __init__(self, gui_ip: str = GUI_IP, gui_port: int = GUI_PORT) -> None:
-        self._url          = f"http://{gui_ip}:{gui_port}/api/pattern"
-        self._ping_url     = f"http://{gui_ip}:{gui_port}/api/state"
-        self._session      = requests.Session()
-        self._stub         = True           # safe default until connect() succeeds
-        self._connected    = False
-        self._send_count   = 0
-        self._error_count  = 0
-        self._last_bits    = "0" * 20
+    _N = GRID_ROWS * GRID_COLS   # 20 electrodes
+
+    def __init__(self) -> None:
+        self._driver: Optional[HapticFeedback] = None
+        self._connected   = False
+        self._send_count  = 0
+        self._error_count = 0
+        self._last_bits   = "0" * self._N
 
     # ── Lifecycle ─────────────────────────────────────────────────────
 
     def connect(self) -> bool:
         """
-        Ping the ESP32.  Returns True on success, falls back to STUB on
-        failure (no exception raised – haptic errors must never crash the
-        navigation loop).
+        Grab the process-wide haptic driver (created by ControlUnit via
+        ``init_haptic()``).  Falls back to creating it here so the
+        interaction module still works when run standalone.  Never raises.
         """
         try:
-            self._session.get(self._ping_url, timeout=2.0)
-            self._connected = True
-            self._stub      = False
-            logger.info(f"HapticBridge: connected to local GUI at {GUI_IP}:{GUI_PORT}")
-            return True
+            self._driver = get_haptic() or init_haptic()
+            self._connected = bool(self._driver and self._driver._connected)
+            if self._connected:
+                proto = self._driver.get_stats().get("protocol", "?")
+                logger.info(f"HapticBridge: using shared haptic driver (protocol={proto}).")
+            else:
+                logger.warning("HapticBridge: haptic driver unavailable; patterns will be dropped.")
+            return self._connected
         except Exception as exc:
-            self._connected = False
-            self._stub      = True
-            logger.warning(
-                f"HapticBridge: local GUI unreachable ({exc}). Running in STUB (log-only) mode."
-            )
+            self._driver, self._connected = None, False
+            logger.warning(f"HapticBridge: could not obtain haptic driver ({exc}).")
             return False
 
     def disconnect(self) -> None:
+        # The ControlUnit owns the shared driver's lifecycle, so we only
+        # clear the wristband here — we do NOT disconnect the driver itself.
         self.all_off()
         self._connected = False
         logger.info(
-            f"HapticBridge disconnected. sends={self._send_count} errors={self._error_count}"
+            f"HapticBridge released. sends={self._send_count} errors={self._error_count}"
         )
 
     # ── Core send ─────────────────────────────────────────────────────
 
-    def send_bits(self, bits: str) -> bool:
-        """
-        Send a 20-character binary string ('0'/'1') to the ESP32/GUI.
-        This is fired in a background thread so network latency or
-        timeouts NEVER block the main camera loop.
-        """
-        if len(bits) != 20:
-            logger.error(f"HapticBridge.send_bits: expected 20 bits, got {len(bits)}")
-            return False
-
+    def _push(self, grid: np.ndarray, bits: str) -> bool:
+        """Forward a grid to the driver, skipping identical consecutive states."""
         self._send_count += 1
-        
-        # Don't DDOS the local Flask server with identical states at 24 FPS
+
+        # Don't re-send the same pattern every frame at 24 FPS.
         if bits == self._last_bits:
             return True
-            
-        self._last_bits   = bits
+        self._last_bits = bits
 
-        if self._stub:
-            if self._send_count % 30 == 0:
-                active = bits.count("1")
-                logger.debug(f"[HAPTIC STUB #{self._send_count}] {active}/20 active  {bits}")
-            return True
+        if self._driver is None:
+            return False
 
-        def _worker():
-            try:
-                self._session.post(self._url, json={"bits": bits}, timeout=GUI_TIMEOUT)
-            except Exception as exc:
-                self._error_count += 1
-                if self._error_count % 10 == 1:   # avoid log spam
-                    logger.warning(f"HapticBridge: send to GUI failed: {exc}")
+        try:
+            ok = self._driver.send(grid)
+        except Exception as exc:
+            ok = False
+            if self._error_count % 10 == 0:
+                logger.warning(f"HapticBridge: driver send failed: {exc}")
+        if not ok:
+            self._error_count += 1
+        return ok
 
-        threading.Thread(target=_worker, daemon=True).start()
-        return True
+    def send_bits(self, bits: str) -> bool:
+        """Send a 20-character binary string ('0'/'1') to the wristband driver."""
+        if len(bits) != self._N:
+            logger.error(f"HapticBridge.send_bits: expected {self._N} bits, got {len(bits)}")
+            return False
+        grid = np.array(
+            [1.0 if b == "1" else 0.0 for b in bits], dtype=np.float32
+        ).reshape(GRID_ROWS, GRID_COLS)
+        return self._push(grid, bits)
 
     def send_grid(self, grid: np.ndarray) -> bool:
         """
-        Convert a (GRID_ROWS × GRID_COLS) float32 grid to a 20-bit string
-        and transmit.  Values > 0.5 → '1', otherwise → '0'.
+        Send a (GRID_ROWS × GRID_COLS) float grid.  Per-electrode intensity
+        is preserved for the driver; a thresholded bit string (>0.5) is used
+        only to de-duplicate identical consecutive frames.
         """
-        flat = grid.flatten()[:20]
-        bits = "".join("1" if v > 0.5 else "0" for v in flat)
-        return self.send_bits(bits)
+        g = np.asarray(grid, dtype=np.float32).reshape(GRID_ROWS, GRID_COLS)
+        bits = "".join("1" if v > 0.5 else "0" for v in g.flatten()[: self._N])
+        return self._push(g, bits)
 
     # ── Convenience helpers ───────────────────────────────────────────
 
     def all_off(self) -> bool:
-        return self.send_bits("0" * 20)
+        return self.send_bits("0" * self._N)
 
     def all_on(self) -> bool:
-        return self.send_bits("1" * 20)
+        return self.send_bits("1" * self._N)
 
     def pulse_success(self, pulses: int = 3, interval: float = 0.12) -> None:
         """Runs in a background daemon thread – never blocks the main loop."""
@@ -192,11 +191,11 @@ class HapticBridge:
 
     def get_stats(self) -> Dict:
         return {
-            "stub":      self._stub,
             "connected": self._connected,
             "sends":     self._send_count,
             "errors":    self._error_count,
             "last_bits": self._last_bits,
+            "driver":    self._driver.get_stats() if self._driver else {},
         }
 
 
@@ -392,7 +391,7 @@ class InteractionDetector:
         """
         Rapid checkerboard burst — DANGER alert for navigation mode.
         Uses the same HapticBridge as interaction mode so the signal
-        actually reaches the ESP32 via the Flask GUI.
+        reaches the ESP32 through the shared HapticFeedback driver.
         Runs in a background thread so it never blocks the camera loop.
         """
         _DANGER_BITS = "10101010101010101010"  # checkerboard on 4×5 grid
@@ -465,6 +464,12 @@ class InteractionDetector:
         # 4 ── Determine phase
         prev_phase   = self._phase
         self._phase  = self._compute_phase(hand, self._target_obj, vector)
+
+        if self._phase != prev_phase:
+            logger.info(
+                f"Interaction phase: {prev_phase} -> {self._phase} "
+                f"(hand={'Y' if hand else 'N'}, target={'Y' if self._target_obj else 'N'})"
+            )
 
         # 5 ── Build electrode grid
         grid           = self._build_grid(vector)
