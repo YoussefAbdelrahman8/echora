@@ -117,7 +117,9 @@ class EchoraConfig(BaseSettings):
     MAX_MOTION_FOR_STILL_MODES: float = 0.8
     IMU_MOTION_THRESHOLD: float = 0.5
     
-    DOMINANT_HAND: str = "Right"  # choices: Right, Left, Any
+    DOMINANT_HAND: str = "Any"  # choices: Right, Left, Any. Use "Any" for the
+                                # egocentric glasses camera — MediaPipe mirrors the
+                                # left/right label, so "Right" would reject the hand.
     HAPTIC_ROWS: int = 4
     HAPTIC_COLS: int = 5
     
