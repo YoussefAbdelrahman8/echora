@@ -88,7 +88,7 @@ ECHORA is worn as a pair of **camera glasses** (OAK-D depth camera) plus a wrist
 
 | Camera Glasses | Haptic Wristband |
 |:---:|:---:|
-| <img src="docs/images/hardware_glasses.jpg" width="300"/> | <img src="docs/images/hardware_wristband.jpg" width="300"/> |
+| <img src="docs/images/hardware_glasses.jpeg" width="300"/> | <img src="docs/images/hardware_wristband.png" width="300"/> |
 
 </div>
 
