@@ -1,0 +1,54 @@
+\chapter{Literature Review}
+\label{ch:lit}
+
+This chapter reviews the products and research that shaped Echora's design. It looks first at assistive tools already on the market, then at the academic work on sensory substitution, and finally draws out the gap that Echora sets out to fill. Throughout, the aim is not just to describe each system but to weigh its strengths and weaknesses against the needs of a BLV user who wants one integrated aid rather than several separate ones.
+
+\section{Existing Assistive Products}
+
+Commercial assistive technology for BLV users has grown quickly, but it remains fragmented. The clearest way to see this is to compare a few representative products.
+
+\textbf{Camera-and-audio glasses.} Envision Glasses and Seleste are smart glasses that use a camera and AI to describe scenes and read text aloud. Their strengths are genuine: Envision in particular reads printed text very well and sits within a polished, well-supported product. However, both are essentially \emph{semantic} tools. They tell the user what text or objects are present, but they do not sense depth, so they cannot build a reliable picture of how far away things are or warn about an approaching obstacle. Neither offers any touch-based feedback, and neither helps the user physically reach or interact with an object. For continuous, moment-to-moment spatial awareness while walking, this is a real limitation (Envision, 2026a; Seleste, 2023).
+
+\textbf{Wearable reading cameras.} OrCam MyEye is a small camera that clips onto ordinary glasses and speaks text and recognised faces. It is compact, fast, and easy to use, and its OCR quality is high. Its weakness is the same as the glasses above but sharper: it has no depth perception, no obstacle awareness, and no haptic channel. It is excellent at delivering short pieces of information on demand, but it offers little for safe movement or object interaction (OrCam Technologies, 2023).
+
+\textbf{Obstacle-sensing mobility aids.} WeWalk and the Sunu Band approach the problem from the opposite direction. WeWalk adds ultrasonic sensing and vibration to a white cane, and Sunu is a wrist band that vibrates when objects are near. Both are portable, intuitive, and sit comfortably alongside familiar habits. Yet their sensing is limited to basic ``something is close'' proximity. They do not identify \emph{what} an object is, cannot read text or recognise people, and build no real model of the space. They improve safety but add no semantic understanding (WeWALK, 2026; Sunu, 2018).
+
+The pattern is consistent: reading-and-recognition devices ignore space and touch, while mobility aids ignore meaning. A user who wants both must combine products that were never designed to work together. Table~\ref{tab:comparison}, adapted from the market analysis, sets these systems side by side against the integrated capability Echora targets.
+
+Looking at the wider market through standard analytical lenses tells the same story. A SWOT view shows that the main \emph{opportunity} is precisely the integration gap, since no mainstream product combines depth-based navigation, reading, recognition, and touch feedback, while the main \emph{threats} are the strong brand presence of established devices and the cost of specialised hardware. A PESTEL view highlights favourable technological and social factors (cheaper AI compute, growing accessibility awareness) but also real regulatory and ethical pressure around cameras and biometric data. The clear conclusion for positioning is that Echora should not try to beat OrCam at reading or WeWalk at obstacle sensing on their own terms; its distinct value is in \emph{unifying} these functions affordably and privately, on hardware people may already own.
+
+\begin{table}[H]
+\centering
+\caption{Comparison of existing assistive technologies against the proposed Echora system.}
+\label{tab:comparison}
+\includegraphics[width=\textwidth,keepaspectratio]{comparison.png}
+\source{Teamwork}
+\end{table}
+
+\section{Research on Sensory Substitution}
+
+The academic literature helps explain \emph{why} these gaps matter and how they might be closed. It is worth noting at the outset that sensory substitution is not just a theory: controlled studies have shown that dedicated devices can support real navigation even in people who have been blind since birth, which is what makes the approach a credible foundation for a practical aid (Chebat et al., 2011).
+
+\textbf{Turning space into sound.} A recurring theme is converting spatial layout into continuous audio rather than occasional spoken warnings. EchoSee builds a live 3D model of the surroundings and places virtual sound sources on nearby surfaces, producing a spatial ``soundscape''; its feasibility testing reported a large reduction in collisions of around 40\%. This supports a design choice in Echora: a continuous, direction-aware sound-world can help more than a stream of discrete alerts. Easy-Access SoundView takes a simpler route, mapping vertical position to pitch and depth to loudness. Its value is the finding that \emph{minimal, well-chosen} audio codes are quick to learn, a useful reminder that more information is not always better when the user is trying to move and think at the same time (Schwartz, King and Bell, 2024; Neugebauer et al., 2020).
+
+\textbf{Reliable models of the world.} Continuous audio is only as good as the spatial model behind it. Work on dense RGB-D mapping shows that combining depth with visual feature tracking keeps a 3D model stable even in poor lighting or on plain, low-texture surfaces. This directly justifies Echora's use of an RGB-D (colour-plus-depth) camera rather than a plain webcam: the depth channel is what makes distance zoning and safe navigation possible (St\"uckler et al., 2015).
+
+\textbf{Feedback through touch.} A broad review of haptic wearables groups them into sensory replacement, augmentation, and training devices, and shows that vibration on the body can carry direction and urgency while easing the load on hearing. Because a BLV user relies heavily on hearing for the world around them, moving some cues onto the skin is sensible; this motivates Echora's wrist-worn vibration array for directional guidance and danger pulses (Shull and Damian, 2015).
+
+\textbf{The hand's point of view.} Most assistive systems watch the scene from the head. \emph{Seeing With the Hands} (CHI~2025) argues that the hand is an ergonomic and flexible place to sense from, and renders tactile images onto the back of the hand so users can explore objects by touch. Importantly, participants preferred \emph{combining} an overview (eye) view with a close-up (hand) view. This finding shaped one of Echora's core design decisions: separating broad ``macro'' awareness (navigation and recognition from the head camera) from fine ``micro'' interaction (guiding the hand to a target) (Teng et al., 2025).
+
+\textbf{OCR glasses and their limits.} Prototype OCR smart-glasses confirm that reading text on the move is valuable, but also flag practical constraints: limited language support, a narrow effective reading distance, and comfort issues when mounting a camera on the head. These lessons fed directly into Echora's text-reading design, which adds image pre-processing to cope with poor lighting and skew and only reads when text is stable and close (Envision, 2026b).
+
+\textbf{Deep learning on wearables.} Finally, recent wearable recognition systems show that modern object detectors can run at practical speed and accuracy when models are kept lightweight and sensors are combined. This gives confidence that real-time, local inference, rather than cloud processing, is realistic, and supports Echora's decision to fuse depth and vision on a nearby computer (Lin et al., 2019; Chen, Shen and Sawada, 2023).
+
+\section{Technical Background}
+
+It is also worth briefly grounding the technologies that make an integrated system possible, since these underpin every design choice in the chapters that follow. Modern assistive perception rests on a small number of mature building blocks. \emph{Convolutional neural networks} (CNNs) are very good at pulling meaningful features out of images, and detectors built on them, such as the YOLO family used here, can now find and label many objects in a single fast pass, which is what makes real-time obstacle awareness realistic. \emph{Depth sensing}, whether from stereo cameras or other RGB-D sensors, adds the missing third dimension, letting a system reason about how far away things are rather than only what they are; this is essential for turning a detection into a safe/warning/danger judgement.
+
+\emph{Sensor fusion} ties these together. By combining colour, depth, and motion (from an inertial sensor), a system can be more robust than any single input allows; for instance, using motion to decide the user is walking and should not be interrupted by a reading prompt. Finally, non-visual output relies on mature \emph{text-to-speech} and \emph{vibrotactile} techniques, where the design challenge is less about the raw technology and more about presenting information simply, in the right order, and without overwhelming the user. The recurring theme across the literature is that none of these pieces is individually novel; the difficulty, and the opportunity, lies in fusing them into a low-latency, intuitive whole that runs on affordable hardware.
+
+\section{The Gap and How Echora Responds}
+
+Two clear conclusions emerge from this review. First, the market is split down the middle: products either understand meaning or understand space, rarely both, and almost none add touch. Second, the research points toward an answer: fuse depth and vision for a stable model, deliver continuous spatial cues, offload some feedback to the skin, and treat broad awareness and close interaction as distinct but connected tasks.
+
+Echora is designed as a direct response to this gap. It fuses colour and depth from a single wearable camera; it delivers information through both audio and wrist-based haptics; it unifies navigation, reading, face recognition, banknote identification, and hand-guidance under one controller; and it keeps all processing local for privacy and low latency. The next chapter describes how these ideas were turned into a working system.

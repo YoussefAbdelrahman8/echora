@@ -1,0 +1,47 @@
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{Background and Rationale}
+
+Sight does a great deal of quiet work in daily life. It lets us read a sign, find a door handle, recognise a friend, check the value of a banknote, and step around a chair without thinking about any of it. For blind and low-vision (BLV) people, each of these small tasks can become slow, uncertain, or unsafe. Traditional aids such as the white cane and the guide dog are genuinely valuable, but they mainly help with obstacles close to the body and give very little information about \emph{what} an object is, what a sign says, or who is standing nearby.
+
+Over the last few years, advances in artificial intelligence (AI), depth cameras, and small wearable electronics have opened a new path. Instead of restoring sight, these technologies can \emph{substitute} for it, taking visual information and delivering it through hearing and touch. This idea, known as sensory substitution, is the foundation of this project. The problem it addresses is not a shortage of clever gadgets; it is that most existing products each solve a single task. One device reads text, another warns about obstacles, a third recognises faces. A user who wants all of these must carry several devices and still lacks a joined-up understanding of the scene in front of them.
+
+The need is also large. Vision impairment affects hundreds of millions of people worldwide, the numbers are rising with ageing populations, and the effect on independence, employment, and confidence is significant. This makes a strong case for an assistive system that is affordable, works without an internet connection, and brings several everyday functions together rather than treating each one separately.
+
+\section{Motivation and Impact}
+
+The motivation for Echora is grounded in both the scale of vision loss and the limits of what is currently available. Globally, billions of people live with some form of eye condition, and a large share of these lead to moderate or severe vision impairment. The picture is similar in the Middle East and in Egypt specifically, where the blind and low-vision population is substantial and, worryingly, the trend in sight loss is rising rather than falling over time. This growth places pressure not only on individuals and families but on healthcare and support systems as a whole.
+
+The impact is not only personal but economic. Reduced vision lowers workforce participation and efficiency and increases dependency, which together create considerable annual productivity losses. Solutions that restore even part of a person's independence therefore carry a social and economic value well beyond the individual user. Echora is motivated by exactly this: rather than adding one more single-purpose gadget to an already fragmented market, it aims to give users a broader, more proactive understanding of their surroundings while keeping the cost low by performing the heavy computation on an ordinary computer. In doing so, the project also supports several United Nations Sustainable Development Goals, notably good health and well-being (SDG~3), industry and innovation (SDG~9), reduced inequalities (SDG~10), and inclusive, accessible communities (SDG~11).
+
+\section{Project Aims and Objectives}
+
+\subsection{Project Aim}
+
+The aim of this project was to design, build, and evaluate \textbf{Echora}: a wearable, AI-powered sensory-substitution system that gives BLV users a richer, real-time sense of their surroundings through audio and haptic (vibration) feedback, while keeping all processing local for privacy and low latency.
+
+\subsection{Project Objectives}
+
+To meet that aim, the project set the following objectives:
+
+\begin{itemize}
+    \item Build a wearable sensing unit around a depth camera, together with a wrist-worn haptic module, and connect them to a computer that performs the AI processing.
+    \item Provide continuous obstacle awareness that classifies nearby objects into clear danger, warning, and safe zones and communicates their direction.
+    \item Add practical everyday functions: reading printed text aloud, recognising enrolled people, identifying Egyptian banknotes, and guiding the user's hand to reach an object.
+    \item Combine these functions under a single context-aware controller that switches between them automatically and always gives priority to safety.
+    \item Keep the whole pipeline running in real time on ordinary computing hardware, with no reliance on cloud services.
+    \item Evaluate both the individual AI models and the complete integrated system against clear, measurable criteria.
+\end{itemize}
+
+\section{Scope}
+
+The project delivers a working prototype rather than a finished commercial product. The five perception functions above are all implemented and tested. To keep the work achievable within the available time, some longer-term features were deliberately left for future development: a fully wireless link between the glasses and the computer (the prototype uses a wired depth camera), encryption of stored face data at rest, and semantic interpretation of traffic and warning signs. These are discussed honestly in the conclusions. Echora is designed to \emph{complement} the white cane and guide dog, not to replace them.
+
+\section{Summary of Main Results}
+
+The prototype was built as real, wearable hardware, consisting of a 3D-printed and hand-finished headset carrying the depth camera and a custom-designed circuit board driving a wrist array of vibration motors, and was then evaluated at two levels. At the model level, the custom Egyptian banknote detector achieved a mean Average Precision (mAP@0.5) of 0.991 across eleven denominations, and the accessibility detector for doors, handles, and lift controls reached 0.726. At the system level, the complete pipeline ran in real time at roughly 20 frames per second while detecting, tracking, and zoning multiple obstacles at once. Every automated integration test passed, and every system-level scenario behaved as expected, including the most important safety rule: a danger-zone obstacle always forced an immediate return to navigation mode, regardless of what the system was doing. Taken together, these results show that a unified, private, real-time assistive system is achievable on standard hardware.
+
+\section{Report Structure}
+
+The rest of this report is organised as follows. Chapter~\ref{ch:lit} reviews existing assistive products and the research that informed the design. Chapter~\ref{ch:dev} describes how the system was developed, covering the methodology, the architecture, the hardware build, and the datasets used to train the custom models. Chapter~\ref{ch:results} presents and critically reviews the results. Chapter~\ref{ch:conclusion} evaluates how well the project met its objectives and sets out recommendations for future work.

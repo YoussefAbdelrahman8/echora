@@ -1,0 +1,159 @@
+% ============================================================
+%  ECHORA — UON Group Project Report (ENG4006, AS2)
+%  University of Northampton submission (7500-word group report)
+%
+%  Formatting follows "Guidelines on the Format of the Final Report":
+%   - English, Times New Roman 12pt body, 1.5 line spacing, justified
+%   - Chapter headings 14pt bold; section 12pt bold; subsection 12pt bold italic
+%   - Each chapter begins on a new page, preceded by the word "Chapter" + number
+%   - Arabic numeral numbering (1, 1.1, 1.1.1)
+%   - Preliminaries: Title, Abstract, Acknowledgements, Contents,
+%     Lists of Tables and Figures, Glossary
+%   - End matter: References (Harvard), Appendices
+%
+%  Build with pdflatex (run twice for the table of contents / lists):
+%     pdflatex main
+%     pdflatex main
+% ============================================================
+\documentclass[12pt,a4paper]{report}
+
+% ----------------------------
+% Page layout
+% ----------------------------
+\usepackage[a4paper,margin=1in]{geometry}
+
+% ----------------------------
+% Fonts — Times New Roman look (Times-compatible) + T1 encoding
+% ----------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext}   % Times New Roman-like serif for the text
+\usepackage{newtxmath}   % matching maths
+
+% ----------------------------
+% Line spacing 1.5, justified body with first-line indent
+% ----------------------------
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{0.5cm}
+\setlength{\parskip}{4pt plus 1pt}
+
+% ----------------------------
+% Figures, tables, colour
+% ----------------------------
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{float}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{caption}
+% Captions (title and source) are set smaller than the 12pt body text.
+% Tables: title above, source below.  Figures: title and source both below.
+\captionsetup{font=small,labelfont=bf,justification=centering}
+\captionsetup[table]{position=top,skip=6pt}
+\captionsetup[figure]{position=bottom,skip=6pt}
+
+% Source line placed at the foot of a table or figure.
+\newcommand{\source}[1]{\par\vspace{4pt}{\small\itshape Source: #1}}
+
+% ----------------------------
+% Headings: Chapter 14pt bold, Section 12pt bold, Subsection 12pt bold italic
+% Chapters start on a new page and are labelled "Chapter N".
+% ----------------------------
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\fontsize{14}{18}\selectfont}
+  {\chaptertitlename\ \thechapter}{6pt}
+  {\fontsize{14}{18}\selectfont}
+\titlespacing*{\chapter}{0pt}{0pt}{16pt}
+\titleformat{\section}
+  {\normalfont\bfseries\fontsize{12}{15}\selectfont}{\thesection}{0.6em}{}
+\titleformat{\subsection}
+  {\normalfont\bfseries\itshape\fontsize{12}{15}\selectfont}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}
+  {\normalfont\itshape\fontsize{12}{15}\selectfont}{\thesubsubsection}{0.6em}{}
+
+% ----------------------------
+% Page numbers (bottom-centre), no rules
+% ----------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+% ----------------------------
+% Hyperlinks (plain, no coloured boxes)
+% ----------------------------
+\usepackage[hidelinks]{hyperref}
+
+% ----------------------------
+% For inserting the official UON assignment cover sheet as page 1.
+% cover_sheet.pdf is exported from "ASSIGNMENT  COVER  SHEET.docx";
+% re-export it after editing the Word form.
+% ----------------------------
+\usepackage{pdfpages}
+
+% Convenience: a Harvard reference entry with a hanging indent.
+\newcommand{\refent}[1]{\par\hangindent=1.27cm\hangafter=1 #1\par\medskip}
+
+\begin{document}
+
+% ============================================================
+%  PRELIMINARIES  (roman page numbers, not counted in the word limit)
+% ============================================================
+\pagenumbering{roman}
+
+% ---- Official UON assignment cover sheet (unnumbered, first page) ----
+\includepdf[pages=-]{cover_sheet.pdf}
+
+% ---- Title page ----
+\include{chapters/00_titlepage}
+
+% ---- Abstract ----
+\include{chapters/00_abstract}
+
+% ---- Acknowledgements ----
+\include{chapters/00_acknowledgements}
+
+% ---- Declaration on the use of generative AI (UON policy) ----
+\include{chapters/00_ai_declaration}
+
+% ---- Table of Contents ----
+\clearpage
+\tableofcontents
+
+% ---- Lists of Tables and Figures ----
+\clearpage
+\listoftables
+\clearpage
+\listoffigures
+
+% ---- Glossary ----
+\include{chapters/00_glossary}
+
+% ============================================================
+%  BODY  (arabic page numbers; word count starts here)
+% ============================================================
+\clearpage
+\pagenumbering{arabic}
+
+\include{chapters/01_introduction}
+\include{chapters/02_literature_review}
+\include{chapters/03_project_development}
+\include{chapters/04_results}
+\include{chapters/05_conclusions}
+
+% ============================================================
+%  END MATTER
+% ============================================================
+\include{chapters/06_references}
+
+\appendix
+\include{chapters/07_appendices}
+
+\end{document}

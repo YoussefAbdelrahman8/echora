@@ -1,9 +1,5 @@
 opencv-python==4.6.0.66
 depthai
-# PaddleOCR OCR engine
-# GPU users: install paddlepaddle-gpu FIRST, matching your CUDA version:
-#   pip install paddlepaddle-gpu==2.6.1 -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
-# CPU users: paddleocr will pull paddlepaddle (CPU) automatically.
 paddleocr==2.7.3
 paddlepaddle==2.6.2
 nvidia-cudnn-cu11==8.9.5.29; platform_system == "Windows"

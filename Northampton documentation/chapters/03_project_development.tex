@@ -1,0 +1,131 @@
+\chapter{Project Development}
+\label{ch:dev}
+
+This chapter explains how Echora was built. It begins with the development method the team followed, then describes the overall architecture, the five perception modes, the safety-first controller, and the audio and haptic feedback. It closes with the physical hardware build and the datasets used to train the custom AI models. The goal is to show not only \emph{what} was built but \emph{how} the work was carried out.
+
+\section{Development Methodology}
+
+Echora is a real-time, safety-critical system, so the team used a user-centred, iterative approach that borrows from systems engineering, human-centred design, and Agile software development. Rather than treating navigation, reading, and interaction as unrelated problems, the project treated sensing, processing, and feedback as one tightly connected pipeline.
+
+Work began by turning user needs into concrete requirements, drawing on the difficulties BLV users face, on safety and accessibility considerations, and on the gaps identified in the market and literature review. The system was then broken into independent modules, namely sensing, perception, decision-making, and feedback, so that each part could be developed and tested on its own before being joined to the rest. Development proceeded in short iterations: each cycle added a limited feature, tested it, and folded the lessons back into the next cycle. This exposed performance bottlenecks and usability problems early, when they were still cheap to fix.
+
+The team managed this with Agile practices, using a prioritised backlog and sprint-based delivery across two phases: a documentation phase (requirements, specification, and design) and an implementation phase (development, integration, testing, and optimisation). Two principles ran through every iteration. The first was real-time performance as a hard requirement, not an afterthought: latency, frame rate, and resource use were monitored continuously. The second was managing the user's mental load, keeping feedback simple, non-overlapping, and always led by safety.
+
+\section{Requirements}
+
+Before any code was written, the team turned the user needs into concrete, testable requirements, because a safety-critical assistive device cannot be judged on features alone; it has to meet firm performance and safety targets.
+
+The \emph{functional} requirements describe what the system must do. Navigation must acquire and fuse depth and colour data, detect and track navigation-relevant objects at a minimum of 15 frames per second, compute each object's distance and direction, and sort it into danger, warning, and safe zones, with the closest hazard always given priority. Text reading must detect text regions, run OCR with pre-processing for noise and poor lighting, and speak stable results, activating automatically when text is held close to the camera. The remaining functions, namely face recognition, banknote identification, and hand guidance, each have their own activation conditions and confirmation rules, and every mode must be reachable both automatically and by a simple manual override.
+
+The \emph{non-functional} requirements set the quality bar. Real-time performance is treated as a hard limit: per-frame processing under about 40 milliseconds, recognition feedback under roughly 120 milliseconds, danger alerts under 100 milliseconds, and mode switches within about 200 milliseconds, so that feedback never feels laggy or unsafe. Security and privacy requirements mandate that all processing happens locally, that biometric data is handled under a privacy-by-design approach, and that sensitive features such as face recognition require explicit user consent. Reliability requirements call for graceful degradation: if depth data is lost, the system should warn the user and fall back to a simpler mode rather than fail silently. Usability requirements stress that feedback must be simple, non-overlapping, and interruptible, and that the wearable must stay comfortable for long periods. These targets guided the design decisions described in the rest of this chapter and the tests reported in Chapter~\ref{ch:results}.
+
+\section{System Architecture}
+
+Echora uses a distributed architecture that separates \emph{sensing and feedback} from \emph{computation and intelligence}. On the body, the user wears the sensing camera and a wrist-worn haptic module. The heavy AI work runs on a connected computer. This split keeps the wearable parts light and lets the software be upgraded without touching the hardware.
+
+At the centre is a continuous frame loop, illustrated in Figure~\ref{fig:pipeline}. On every cycle the system: (1) captures a synchronised colour image, depth map, and motion sample from the camera; (2) runs obstacle detection on the frame and updates lighter background probes for text, faces, banknotes, and reachable objects; (3) asks the state machine\footnote{A state machine is the control logic that decides which mode Echora is in at any moment and when it is allowed to switch to another.} which mode should be active; (4) runs that mode's handler; and (5) sends the result to the user as speech, spatial sound, or vibration. Expensive operations such as text reading and face recognition run on background threads so they never stall the main loop, and results are cached where possible. The system automatically uses a GPU when one is available and falls back to the CPU otherwise. Every threshold, model path, and timing value lives in a central configuration file, so behaviour can be tuned without changing code.
+
+Echora is written in Python and brings together a number of established open-source components. Sensing uses the DepthAI library for the Luxonis OAK-D depth camera\footnote{The OAK-D is the Luxonis stereo depth camera used as Echora's main sensor: it captures both a normal colour image and a per-pixel distance map.}. Detection and tracking use Ultralytics YOLOv8 with its built-in ByteTrack tracker\footnote{ByteTrack is a tracking method that follows the same detected object across successive frames, so it keeps one identity instead of being re-detected as a new object each frame.}, running on the PyTorch deep-learning runtime, with image handling by OpenCV. Text reading uses PaddleOCR\footnote{PaddleOCR is the open-source OCR engine used for reading text; PP-OCRv4 is the specific model version fine-tuned for this project.}; face recognition uses InsightFace; and hand tracking uses MediaPipe Hands. Speech is produced offline with pyttsx3 and alert tones with pygame, while identities and event logs are stored locally through SQLAlchemy and SQLite. An optional local vision-language model, Gemma, served through Ollama, can add short scene descriptions when the path is clear (Luxonis, 2019; Ultralytics, 2023; PyTorch, 2016; OpenCV, 2000; PaddlePaddle, 2020; DeepInsight, 2017; Google, 2019; Bhat, 2017; Pygame, 2000; SQLAlchemy, 2006; Google, 2024; Ollama, 2023).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{pipeline.png}
+\caption{The Echora pipeline: from the camera's colour-plus-depth frame, through mode routing in the control unit, to the per-mode AI engines and the audio and haptic feedback delivered to the user.}
+\label{fig:pipeline}
+\source{Teamwork}
+\end{figure}
+
+\section{The Five Perception Modes}
+
+Echora's usefulness comes from five perception modes, each handling one everyday task.
+
+\subsection{Navigation}
+Navigation is the default and most safety-critical mode. A YOLOv8 object detector runs on every frame and follows objects across frames using ByteTrack, so the same chair keeps the same identity even if it is briefly hidden. Detections are limited to navigation-relevant classes such as people, furniture, doors, and stairs. For each object, the system reads its distance from the depth map and sorts it into a zone: \emph{danger} within 1.5 metres, \emph{warning} between 1.5 and 3 metres, and \emph{safe} beyond that. Objects heading into the user's forward path are treated as more urgent. A thin ``track lifecycle'' layer on top of ByteTrack only trusts an object after it has been seen for several frames, drops it after it disappears for too long, and estimates whether it is approaching or moving away. The closest danger receives an urgent spoken alert, a sound panned to its direction, and a vibration pulse.
+
+\subsection{Text Reading (OCR)}
+The reading mode uses PaddleOCR (PP-OCRv4) with a fine-tuned English model. Before running the expensive recognition step, a quick check decides whether readable text is even present and how far away it is. Images are then cleaned adaptively, using contrast correction for dark scenes, gamma correction for bright ones, denoising, and sharpening, so that text stands out. Low-confidence or tiny detections are thrown away, and a stability buffer makes sure text is read only when it appears consistently across several frames, which prevents the system from blurting out momentary misreads. If nothing readable is found for about five seconds, the user is gently prompted to adjust the distance or angle.
+
+\subsection{Face Recognition}
+Face recognition uses InsightFace, which detects a face (RetinaFace) and turns it into a 512-number embedding (ArcFace).\footnote{RetinaFace and ArcFace are deep-learning models from the InsightFace library, for detecting faces and for converting them into embeddings respectively. An embedding is a fixed-length list of numbers, here 512 values, that represents a face so that two faces can be compared numerically.} The live embedding is compared with saved ones using cosine similarity, and a match is only accepted if it is both strong enough and clearly ahead of the second-best candidate, a rule that cuts down false identifications. A light-weight probe runs during navigation to save computation, and full recognition only fires when a face is actually present and stays stable across frames. Enrolling a person is a deliberate step: the user types a name, the system captures a short burst of good-quality frames, averages the best embeddings, and stores the result. Providing that name is treated as the user's consent to store the identity.
+
+\subsection{Banknote Identification}
+Handling cash is a common worry for BLV users, so Echora includes a dedicated Egyptian Pound detector, a custom YOLOv8 model covering eleven classes of notes and coins, including the newer note designs. To be sure the user is actually holding a note, detections are only accepted at close range and above a high confidence threshold, and a short history buffer confirms the denomination before it is announced once. A cooldown then stops the same note being read again immediately.
+
+\subsection{Hand Guidance (Interaction)}
+The interaction mode helps the user physically reach an object such as a handle or a lift button. It combines MediaPipe Hands, which tracks 21 points on the hand, with the existing YOLO detections. The system measures the gap between the fingertip and the target in three directions, namely left/right, up/down, and depth, and moves through guidance phases (idle, guiding, edge, success) as the hand closes in. The direction is turned into a vibration pattern on the wristband, growing stronger as the hand approaches, with a distinct confirmation buzz when the target is reached.
+
+\section{Safety-First State Machine}
+
+With five modes available, the system needs a reliable way to choose between them. This is the job of the context-aware state machine, summarised in Figure~\ref{fig:state_machine}. It watches the perception results and the motion sensor and switches mode accordingly: stable text within reach while the user is still triggers reading; a nearby reachable object triggers hand guidance; a confidently recognised face triggers face mode; and so on. To stop the system flickering between modes, each switch must persist for several frames, and each mode must stay active for a minimum time before it can be left.
+
+Above all of this sits one non-negotiable rule: if a danger-zone obstacle appears, the system immediately returns to navigation, whatever it was doing. Safety always wins. This single override is what makes it acceptable for the system to spend time reading a sign or identifying a note: the moment something becomes dangerous, that activity is dropped.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{state_machine.png}
+\caption{Echora's mode state machine: triggers (solid) and exits (dashed) around the default navigation mode, with the danger override returning control to navigation from any mode.}
+\label{fig:state_machine}
+\source{Teamwork}
+\end{figure}
+
+\section{Audio and Haptic Feedback}
+
+Because the user cannot see the screen, feedback design is central rather than cosmetic. Audio uses offline text-to-speech so that no internet is needed. Messages go into a priority queue, so an urgent obstacle warning can jump ahead of a routine announcement, and a watchdog restarts the speech worker if it ever stalls. Alert tones are panned left or right to match an object's direction, giving an intuitive sense of where it is, and short cooldowns stop the same cue repeating too often.
+
+Haptic feedback is delivered through the wrist module. Directional and proximity patterns, together with a dedicated success pattern for hand guidance, are generated on background threads so that touch output never blocks the perception loop. The hardware behind this is described next.
+
+\section{Hardware Build}
+
+Echora was not only software; it was built as a wearable prototype. Two devices were made in parallel: the head unit carrying the camera, and the wrist-worn haptic module.
+
+The head unit began as a 3D model in SolidWorks, designed against a reference head so that fit, weight balance, and the camera's field of view could be checked before anything was printed. The enclosure was then 3D-printed in parts, which house the depth camera behind a front bezel along with lithium cells, wiring, and a power switch. Because printed parts show visible layer lines, each surface was filled, wet-sanded, primed, and spray-painted for a smooth, finished look, and the Echora brand mark was applied. The result, shown in Figure~\ref{fig:hardware}(a), is a comfortable, adjustable headset that looks like a real product rather than a bench prototype.
+
+The haptic module was developed as a separate hardware track. The driver circuit was first prototyped on a breadboard and then committed to a custom printed circuit board. A clever detail keeps the design simple: twenty coin vibration motors are driven from just three microcontroller pins by cascading three 74LS595 shift registers into three ULN2803A driver arrays. The 5\,V control logic and the 3.7\,V motor supply are kept on separate power rails that share only a common ground, so the current spikes from the motors cannot brown out the ESP32 controller.\footnote{The ESP32 is a low-cost Wi-Fi microcontroller; here it drives the wristband's vibration motors.} The finished, self-contained module is shown in Figure~\ref{fig:hardware}(b).
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[b]{0.48\textwidth}\centering
+  \includegraphics[width=\linewidth,height=5.2cm,keepaspectratio]{hardware_glasses.jpeg}\\[2pt]
+  {\footnotesize (a) The finished head unit}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.48\textwidth}\centering
+  \includegraphics[width=\linewidth,height=5.2cm,keepaspectratio]{hardware_wristband.png}\\[2pt]
+  {\footnotesize (b) The wrist-worn haptic module}
+\end{minipage}
+\caption{The two wearable devices built for the Echora prototype.}
+\label{fig:hardware}
+\source{Teamwork}
+\end{figure}
+
+\section{Datasets and Model Training}
+
+Three of Echora's models were custom-trained, because off-the-shelf models did not fit the task well enough.
+
+\textbf{Accessibility detector.} To detect doors, handles, and lift controls, two public Roboflow datasets, a door-and-handles set and a lift-button set, were merged and cleaned into a focused seven-class set (door, door handle, up, updown, close, down, open). All door images were kept, while lift images were filtered down to the five relevant control types. The combined dataset holds 2,719 images (2,156 for training, 289 for validation, and 274 for testing), shown in Figure~\ref{fig:datasets}. A YOLOv8s detector was fine-tuned from pretrained weights for 80 epochs at 640$\times$640 resolution on a GPU (UAEU, 2022; Sun Moon University, 2022).
+
+\textbf{Egyptian banknote detector.} No suitable public dataset of Egyptian currency existed, so the team created one. It covers eleven denomination classes across notes, coins, and the newer designs, with images captured under varied lighting, backgrounds, and angles for robustness, all labelled by hand. The dataset holds more than 7,400 annotated images, split 80/10/10 (Figure~\ref{fig:datasets}), and was used to train a YOLOv8 detector (Abdelrahman, no date).
+
+\textbf{Text recognition.} To read real-world text better than the default model, the English PP-OCRv4 recogniser was fine-tuned on a sample of the large-scale TextOCR dataset, which holds about 28,000 images and over 900,000 words. Word regions were cropped, filtered to sensible English words, and used to fine-tune the recogniser for 15 epochs (RobikScube, 2021).
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[b]{0.48\textwidth}\centering
+  \includegraphics[width=\linewidth,keepaspectratio]{accessibility_dataset.png}\\[2pt]
+  {\footnotesize (a) Accessibility dataset splits}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.48\textwidth}\centering
+  \includegraphics[width=\linewidth,keepaspectratio]{banknote_dataset.png}\\[2pt]
+  {\footnotesize (b) Banknote dataset splits}
+\end{minipage}
+\caption{Composition of the two custom detection datasets across train, validation, and test splits.}
+\label{fig:datasets}
+\source{Teamwork}
+\end{figure}
+
+\section{Ethics, Privacy, and Sustainability}
+
+Because Echora carries a camera into homes and public spaces and can recognise individual people, ethical and privacy questions were treated as design requirements, not afterthoughts. The strongest safeguard is architectural: all perception runs locally on the user's computer, and no image or face embedding is sent to any external service. Face recognition is opt-in by design: a person is only stored when the user deliberately enrols them and types a name, and that act is treated as consent. The team is honest that the current prototype stores these embeddings without encryption at rest, and adding this is listed as future work.
+
+There is also an ethical duty to avoid over-reliance. Echora is deliberately positioned as a \emph{complement} to the white cane and guide dog, not a replacement, and it degrades gracefully so that a sensor failure produces a clear warning rather than dangerous silence. On sustainability, running inference on an ordinary computer rather than requiring specialised or cloud infrastructure keeps both cost and energy use down, and the modular, upgradeable software means the hardware need not be replaced to gain new features. These considerations align the project with the Sustainable Development Goals identified in Chapter~\ref{ch:intro}.
+
+With the system built and the models trained, the next chapter reports how well they performed.

@@ -1,0 +1,42 @@
+\chapter{Conclusions and Recommendations}
+\label{ch:conclusion}
+
+\section{Conclusions}
+
+This project set out to design, build, and evaluate Echora: a wearable, AI-powered sensory-substitution system that gives blind and low-vision users a richer, real-time sense of their surroundings through audio and touch, while keeping all processing local for privacy and speed. On the whole, the project met that aim. A complete prototype was produced, covering both the software pipeline and the physical wearable hardware, and it was shown to work as an integrated, real-time system rather than a loose collection of separate features.
+
+It is worth judging the outcome honestly against the objectives set out in Chapter~\ref{ch:intro}.
+
+\begin{itemize}
+    \item \textbf{Build the wearable sensing and feedback hardware.} Achieved. A 3D-printed, hand-finished headset carries the depth camera and power, and a custom-designed circuit board drives a twenty-motor wrist array from only three microcontroller pins with cleanly separated power rails. The one caveat is that the camera is currently wired to the computer rather than wireless.
+    \item \textbf{Provide continuous obstacle awareness with clear zones.} Achieved. Navigation detects and tracks objects, reads their distance from the depth map, sorts them into danger, warning, and safe zones, and communicates direction through panned audio and vibration.
+    \item \textbf{Add practical everyday functions.} Achieved. Text reading, face recognition, banknote identification, and hand guidance were all implemented and tested.
+    \item \textbf{Unify everything under a safety-first controller.} Achieved, and this is arguably the project's strongest result. The state machine switches modes automatically and always returns to navigation when danger appears, a rule confirmed in every test scenario.
+    \item \textbf{Run in real time on ordinary hardware without the cloud.} Achieved. The full pipeline sustained roughly 20 frames per second locally, with heavy work pushed onto background threads.
+    \item \textbf{Evaluate models and system against clear criteria.} Achieved. The banknote detector reached mAP@0.5 of 0.991 and the accessibility detector 0.726; all 22 automated tests passed; and the end-to-end scenarios behaved correctly.
+\end{itemize}
+
+The project therefore validates its central idea. It shows that modern computers are capable of supporting advanced assistive technology without specialised infrastructure, and that combining several functions under one safety-aware controller is both feasible and valuable. The clearest technical successes were the custom banknote model and the reliable danger override; the clearest technical weakness was the imbalanced ``updown'' class in the accessibility model, which is a data problem rather than a design flaw.
+
+\section{Critical Reflection}
+
+Several honest limitations should temper these conclusions. The accuracy figures are the models' own test-set scores; they measure detection quality, not how genuinely helpful the system feels to a BLV user in daily life. No formal user study was carried out, so the most important question, namely whether Echora actually makes everyday tasks easier and safer, remains to be answered properly. The banknote test set, though unseen in training, came from a setting similar to the training data, so real-world robustness may be lower. The prototype is also tethered by a wired camera and stores face data without encryption at rest, both of which matter for a device that is meant to be worn all day and to handle biometric information.
+
+The team also learned a good deal about process. Treating real-time performance and safety as hard requirements from the start, rather than optimising them at the end, shaped the architecture in ways that paid off, particularly the decision to run heavy operations on background threads and to debounce every mode switch. Building the hardware in parallel with the software surfaced integration issues early. If the project were repeated, more time would be reserved up front for gathering balanced datasets, since the one weak model was let down by data rather than by method.
+
+\section{Recommendations for Future Work}
+
+The prototype validates the core pipeline, and a clear set of next steps would move it toward a genuinely deployable aid:
+
+\begin{itemize}
+    \item \textbf{Wireless wearable link.} Move sensing fully onto the head unit and stream colour and depth to the computer over a wireless link, removing the physical tether while preserving the real-time latency targets.
+    \item \textbf{Encrypt biometric data at rest.} Add strong (for example, AES-256) encryption for all stored face embeddings and sensitive data, fully delivering the privacy-by-design goal, together with a clear consent workflow for enabling face recognition and for reviewing or deleting stored identities.
+    \item \textbf{Balance and expand the accessibility dataset.} Collect many more examples of the under-represented control classes (especially ``updown''), rebalance the dataset, and retrain to close the one clear accuracy gap.
+    \item \textbf{Interpret signs, not just text.} Extend the reading pipeline to classify and announce the \emph{meaning} of traffic, warning, and informational signs, rather than only reading their literal text.
+    \item \textbf{Run formal user studies.} Evaluate Echora with BLV participants in realistic tasks, measuring not only accuracy but learnability, comfort, trust, and real reductions in collisions and interaction errors.
+    \item \textbf{Full hardware acceptance testing.} Carry out a dedicated test on the complete wearable that captures frame rate, end-to-end latency, in-the-wild recognition accuracy, and safety-alert response time under varied conditions.
+\end{itemize}
+
+\section{Closing Remarks}
+
+Echora demonstrates a practical, scalable, and privacy-preserving approach to assistive technology. By fusing depth and vision, delivering information through both hearing and touch, and uniting five everyday functions under a single safety-first controller, it moves beyond the fragmented, single-task tools that dominate the market today. The prototype is not a finished product, and this report has been careful to say where it falls short. But it does provide a solid, working foundation and a clear road map for building assistive technology that could meaningfully increase the independence, safety, and confidence of blind and low-vision people.

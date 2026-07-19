@@ -1,0 +1,104 @@
+\chapter{Appendices}
+\addcontentsline{toc}{chapter}{Appendices}
+
+\section*{Appendix A: The Five Perception Modes in Operation}
+\addcontentsline{toc}{section}{Appendix A: The Five Perception Modes in Operation}
+
+The screenshots below show Echora's five modes running on real inputs: navigation with proximity-zoned obstacles, text reading, face recognition, banknote identification, and hand-guidance interaction.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.31\textwidth}\centering
+  \includegraphics[width=\linewidth,height=3.4cm,keepaspectratio]{mode_navigation.jpg}\\[2pt]{\footnotesize (a) Navigation}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.31\textwidth}\centering
+  \includegraphics[width=\linewidth,height=3.4cm,keepaspectratio]{mode_ocr.jpg}\\[2pt]{\footnotesize (b) Text reading (OCR)}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.31\textwidth}\centering
+  \includegraphics[width=\linewidth,height=3.4cm,keepaspectratio]{mode_face.jpg}\\[2pt]{\footnotesize (c) Face recognition}
+\end{minipage}
+\\[6pt]
+\begin{minipage}[t]{0.31\textwidth}\centering
+  \includegraphics[width=\linewidth,height=3.4cm,keepaspectratio]{mode_banknote.jpg}\\[2pt]{\footnotesize (d) Banknote identification}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.31\textwidth}\centering
+  \includegraphics[width=\linewidth,height=3.4cm,keepaspectratio]{mode_interaction.jpg}\\[2pt]{\footnotesize (e) Hand guidance}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.31\textwidth}\centering
+  ~
+\end{minipage}
+\caption{Echora's five perception modes running on real inputs.}
+\label{fig:modes}
+\source{Teamwork}
+\end{figure}
+
+\section*{Appendix B: Hardware Build Highlights}
+\addcontentsline{toc}{section}{Appendix B: Hardware Build Highlights}
+
+The prototype was built by hand. Figure~\ref{fig:build} shows the finished 3D-printed headset and the custom haptic module that drives the wrist array of vibration motors.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[b]{0.48\textwidth}\centering
+  \includegraphics[width=\linewidth,height=5.2cm,keepaspectratio]{build_glasses.jpeg}\\[2pt]{\footnotesize (a) Finished headset}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.48\textwidth}\centering
+  \includegraphics[width=\linewidth,height=5.2cm,keepaspectratio]{build_haptic.png}\\[2pt]{\footnotesize (b) Custom haptic module}
+\end{minipage}
+\caption{Highlights of the physical prototype build.}
+\label{fig:build}
+\source{Teamwork}
+\end{figure}
+
+\section*{Appendix C: Banknote Model Precision--Recall Curve}
+\addcontentsline{toc}{section}{Appendix C: Banknote Model Precision--Recall Curve}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.72\textwidth,keepaspectratio]{banknote_pr.png}
+\caption{Precision--recall curve for the custom Egyptian banknote detector across all eleven denomination classes.}
+\label{fig:bank_pr}
+\source{Teamwork}
+\end{figure}
+
+\section*{Appendix D: Record of Generative AI Use}
+\addcontentsline{toc}{section}{Appendix D: Record of Generative AI Use}
+
+This appendix records how generative AI was used in the preparation of this
+report, as required by the module guide. The declaration in the preliminary
+pages should be read together with this record.
+
+\textbf{Tool used.} A general-purpose generative AI writing assistant, accessed
+through its standard web interface.
+
+\textbf{What it was used for.} The tool was used only after we had written a
+complete first draft of each chapter ourselves. Its use was limited to language
+and presentation:
+
+\begin{itemize}
+  \item checking spelling and correcting typing errors;
+  \item correcting grammar, punctuation, and sentence structure;
+  \item improving the clarity and flow of paragraphs we had already written, so
+        that the writing reads in a more formal and professional academic style;
+  \item checking that the report followed the required format and structure,
+        including consistent headings, captions, and the ordering of sections.
+\end{itemize}
+
+\textbf{Typical way it was used.} We pasted a paragraph or section of our own
+draft into the tool and asked it to correct the grammar and improve the clarity
+without changing the meaning. We then compared its version with our own,
+accepted only the changes we agreed with, and rewrote anything that did not
+match what we meant. The final wording in this report was chosen by us.
+
+\textbf{What it was not used for.} The tool was not used to generate the ideas,
+technical content, system design, code, experimental results, analysis, or
+conclusions presented in this report. It was not used to find, suggest, or
+produce any reference. Every source in the reference list was located, read, and
+checked by the team, and every result reported was produced by running our own
+evaluation scripts on our own trained models.
+
+\textbf{Verification.} We are aware that AI-generated text can contain errors,
+invented references, or bias. For this reason every sentence that the tool
+helped to reword was checked by us against the original draft and against the
+underlying technical work, to confirm that the meaning was unchanged and
+factually correct.

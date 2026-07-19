@@ -1,0 +1,13 @@
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+Blind and low-vision (BLV) people face daily difficulty in reading text, recognising objects, and moving safely through the spaces around them. Most assistive tools available today solve only one of these problems at a time. A smart cane warns about nearby obstacles but cannot read a sign; a reading device speaks printed text but gives no sense of the space ahead. This leaves users switching between several single-purpose devices and still missing an integrated picture of their surroundings.
+
+This report presents Echora, a wearable assistive system that brings several of these functions together in one adaptive framework. Echora pairs a head-worn depth camera with a wrist-worn haptic (vibration) module and runs its artificial-intelligence models locally on a connected computer, so no internet connection or cloud service is required. The system operates in five modes: navigation (obstacle awareness with distance zones), text reading, face recognition, Egyptian banknote identification, and hand-guidance for reaching objects. A safety-first state machine chooses the right mode automatically from what the camera sees and how the user is moving, and it always falls back to navigation when a close obstacle appears.
+
+The prototype was built as real hardware, consisting of a 3D-printed headset and a custom-designed haptic circuit board, and was evaluated both at the model level and as a complete system. The custom Egyptian banknote detector reached a mean Average Precision (mAP@0.5) of 0.991 across eleven denominations, and the accessibility detector for doors, handles, and lift controls reached 0.726. The full pipeline ran in real time at roughly 20 frames per second, and every automated integration test and system-level scenario passed, including the critical safety rule that a danger-zone obstacle always forces a return to navigation. These results show that a unified, privacy-preserving, real-time assistive system can be delivered on ordinary computing hardware. The report closes with a critical review of the outcomes and a set of clear directions for future work.
+
+\vspace{0.8cm}
+\noindent\textbf{Keywords:} assistive technology, sensory substitution, computer vision, depth sensing, haptic feedback, blind and low-vision, real-time systems.
+
+\clearpage
